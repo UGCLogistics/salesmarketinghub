@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playbook Penjualan UGC Logistics</title>
+    <!-- Memuat Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Google Font (Inter) --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Konfigurasi Kustom Tailwind & CSS Tambahan --><style type="text/tailwindcss">
+        @layer base {
+            /* Menerapkan font Inter sebagai default */
+            html {
+                font-family: 'Inter', sans-serif;
+                scroll-behavior: smooth;
+            }
+            /* Latar belakang utama:
+                - Warna dasar sangat gelap #02040a.
+                - Gambar gradasi linear subtil dengan aksen dan warna #0a192f.
+                - Ukuran 400% dan animasi 'bg-pan' untuk efek gerak smooth.
+                - Dihilangkan nuansa orange, full navy-black
+            */
+            body {
+                @apply bg-[#02040a] text-gray-300;
+                background-image: linear-gradient(135deg, #02040a 0%, #0a192f 50%, #02040a 100%);
+                background-size: 400% 400%;
+                animation: bg-pan 30s linear infinite alternate;
+            }
+            /* Styling heading */
+            h1 {
+                @apply text-3xl font-bold text-white mb-4;
+            }
+            h2 {
+                @apply text-2xl font-semibold text-white mb-6;
+            }
+            h3 {
+                @apply text-xl font-semibold text-white mb-4;
+            }
+            /* Perapian paragraf dan list:
+                - Dibuat 'justify' (rata kiri-kanan) sesuai permintaan.
+            */
+            p, ul, ol {
+                @apply mb-4 leading-relaxed text-justify;
+            }
+            /* Perapian indent bullet list:
+                - Menggunakan 'list-outside' dan 'ml-5' agar teks yang wrap
+                  sejajar dengan teks di atasnya, bukan dengan bullet.
+            */
+            ul, ol {
+                @apply list-outside ml-5;
+            }
+            ul {
+                @apply list-disc;
+            }
+            ol {
+                @apply list-decimal;
+            }
+            li {
+                @apply mb-2;
+            }
+            /* Warna aksen */
+            .accent-color {
+                color: #ff4600;
+            }
+            .accent-bg {
+                background-color: #ff4600;
+            }
+            .accent-border {
+                border-color: #ff4600;
+            }
+        }
+        
+        @layer components {
+            /* Efek Glassmorphism (lebih jelas dan menyatu dengan navy-black) */
+            .glass-effect {
+                @apply bg-indigo-950/40 backdrop-blur-xl border border-indigo-800/60 rounded-xl shadow-lg;
+            }
+
+            /* Styling untuk link navigasi */
+            .nav-link {
+                @apply flex flex-col md:flex-row items-center justify-center md:justify-start p-3 md:px-4 md:py-3 rounded-lg text-gray-400 relative overflow-hidden;
+                @apply transition-all duration-300 ease-in-out;
+                @apply hover:bg-gray-700/50 hover:text-white; /* Hover effect */
+            }
+
+            /* Styling untuk link navigasi yang AKTIF */
+            .nav-link.active {
+                @apply text-[#ff4600]; /* Teks oranye untuk mobile active */
+                @apply bg-indigo-900/20; /* Latar belakang transparan untuk mobile active */
+            }
+            /* Versi desktop: Latar belakang aksen untuk yang aktif, border kanan */
+            .nav-link.active-desktop {
+                 @apply md:bg-indigo-900/20 md:text-[#ff4600] md:font-semibold md:border-r-4 md:accent-border;
+            }
+            
+            /* Teks navigasi (untuk mobile, muncul saat hover/aktif, di desktop selalu terlihat) */
+            .nav-text {
+                @apply text-xs mt-1 absolute md:relative md:text-sm md:mt-0 md:ml-3;
+                @apply transition-all duration-200 ease-in-out;
+                /* Default hidden for mobile, show on hover */
+                @apply opacity-0 md:opacity-100;
+                @apply -bottom-4 md:bottom-auto; /* Posisi awal di bawah ikon */
+                @apply md:flex-shrink-0; /* Jangan biarkan teks mengecil di desktop */
+            }
+
+            /* Saat link nav di-hover (di mobile), tampilkan teks */
+            .nav-link:hover .nav-text {
+                @apply opacity-100 bottom-1;
+            }
+
+            /* Saat link nav active (di mobile), tampilkan teks */
+            .nav-link.active .nav-text {
+                @apply opacity-100 bottom-1;
+            }
+
+            /* Judul dekoratif dengan aksen */
+            .section-title {
+                @apply text-2xl md:text-3xl font-bold text-white mb-3 pb-2 border-b-2 border-[#ff4600]/30 relative;
+            }
+            /* Subheadline dengan warna aksen */
+            .subheadline {
+                @apply text-lg text-[#ff4600] mb-6;
+            }
+            /* Animasi garis bawah untuk judul */
+            .section-title::after {
+                content: '';
+                @apply absolute bottom-[-2px] left-0 h-[2px] w-24 bg-[#ff4600] rounded-full;
+                animation: slide-in 0.8s ease-out;
+            }
+            
+            /* Kartu konten (glass effect yang disesuaikan) */
+            .content-card {
+                @apply glass-effect p-6 shadow-xl transition-all duration-300 hover:shadow-2xl hover:border-indigo-700/80;
+            }
+
+            /* Styling untuk Sistem Tab */
+            .tab-nav {
+                @apply flex flex-wrap border-b border-gray-700/50 mb-6;
+            }
+            .tab-button {
+                @apply py-3 px-4 md:px-5 text-sm md:text-base text-gray-400 font-medium transition-all duration-300 border-b-2 border-transparent hover:text-white hover:border-gray-500 -mb-px;
+            }
+            .tab-button.active {
+                @apply text-[#ff4600] border-[#ff4600];
+            }
+            .tab-pane {
+                @apply hidden; /* Konten tab disembunyikan by default */
+            }
+            .tab-pane.active {
+                @apply block; /* Konten tab aktif ditampilkan */
+                animation: fadeIn 0.5s ease-in-out;
+            }
+        }
+
+        /* Animasi kustom */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-content {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        /* Animasi untuk latar belakang (BARU) */
+        @keyframes bg-pan {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        
+        /* Scrollbar kustom untuk dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #02040a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #ff4600;
+            border-radius: 20px;
+            border: 2px solid #02040a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #ff7033;
+        }
+
+        @keyframes slide-in {
+            from { width: 0; }
+            to { width: 96px; /* 6rem */ }
+        }
+
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+
+        <!-- NAVIGASI / SIDEBAR --><nav id="sidebar" class="fixed bottom-0 left-0 z-50 w-full h-20 md:h-screen md:w-64 glass-effect md:rounded-none md:border-r md:border-l-0 md:border-t-0 md:border-b-0 border-t border-indigo-800/60">
+            <!-- Logo (Hanya Desktop) --><div class="hidden md:flex items-center justify-center p-6 h-24 border-b border-indigo-800/60">
+                <img src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png" alt="UGC Logistics Logo" class="h-12 w-auto">
+            </div>
+
+            <!-- Kontainer Link Navigasi --><div class="flex flex-row justify-around md:flex-col md:justify-start md:h-[calc(100vh-6rem)] md:overflow-y-auto md:p-4 md:space-y-2">
+                
+                <!-- Link: Pendahuluan (Default Aktif) --><a href="#" id="nav-pendahuluan" class="nav-link active active-desktop" onclick="showPage('page-pendahuluan', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    <span class="nav-text">Pendahuluan</span>
+                </a>
+
+                <!-- Link: Bab 1 --><a href="#" id="nav-bab1" class="nav-link" onclick="showPage('page-bab1', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v1.13a1 1 0 0 0 .5.87l1.54 1.1a1 1 0 0 1 .5 1.74l-3.08 5.3a1 1 0 0 1-1.54.14l-3.08-5.3a1 1 0 0 1 .5-1.74l1.54-1.1a1 1 0 0 0 .5-.87V4.5A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M3.23 14.77a2.5 2.5 0 0 0 0 3.54l1.41 1.41a2.5 2.5 0 0 0 3.54 0l1.41-1.41a2.5 2.5 0 0 0 0-3.54l-1.41-1.41a2.5 2.5 0 0 0-3.54 0Z"></path><path d="m14.77 3.23 1.41 1.41a2.5 2.5 0 0 1 0 3.54l-1.41 1.41a2.5 2.5 0 0 1-3.54 0l-1.41-1.41a2.5 2.5 0 0 1 0-3.54l1.41-1.41a2.5 2.5 0 0 1 3.54 0Z"></path></svg>
+                    <span class="nav-text">Bab 1: Mindset</span>
+                </a>
+
+                <!-- Link: Bab 2 --><a href="#" id="nav-bab2" class="nav-link" onclick="showPage('page-bab2', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    <span class="nav-text">Bab 2: Strategi</span>
+                </a>
+                
+                <!-- Link: Bab 3 --><a href="#" id="nav-bab3" class="nav-link" onclick="showPage('page-bab3', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    <span class="nav-text">Bab 3: Metode</span>
+                </a>
+                
+                <!-- Link: Bab 4 --><a href="#" id="nav-bab4" class="nav-link" onclick="showPage('page-bab4', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    <span class="nav-text">Bab 4: Proses</span>
+                </a>
+
+                <!-- Link: Bab 5 --><a href="#" id="nav-bab5" class="nav-link" onclick="showPage('page-bab5', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <span class="nav-text">Bab 5: Skenario</span>
+                </a>
+
+                <!-- Link: Bab 6 --><a href="#" id="nav-bab6" class="nav-link" onclick="showPage('page-bab6', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <span class="nav-text">Bab 6: Marketing</span>
+                </a>
+
+                <!-- Link: Penutup --><a href="#" id="nav-penutup" class="nav-link" onclick="showPage('page-penutup', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 17 17 23 15.79 13.88"></polyline></svg>
+                    <span class="nav-text">Penutup</span>
+                </a>
+
+                <!-- Link: Ringkasan --><a href="#" id="nav-ringkasan" class="nav-link" onclick="showPage('page-ringkasan', this)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 md:mr-3"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                    <span class="nav-text">Ringkasan</span>
+                </a>
+
+            </div>
+        </nav>
+        <!-- AKHIR NAVIGASI --><!-- KONTEN UTAMA --><main id="main-content" class="flex-1 p-6 md:p-10 pb-28 md:pb-10 md:ml-64 transition-all duration-300">
+
+            <!-- Halaman: Pendahuluan --><section id="page-pendahuluan" class="page-content">
+                <h1 class="section-title accent-color">Playbook Penjualan UGC Logistics</h1>
+                <p class="subheadline">Meningkatkan Motivasi, Kapabilitas & Pendapatan Tim Sales.</p>
+
+                <div class="content-card space-y-4">
+                    <h3>Selamat datang di Playbook Penjualan UGC Logistics</h3>
+                    <p>panduan praktis bagi tim sales baru maupun berpengalaman di UGC Logistics. Playbook ini dirancang untuk meningkatkan motivasi, kapabilitas, kesadaran, dan skill tim sales kita, dengan tujuan akhir mendongkrak revenue perusahaan. Dalam playbook ini, Anda akan menemukan kerangka kerja penjualan terkini, strategi multi-channel lintas industri, skenario sehari-hari yang dikemas secara storytelling agar mudah dipahami dan tidak membosankan, serta tips integrasi dengan tim marketing (termasuk program C.A.R.G.O Rewards dan inisiatif Project Cargo). Semua materi didasarkan pada teori penjualan valid dan kredibel, namun berfokus pada aplikasi praktis di lapangan.</p>
+                    
+                    <h3>Mengapa Playbook ini penting?</h3>
+                    <p>Saat ini, pelanggan B2B semakin cerdas dan menuntut. Riset menunjukkan bahwa pembeli B2B sudah menyelesaikan 57-70% proses riset sendiri sebelum menghubungi sales. Artinya, ketika prospek berbicara dengan kita, mereka sudah terinformasi - tugas kita adalah memberikan insight dan solusi bernilai tambah yang tidak bisa mereka dapatkan dari riset online semata. Seperti kata pepatah modern, "Great selling doesn't even feel like selling. It feels like solving." - penjualan hebat terasa seperti memecahkan masalah pelanggan, bukan sekadar menjajakan produk. Playbook ini akan memandu Anda menjadi problem solver handal bagi klien, bukan sales yang "pushy".</p>
+                    
+                    <h3>Cara menggunakan Playbook ini:</h3>
+                    <p>Kami menyusun panduan ini dalam bab-bab tematis dengan bahasa komunikatif dan contoh nyata. Anda bisa membacanya berurutan seperti buku, atau langsung lompat ke bab yang relevan dengan tantangan yang Anda hadapi. Setiap bab dilengkapi tips, checklist, dan contoh situasi untuk membantu Anda menerapkan materinya. Di akhir dokumen, ada ringkasan poin-poin kunci sebagai referensi cepat. Mari kita mulai perjalanan menuju tim sales UGC Logistics yang lebih termotivasi, kapabel, sadar peluang, dan kompeten!</p>
+                </div>
+            </section>
+            <!-- Akhir Halaman: Pendahuluan --><!-- Halaman: Bab 1 --><section id="page-bab1" class="page-content hidden">
+                <h1 class="section-title">Bab 1: Mindset & Motivasi</h1>
+                <p class="subheadline">Fondasi Sukses Sales B2B.</p>
+
+                <!-- Navigasi Tab --><div class="tab-nav">
+                    <button class="tab-button active" onclick="showTab('page-bab1', 'tab-bab1-1', this)">1.1 Mindset</button>
+                    <button class="tab-button" onclick="showTab('page-bab1', 'tab-bab1-2', this)">1.2 Motivasi</button>
+                    <button class="tab-button" onclick="showTab('page-bab1', 'tab-bab1-3', this)">1.3 Kesadaran</button>
+                </div>
+
+                <!-- Konten Tab --><div class="tab-content-wrapper">
+                    <!-- Tab Pane 1.1 --><div id="tab-bab1-1" class="tab-pane active">
+                        <div class="content-card">
+                            <h3>1.1 Mindset "Problem Solver", Bukan Penjual Produk</h3>
+                            <p>Dalam penjualan B2B lintas industri, mindset yang tepat adalah kunci. Alih-alih berpikir "bagaimana cara menjual layanan logistik ke klien?", ubahlah pola pikir menjadi "bagaimana cara membantu klien mencapai tujuan mereka melalui solusi logistik kami". Pendekatan ini selaras dengan konsep value-based selling, yaitu penjualan yang fokus pada manfaat bagi pelanggan sepanjang proses beralih dari mentalitas "apa yang bisa saya jual?" menjadi "bagaimana saya bisa menyelesaikan masalah klien?". Dengan fokus pada solusi bagi masalah pelanggan, Anda membangun hubungan jangka panjang berbasis kepercayaan.</p>
+                            <p class="border-l-4 accent-border pl-4 italic text-gray-200">Ingat: "Penjualan hebat terasa seperti memecahkan masalah, bukan menjual", jadi tempatkan kebutuhan pelanggan sebagai prioritas utama.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 1.2 --><div id="tab-bab1-2" class="tab-pane">
+                        <div class="content-card">
+                            <h3>1.2 Motivasi yang Berkelanjutan dan Resiliensi</h3>
+                            <p>Pekerjaan sales penuh tantangan - penolakan, target tinggi, dan siklus penjualan panjang adalah makanan sehari-hari. Kunci sukses terletak pada motivasi diri dan resiliensi. Ingatlah bahwa setiap "tidak" membawa Anda selangkah lebih dekat ke "ya". Secara statistik, 60% prospek mengatakan "tidak" empat kali sebelum akhirnya mengatakan "ya", namun hanya 8% salesperson yang bertahan melewati empat kali penolakan. Artinya, siapa yang gigih dan terus follow-up memiliki peluang besar memenangkan deal. Data industri juga menunjukkan 80% penjualan membutuhkan minimal 5 tindak lanjut, tetapi 92% sales menyerah setelah 4 kali follow-up. Jangan jadi bagian dari yang 92% menyerah terlalu dini - jadilah bagian dari 8% top performer yang ulet mengejar prospek hingga berhasil.</p>
+                            <p>Untuk menjaga motivasi tim, kita perlu merayakan kemenangan kecil setiap hari. Setiap kali berhasil membuat janji meeting, mendapatkan referensi, atau menyelesaikan follow-up yang sulit, akui pencapaian itu. Budaya apresiasi internal akan membantu tim tetap bersemangat. Selain itu, bangun mindset growth melihat kegagalan sebagai pembelajaran. Misal, apabila gagal closing, daripada terpuruk, evaluasi: Apa yang bisa saya lakukan lebih baik? Apakah saya sudah memahami kebutuhan klien dengan benar? Dengan selalu belajar, skill Anda akan terasah dan rasa percaya diri meningkat. Motivasi yang bersumber dari dalam (intrinsic) - seperti tekad untuk membantu klien dan kebanggaan terhadap solusi UGC - akan lebih tahan lama daripada motivasi eksternal semata. Yakinlah bahwa peran Anda sebagai sales sangat vital: Anda adalah ujung tombak perusahaan, dan kesuksesan Anda langsung berdampak pada pertumbuhan UGC Logistics.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 1.3 --><div id="tab-bab1-3" class="tab-pane">
+                        <div class="content-card">
+                            <h3>1.3 Kesadaran akan Produk, Layanan & Industri</h3>
+                            <p>Seorang salesperson hebat harus memiliki kesadaran mendalam tentang apa yang dijualnya dan konteks industrinya. Pastikan Anda terus meng-upgrade pengetahuan produk: layanan UGC meliputi Freight (darat, laut, udara), pergudangan, custom clearance, hingga proyek industrial & pemerintahan (project logistics). Pahami keunggulan tiap layanan, studi kasus sukses, dan problem apa yang bisa dipecahkan oleh solusi kita. Misalnya, UGC memiliki pengalaman menangani project cargo (kargo berat/proyek kompleks). Marketing kita bahkan merencanakan seri konten "Project Cargo Deconstructed" untuk menunjukkan keahlian UGC menangani proyek logistik rumit. Bagi tim sales, ini berarti kita punya cerita dan bukti untuk diceritakan ke prospek di sektor energi, manufaktur, konstruksi, dan sektor lain yang butuh solusi kargo proyek. Gunakan materi tersebut untuk meyakinkan klien bahwa UGC adalah ahli yang terbukti di bidang ini.</p>
+                            <p>Selain produk, tingkatkan awareness industri. Setiap industri klien (manufaktur, retail, pertambangan, FMCG, dll) punya kebutuhan logistik dan pain point berbeda. Contoh: perusahaan manufaktur mungkin menekankan just-in-time delivery untuk rantai pasok; klien e-commerce peduli pada kecepatan dan tracking; perusahaan pertambangan butuh pengiriman alat berat (project cargo) dengan keamanan ekstra. Luangkan waktu untuk riset ringan sebelum menghubungi prospek di industri tertentu: baca berita industri, perhatikan tren (misal tren green logistics untuk klien korporat besar yang mulai peduli sustainability). Dengan menunjukkan pemahaman konteks bisnis mereka, Anda akan lebih dihargai sebagai konsultan tepercaya daripada sekadar penjual. Inilah esensi consultative selling - menempatkan fokus pada kebutuhan dan tantangan spesifik pelanggan, sehingga kita bisa bertindak sebagai partner yang membantu mencari solusi.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Akhir Halaman: Bab 1 --><!-- Halaman: Bab 2 --><section id="page-bab2" class="page-content hidden">
+                <h1 class="section-title">Bab 2: Strategi Multi-Channel Sales</h1>
+                <p class="subheadline">Menjangkau Prospek di Semua Lini.</p>
+
+                <div class="content-card mb-6">
+                    <p>Di era digital, pendekatan multi-channel bukan lagi pilihan, melainkan keharusan. Penelitian McKinsey menemukan rata-rata pelanggan B2B menggunakan 10 kanal berbeda selama proses pengambilan keputusan mereka. Prospek Anda mungkin pertama kali mendengar UGC dari LinkedIn, lalu mencari ulasan online, menghadiri pameran dagang, berdiskusi dengan kolega, baru kemudian berbicara dengan tim sales. Tugas kita adalah hadir dan konsisten di setiap channel tersebut. Berikut adalah panduan untuk memanfaatkan semua channel penjualan: offline (tatap muka), telepon, digital, referensi, hingga pameran.</p>
+                </div>
+
+                <!-- Navigasi Tab --><div class="tab-nav">
+                    <button class="tab-button active" onclick="showTab('page-bab2', 'tab-bab2-1', this)">2.1 Offline</button>
+                    <button class="tab-button" onclick="showTab('page-bab2', 'tab-bab2-2', this)">2.2 Telepon</button>
+                    <button class="tab-button" onclick="showTab('page-bab2', 'tab-bab2-3', this)">2.3 Digital</button>
+                    <button class="tab-button" onclick="showTab('page-bab2', 'tab-bab2-4', this)">2.4 Referensi</button>
+                    <button class="tab-button" onclick="showTab('page-bab2', 'tab-bab2-5', this)">2.5 Pameran</button>
+                </div>
+                
+                <!-- Konten Tab --><div class="tab-content-wrapper">
+                    <!-- Tab Pane 2.1 --><div id="tab-bab2-1" class="tab-pane active">
+                        <div class="content-card">
+                            <h3>2.1 Offline (Tatap Muka & Kunjungan Lapangan)</h3>
+                            <p>Channel offline mencakup pertemuan langsung: meeting di kantor klien, networking event, maupun kunjungan ke lokasi proyek. Meski dunia semakin digital, interaksi tatap muka tetap ampuh untuk membangun trust, terutama di Indonesia di mana personal touch sangat dihargai. Saat melakukan kunjungan, persiapkan diri sebaik mungkin:</p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Riset sebelum meeting:</strong> Ketahui profil perusahaan, produk mereka, dan kemungkinan kebutuhan logistiknya. Buat daftar pertanyaan konsultatif. Contohnya, daripada langsung menawarkan jasa, ajukan pertanyaan seperti "Bagaimana proses distribusi current Bapak/Ibu memengaruhi cost dan efisiensi bisnis?" ini memancing diskusi kebutuhan (approach consultative).</li>
+                                <li><strong>Bangun hubungan personal:</strong> Mulailah meeting dengan membangun rapport. Temukan kesamaan atau topik ringan (misal perkembangan industri mereka, atau bahkan hobi jika diketahui). Consultative selling menempatkan hubungan sebagai inti proses, jadi gunakan pertemuan langsung untuk menumbuhkan trust dan loyalitas.</li>
+                                <li><strong>Storytelling & solusi nyata:</strong> Saat mempresentasikan, jangan hanya sebut fitur layanan ("kami bisa kirim via laut/udara, dsb."). Ceritakan kisah sukses klien serupa: "Klien kami di sektor manufaktur pernah menghadapi masalah X, dan kami membantu dengan solusi Y, hasilnya lead time berkurang 20%." Narasi seperti ini lebih mengena dan mudah diingat. Gunakan pendekatan value-based selling dengan menekankan outcome untuk klien, bukan sekadar detail teknis. Tunjukkan bagaimana solusi UGC akan membantu bisnis mereka tumbuh atau menghemat biaya - buat prospek mau apa yang Anda tawarkan karena selaras dengan tujuan mereka.</li>
+                                <li><strong>Closing tatap muka:</strong> Jangan ragu meminta komitmen lanjutan di akhir meeting offline. Bisa soft closing seperti, "Bagaimana jika kami siapkan proposal detail minggu ini dan mungkin lakukan presentasi lanjutan dengan tim operasional Bapak/Ibu?" Pastikan ada tindak lanjut konkrit sebelum keluar ruangan.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 2.2 --><div id="tab-bab2-2" class="tab-pane">
+                        <div class="content-card">
+                            <h3>2.2 Telepon (Cold Calling & Telesales)</h3>
+                            <p>Telepon adalah channel klasik yang tetap efektif jika digunakan dengan tepat. Bahkan di era email dan WhatsApp, riset menunjukkan 69% pembeli B2B bersedia menerima cold call dari vendor baru dalam setahun terakhir. Artinya, prospek sebenarnya terbuka untuk dihubungi via telepon, asalkan Anda punya strategi. Berikut tipsnya:</p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Persiapan naskah (script) yang fleksibel:</strong> Siapkan kerangka script untuk cold call, tapi jangan kaku. Buka dengan perkenalan singkat yang menarik, misal: "Selamat pagi, Pak Arya. Nama saya Rina dari UGC Logistics. Kami membantu banyak perusahaan manufaktur menghemat biaya logistik hingga 15%. Saya menelepon karena melihat perusahaan Bapak bergerak di industri serupa, dan ingin berbagi insight singkat..." ini memanfaatkan pola Challenger Sale dengan langsung memberi insight/fakta menarik di awal untuk memicu perhatian prospek. Pastikan nada suara ramah dan antusias.</li>
+                                <li><strong>Tanyakan waktu:</strong> Segera setelah opening, pastikan prospek bersedia bicara: "Apakah sekarang waktu yang tepat? Saya butuh 5 menit, Pak." Jika tidak, jadwalkan ulang.</li>
+                                <li><strong>Fokus pada kebutuhan, bukan pitch bertele-tele:</strong> Gunakan pendekatan konsultatif bahkan di cold call. Tanyakan 1-2 pertanyaan kunci: "Apa tantangan terbesar Bapak dalam pengiriman saat ini?" atau "Apakah saat ini perusahaan Ibu sudah ada rencana ekspansi supply chain?". Pertanyaan membuat prospek terlibat. Dengarkan jawabannya dengan seksama aktif listening akan membantu Anda menyesuaikan penawaran dengan kebutuhan.</li>
+                                <li><strong>Berikan value cepat:</strong> Di telepon, Anda harus segera menyampaikan what's in it for them. Misal prospek menyebut tantangan, tanggapi dengan solusi singkat: "Banyak klien kami di sektor itu menghadapi hal serupa. Dengan jaringan trucking nasional kami, kami bisa bantu percepat distribusi regional. Bahkan ada program C.A.R.G.O Rewards baru kami yang memberi cashback dan poin untuk pengiriman rutin, sehingga perusahaan Bapak bisa dapat manfaat tambahan."</li>
+                                <li><strong>Jangan menyerah terlalu cepat:</strong> Jika belum berhasil tersambung atau prospek sibuk, atur follow-up call. Statistik menunjukkan perlu rata-rata 18 kali call attempt untuk terhubung dengan prospek B2B, namun sayangnya hampir separuh sales menyerah setelah 1x panggilan. Jadi, jadwalkan beberapa kali percobaan di jam/hari berbeda sebelum memutuskan prospek unreachable.</li>
+                                <li><strong>Gunakan telepon untuk follow-up cepat:</strong> Respons cepat sangat krusial. 35-50% penjualan jatuh ke vendor yang responnya paling cepat. Jadi ketika ada lead masuk (misal MQL dari website atau event), hubungi dalam hitungan jam, bukan hari. Telepon adalah cara tercepat menunjukkan kesigapan Anda sebelum kompetitor bergerak.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 2.3 --><div id="tab-bab2-3" class="tab-pane">
+                        <div class="content-card">
+                            <h3>2.3 Digital (Email, WhatsApp & Social Selling)</h3>
+                            <p>Channel digital mencakup email, messaging apps, dan media sosial profesional. Banyak keputusan B2B kini dipengaruhi kehadiran digital. Pastikan Anda memanfaatkan kanal ini secara maksimal:</p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Email Personalization:</strong> Hindari email blast generik. Tulis email seolah-olah hanya untuk prospek itu. Subject line harus menarik. Buka dengan konteks personal: "Ibu Sari, saya membaca berita bahwa PT XYZ baru ekspansi pabrik ke Jawa Timur selamat! Ekspansi sering membawa tantangan logistik; sebagai mitra logistik, kami punya beberapa ide untuk membantu...".</li>
+                                <li><strong>Value content dalam email:</strong> Terapkan value-based selling juga di email. Sertakan konten bernilai: misal lampirkan case study 1 halaman, atau link ke artikel blog/logistik insight yang bermanfaat (bukan hanya brosur penawaran).</li>
+                                <li><strong>WhatsApp/Chat:</strong> Di Indonesia, WhatsApp sangat lazim untuk komunikasi bisnis. Namun etika tetap dijaga: jangan langsung spam WA sebelum ada izin atau kontak sebelumnya. Jaga bahasa tetap profesional tetapi hangat.</li>
+                                <li><strong>Social Selling (LinkedIn):</strong> LinkedIn adalah lahan subur bagi sales B2B. Optimalkan profil Anda. Bangun jaringan prospek. Manfaatkan konten marketing UGC dengan me-share dan memberi komentar. Engagement one-on-one melalui message dengan sopan.</li>
+                                <li><strong>Konsistensi multi-channel:</strong> Integrasikan pesan di semua channel. Pastikan info yang Anda berikan konsisten (harga, layanan, USP). Gunakan CRM untuk mencatat interaksi lintas channel.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 2.4 --><div id="tab-bab2-4" class="tab-pane">
+                        <div class="content-card">
+                            <h3>2.4 Referensi dan Referral (Word-of-Mouth)</h3>
+                            <p>Referral adalah salah satu channel terkuat dan paling cost-effective. 56% profesional sales mendapat lead dari referral pelanggan eksisting. Reputasi UGC Logistics selama 25+ tahun banyak dibangun dari word-of-mouth. Berikut cara memaksimalkan channel referensi:</p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Minta referral secara proaktif:</strong> Setelah menyelesaikan project atau shipment dengan klien puas, jangan ragu meminta.</li>
+                                <li><strong>Program insentif referral:</strong> Gunakan angle program C.A.R.G.O Rewards. Jika ada mekanisme poin atau reward untuk referral, manfaatkan!</li>
+                                <li><strong>Testimoni & case study referral:</strong> Minta testimoni tertulis dari pelanggan puas. "Social proof" semacam ini sangat powerful.</li>
+                                <li><strong>Jaga relasi dengan pelanggan existing:</strong> Penjualan tidak berhenti setelah closing. Rawat hubungan dengan pelanggan existing.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 2.5 --><div id="tab-bab2-5" class="tab-pane">
+                        <div class="content-card">
+                            <h3>2.5 Pameran & Event (Trade Show, Expo, Seminar)</h3>
+                            <p>Berpartisipasi dalam pameran dagang, expo, atau seminar industri adalah channel offline yang dapat menghasilkan banyak lead dalam waktu singkat, serta membangun brand presence. Untuk tim sales, berikut panduannya:</p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Sebelum event - Persiapan matang:</strong> Ketahui jenis audiens. Bekerja samalah dengan tim marketing jauh hari. Latih "elevator pitch" 30 detik tentang UGC.</li>
+                                <li><strong>Saat event - Aktif dan proaktif:</strong> Jangan pasif menunggu didatangi. Ajak ngobrol pengunjung. Siapkan demonstrasi atau visual.</li>
+                                <li><strong>Kumpulkan kontak dan follow-up cepat:</strong> Tujuan utama pameran adalah mengumpulkan prospek. Sediakan formulir sederhana. Jangan menunda follow-up - idealnya dalam 24-48 jam setelah event.</li>
+                                <li><strong>Manfaatkan materi marketing:</strong> Pastikan Anda paham isi katalog, brosur, flyer khusus event. Gunakan promo event sebagai sense of urgency saat follow-up.</li>
+                            </ul>
+                            <p class="mt-4 border-l-4 accent-border pl-4 italic text-gray-200">Inti dari multi-channel: tak peduli dari mana prospek datang (offline ataupun online), kita perlu sinkronisasi dan konsistensi. Gunakan pendekatan omni-channel di mana pelanggan merasakan pengalaman mulus.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Akhir Halaman: Bab 2 --><!-- Halaman: Bab 3 --><section id="page-bab3" class="page-content hidden">
+                <h1 class="section-title">Bab 3: Metode Penjualan</h1>
+                <p class="subheadline">Consultative, Value-Based & Challenger.</p>
+
+                <div class="content-card mb-6">
+                    <p>Di dunia sales B2B, tidak ada satu pendekatan yang cocok untuk semua situasi. Tim sales UGC perlu menguasai beberapa framework/metodologi penjualan dan tahu kapan menggunakan masing-masing secara efektif. Tiga pendekatan kunci yang akan kita bahas adalah: Consultative Selling, Value-Based Selling, dan Challenger Sale. Ketiga metode ini sebenarnya saling melengkapi bahkan sering bisa dikombinasikan dalam satu siklus penjualan.</p>
+                </div>
+                
+                <!-- Navigasi Tab --><div class="tab-nav">
+                    <button class="tab-button active" onclick="showTab('page-bab3', 'tab-bab3-1', this)">3.1 Consultative</button>
+                    <button class="tab-button" onclick="showTab('page-bab3', 'tab-bab3-2', this)">3.2 Value-Based</button>
+                    <button class="tab-button" onclick="showTab('page-bab3', 'tab-bab3-3', this)">3.3 Challenger</button>
+                </div>
+                
+                <!-- Konten Tab --><div class="tab-content-wrapper">
+                    <!-- Tab Pane 3.1 --><div id="tab-bab3-1" class="tab-pane active">
+                        <div class="content-card">
+                            <h3>3.1 Consultative Selling (Penjualan Konsultatif)</h3>
+                            <p><strong>Definisi & Inti:</strong> Consultative selling adalah pendekatan di mana sales berperan layaknya konsultan bagi pelanggan. Fokusnya adalah memahami kebutuhan, tantangan, dan tujuan pelanggan melalui rangkaian pertanyaan dan diskusi mendalam. Kunci utamanya: mendengarkan lebih banyak daripada berbicara, dan membangun hubungan jangka panjang berbasis kepercayaan.</p>
+                            <p><strong>Kapan efektif digunakan:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Situasi penjualan yang kompleks dan melibatkan solusi custom.</li>
+                                <li>Tahap awal hubungan dengan klien baru.</li>
+                                <li>Budaya bisnis yang mengutamakan hubungan dan kepercayaan.</li>
+                            </ul>
+                            <p><strong>Cara menerapkan:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Selalu mulai pertemuan/komunikasi dengan pertanyaan open-ended.</li>
+                                <li>Gunakan metode tanya ala SPIN selling (Situation, Problem, Implication, Need-payoff).</li>
+                                <li>Dengarkan secara aktif: Catat, tunjukkan empati, ulangi untuk konfirmasi.</li>
+                                <li>Posisikan diri sebagai problem solver netral.</li>
+                            </ul>
+                            <p class="mt-4 border-l-4 accent-border pl-4 italic text-gray-200"><strong>Outcome:</strong> Pelanggan merasa didengar, dipahami, dan dibantu. Ini menciptakan loyalitas jangka panjang dan repeat business.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 3.2 --><div id="tab-bab3-2" class="tab-pane">
+                        <div class="content-card">
+                            <h3>3.2 Value-Based Selling (Penjualan Berbasis Nilai)</h3>
+                            <p><strong>Definisi & Inti:</strong> Value-based selling adalah pendekatan yang menitikberatkan pada nilai dan manfaat yang diperoleh pelanggan dari solusi Anda, ketimbang sekadar fitur atau harga. Anda menjual "apa untungnya bagi pelanggan", bukan "apa yang Anda tawarkan". Nilai bisa berupa penghematan biaya, efisiensi waktu, pengurangan risiko, dll.</p>
+                            <p><strong>Kapan efektif digunakan:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Hampir semua penjualan B2B, terutama jika muncul sensitivitas harga.</li>
+                                <li>Presentasi ke level manajemen atas atau bagian procurement/keuangan.</li>
+                                <li>Menjual produk/layanan baru seperti C.A.R.G.O Rewards.</li>
+                                <li>Situasi negosiasi harga.</li>
+                            </ul>
+                            <p><strong>Cara menerapkan:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Kuantifikasi manfaat: Ubah manfaat kualitatif menjadi angka (ROI).</li>
+                                <li>Resonate, Differentiate, Substantiate: Tiga kata kunci (sesuai kebutuhan, tonjolkan keunikan, buktikan janji).</li>
+                                <li>Cerita Pelanggan: Gunakan narasi sukses klien sebelumnya.</li>
+                                <li>Alat bantu visual: Sertakan perhitungan ROI atau perbandingan cost vs benefit dalam proposal.</li>
+                                <li>Jujur tentang limitasi: Akui area di mana kita tak unggul, tapi tekankan area di mana value kita lebih tinggi.</li>
+                            </ul>
+                            <p class="mt-4 border-l-4 accent-border pl-4 italic text-gray-200"><strong>Hasil akhir:</strong> Klien berpikir "Layanan ini mahal, tapi worth it" ketimbang "Yang penting paling murah". Ini membantu UGC mengurangi perang harga.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 3.3 --><div id="tab-bab3-3" class="tab-pane">
+                        <div class="content-card">
+                            <h3>3.3 Challenger Selling (Metode Challenger Sale)</h3>
+                            <p><strong>Definisi & Inti:</strong> Salesperson memberikan wawasan baru dan menggugah cara pikir pelanggan, menantang status quo pelanggan. Seorang Challenger akan mendorong pelanggan keluar dari zona nyaman dengan data dan insight yang mungkin belum terpikirkan oleh pelanggan.</p>
+                            <p>Melibatkan 3 aktivitas kunci: <strong>Teach</strong> (Edukasi pelanggan dengan sudut pandang baru), <strong>Tailor</strong> (Sesuaikan pendekatan dengan kebutuhan stakeholder), <strong>Take Control</strong> (Berani memimpin pembicaraan ke arah perubahan).</p>
+                            <p><strong>Kapan efektif digunakan:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Penjualan kompleks B2B dengan status quo kuat (misal sudah pakai vendor lama).</li>
+                                <li>Saat kita punya insight spesifik yang customer mungkin belum tahu.</li>
+                                <li>Menjual solusi inovatif atau yang mengubah cara operasi pelanggan.</li>
+                                <li>Saat kompetitor utama hanya jual murah.</li>
+                            </ul>
+                            <p><strong>Cara menerapkan:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Kuasi pengetahuan industri & data untuk jadi amunisi.</li>
+                                <li>Tawarkan perspektif baru (insight statement).</li>
+                                <li>Berani diskusi "painful truth" (inefisiensi) secara konstruktif.</li>
+                                <li>Kontrol arah percakapan, jangan pasif.</li>
+                                <li>Hati-hati dengan ego & hubungan: Tetap jaga respek.</li>
+                            </ul>
+                            <p class="mt-4 border-l-4 accent-border pl-4 italic text-gray-200"><strong>Hasil & Perhatian:</strong> Bisa membuka peluang baru yang tadinya tertutup. Namun, jika salah penerapan, bisa bikin pelanggan defensif. Seimbangkan dengan Consultative selling.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Akhir Halaman: Bab 3 --><!-- Halaman: Bab 4 --><section id="page-bab4" class="page-content hidden">
+                <h1 class="section-title">Bab 4: Tahapan Proses Penjualan B2B</h1>
+                <p class="subheadline">Dari Prospek hingga Loyalitas.</p>
+                
+                <!-- Navigasi Tab --><div class="tab-nav">
+                    <button class="tab-button active" onclick="showTab('page-bab4', 'tab-bab4-1', this)">4.1 Prospeksi</button>
+                    <button class="tab-button" onclick="showTab('page-bab4', 'tab-bab4-2', this)">4.2 Kualifikasi</button>
+                    <button class="tab-button" onclick="showTab('page-bab4', 'tab-bab4-3', this)">4.3 Presentasi</button>
+                    <button class="tab-button" onclick="showTab('page-bab4', 'tab-bab4-4', this)">4.4 Negosiasi</button>
+                    <button class="tab-button" onclick="showTab('page-bab4', 'tab-bab4-5', this)">4.5 Penutupan</button>
+                    <button class="tab-button" onclick="showTab('page-bab4', 'tab-bab4-6', this)">4.6 Retensi</button>
+                </div>
+                
+                <!-- Konten Tab --><div class="tab-content-wrapper">
+                    <!-- Tab Pane 4.1 --><div id="tab-bab4-1" class="tab-pane active">
+                        <div class="content-card">
+                            <h3>4.1 Tahap Prospeksi (Prospecting & Lead Generation)</h3>
+                            <p><strong>Tujuan:</strong> Mengidentifikasi calon pelanggan potensial (prospek) dan mengisi pipeline penjualan Anda.</p>
+                            <p><strong>Sumber prospek:</strong> Database internal & MQL, Networking & Referensi, Riset mandiri (LinkedIn, Google), Cold outreach.</p>
+                            <p><strong>Langkah Kunci:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Buat Ideal Customer Profile (ICP).</li>
+                                <li>Gunakan skrip/naskah awal yang fleksibel dan personal.</li>
+                                <li>Catat di CRM sejak awal.</li>
+                                <li>Konsistensi dan jadwal: Blok waktu khusus untuk prospeksi.</li>
+                                <li>Gunakan Multi-Touch: Kombinasikan email, LinkedIn, telepon.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 4.2 --><div id="tab-bab4-2" class="tab-pane">
+                        <div class="content-card">
+                            <h3>4.2 Tahap Pendekatan & Kualifikasi Awal</h3>
+                            <p><strong>Tujuan:</strong> Memastikan prospek tersebut layak dan memiliki potensi closing sehingga Anda bisa fokus waktu secara efektif.</p>
+                            <p><strong>Langkah Kunci:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Atur Meeting Awal (Discovery Call/Meeting).</li>
+                                <li>Gunakan formula BANT (Budget, Authority, Need, Timeline) atau GPCTBA/C&I untuk kualifikasi.</li>
+                                <li>Tanyakan Pertanyaan Kunci (Goals, Plans, Challenges, Implications).</li>
+                                <li>Evaluasi Fit: Apakah kebutuhan mereka bisa UGC penuhi?</li>
+                                <li>Catat Semuanya di CRM dan ubah status MQL ke SQL jika lolos.</li>
+                                <li>Tentukan Langkah Lanjut yang konkret.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 4.3 --><div id="tab-bab4-3" class="tab-pane">
+                        <div class="content-card">
+                            <h3>4.3 Tahap Presentasi & Proposal</h3>
+                            <p><strong>Tujuan:</strong> Meyakinkan prospek bahwa solusi UGC adalah yang terbaik untuk kebutuhan mereka.</p>
+                            <p><strong>Langkah Kunci:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Persiapan Materi: Jangan generik, tailor konten sesuai kebutuhan klien.</li>
+                                <li>Buka dengan rekap kebutuhan: Tunjukkan Anda paham masalah mereka.</li>
+                                <li>Ceritakan Solusi sebagai Kisah (storytelling).</li>
+                                <li>Highlight Benefit & Value (Value-Based): Selalu kaitkan fitur ke benefit dan nilai riil (angka).</li>
+                                <li>Libatkan Audiens: Jaga suasana dialog, bukan kuliah.</li>
+                                <li>Mengatasi Keberatan (Objection Handling): Siapkan jawaban untuk keberatan umum (harga, kapasitas, track record).</li>
+                                <li>Closing di akhir presentasi: Tutup dengan ringkasan benefit dan ajakan tindakan.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 4.4 --><div id="tab-bab4-4" class="tab-pane">
+                        <div class="content-card">
+                            <h3>4.4 Tahap Negosiasi & Penanganan Keberatan Akhir</h3>
+                            <p><strong>Tujuan:</strong> Mencapai kesepakatan win-win dan menangani semua ganjalan (harga, syarat, kontrak).</p>
+                            <p><strong>Taktik & Tips:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Persiapkan Batas & Trade-off: Ketahui floor price dan apa yang bisa ditukar (give-and-take).</li>
+                                <li>Dengarkan Sisa Keberatan: Fokus tak hanya di harga.</li>
+                                <li>Teknik "Feel-Felt-Found": Gunakan empati. "Saya mengerti Anda merasa... Klien kami dulu merasa sama... namun mereka menemukan bahwa..."</li>
+                                <li>Jaga Win-Win Attitude: Tawarkan solusi kolaboratif.</li>
+                                <li>Gunakan Data & Batas Waktu (sense of urgency).</li>
+                                <li>Flexibility in Packaging: Tawarkan scope berbeda, kontrak lebih panjang, dsb.</li>
+                                <li>Handling "No" Gracefully: Terima dengan profesional, jaga hubungan.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 4.5 --><div id="tab-bab4-5" class="tab-pane">
+                        <div class="content-card">
+                            <h3>4.5 Tahap Penutupan (Closing) & Implementasi Awal</h3>
+                            <p><strong>Tujuan:</strong> Menyelesaikan administrasi dan onboarding layanan untuk menentukan kesan pertama.</p>
+                            <p><strong>To-Do saat Closing:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Dokumen Kontrak: Segera kirim dokumen resmi.</li>
+                                <li>Ucapan Selamat & Terima Kasih.</li>
+                                <li>Koordinasi Internal: Informasikan tim operasional, CS, dll.</li>
+                                <li>Kick-off Meeting dengan Klien: Fasilitasi perkenalan dengan tim operasional.</li>
+                                <li>Edukasi Layanan: Pastikan klien paham cara pakai layanan kita.</li>
+                                <li>Pantau Ketat di Awal: Jangan lepas tangan setelah jualan.</li>
+                                <li>Masukkan ke Program Loyalitas C.A.R.G.O Rewards.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 4.6 --><div id="tab-bab4-6" class="tab-pane">
+                        <div class="content-card">
+                            <h3>4.6 Tahap Retensi & Loyalitas (Account Management & Expansion)</h3>
+                            <p><strong>Tujuan:</strong> Mempertahankan pelanggan dan menumbuhkan bisnis dari mereka (upsell/cross-sell).</p>
+                            <p><strong>Langkah Retensi:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li>Monitor Kinerja & Kepuasan: Adakan evaluasi rutin.</li>
+                                <li>Jadi Konsultan Berkelanjutan: Berikan insight proaktif.</li>
+                                <li>Tangani Masalah Cepat & Tuntas.</li>
+                                <li>C.A.R.G.O Rewards Engagement: Ingatkan pelanggan manfaat program loyalty.</li>
+                                <li>Cross-sell & Upsell: Identifikasi kebutuhan lain saat trust sudah kuat.</li>
+                                <li>Jaga Hubungan Personal.</li>
+                                <li>Perbarui Kontrak jauh-jauh hari.</li>
+                                <li>Minta Referral & Testimoni.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Akhir Halaman: Bab 4 --><!-- Halaman: Bab 5 --><section id="page-bab5" class="page-content hidden">
+                <h1 class="section-title">Bab 5: Simulasi Skenario Sales</h1>
+                <p class="subheadline">Storytelling situasi nyata yang sering dihadapi tim sales.</p>
+                
+                <!-- Navigasi Tab --><div class="tab-nav">
+                    <button class="tab-button active" onclick="showTab('page-bab5', 'tab-bab5-1', this)">5.1 Cold Call</button>
+                    <button class="tab-button" onclick="showTab('page-bab5', 'tab-bab5-2', this)">5.2 Presentasi</button>
+                    <button class="tab-button" onclick="showTab('page-bab5', 'tab-bab5-3', this)">5.3 Follow-Up</button>
+                    <button class="tab-button" onclick="showTab('page-bab5', 'tab-bab5-4', this)">5.4 Negosiasi</button>
+                </div>
+                
+                <!-- Konten Tab --><div class="tab-content-wrapper">
+                    <!-- Tab Pane 5.1 --><div id="tab-bab5-1" class="tab-pane active">
+                        <div class="content-card">
+                            <h3>5.1 Situasi: Cold Call ke Perusahaan Manufaktur</h3>
+                            <p><strong>Konteks:</strong> Anda cold call manajer logistik PT Maju Jaya (manufaktur spare parts). Target: atur meeting.</p>
+                            <p><strong>Simulasi Dialog Kunci:</strong></p>
+                            <ul class="list-disc list-outside ml-5 space-y-3">
+                                <li>
+                                    <strong>Sales:</strong> (Nada percaya diri) "Selamat siang, Pak Dedi... Saya Budi dari UGC Logistics... Kami membantu beberapa pabrik otomotif menghemat biaya pengiriman spare parts hingga 15%... Saya penasaran, apakah PT Maju Jaya saat ini punya tantangan dalam distribusi?"
+                                    <br><span class="text-sm text-gray-400 italic">(Memancing dengan value insight spesifik + pertanyaan terbuka)</span>
+                                </li>
+                                <li>
+                                    <strong>Prospek:</strong> "Hm... ya distribusi kami lumayan kompleks sih, apalagi ke luar Jawa sering telat."
+                                </li>
+                                <li>
+                                    <strong>Sales:</strong> "Nah, betul Pak... Bahkan, dari data kami, perusahaan kadang tak sadar biaya logistiknya membengkak gara-gara inefisiensi rute... Kami punya solusi route optimization... Mungkin Bapak tertarik diskusi lebih lanjut?"
+                                    <br><span class="text-sm text-gray-400 italic">(Memakai insight challenger + CTA ke meeting)</span>
+                                </li>
+                                <li>
+                                    <strong>Prospek:</strong> "Boleh dikirim proposal dulu via email?"
+                                </li>
+                                <li>
+                                    <strong>Sales:</strong> "Tentu, Pak... Saya akan kirim info ringkas beserta case study... Setelah itu, saya follow-up hari Jumat ya Pak, siapa tahu ada pertanyaan dan mungkin kita bisa jadwalkan pertemuan minggu depan."
+                                    <br><span class="text-sm text-gray-400 italic">(Menutup dengan Call-To-Action jelas dan terjadwal)</span>
+                                </li>
+                            </ul>
+                            <p class="mt-4"><strong>Analisis:</strong> Sales berhasil mendapat izin kirim proposal dan jadwal follow-up. Kemenangan kecil tercapai. Kunci: singkat, fokus klien, beri value, dan solutif.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 5.2 --><div id="tab-bab5-2" class="tab-pane">
+                        <div class="content-card">
+                            <h3>5.2 Situasi: Presentasi ke Procurement Perusahaan Besar</h3>
+                            <p><strong>Konteks:</strong> Presentasi tender logistik ke PT Alpha (FMCG). Audiens: tim procurement (terkenal "galak" soal harga).</p>
+                            <p><strong>Simulasi Momen Kunci (Keberatan Harga):</strong></p>
+                            <ul class="list-disc list-outside ml-5 space-y-3">
+                                <li>
+                                    <strong>Procurement:</strong> "Vendor lain kasih Rp Y-10% untuk Jawa. Anda masih lebih mahal."
+                                </li>
+                                <li>
+                                    <strong>Sales (Counter):</strong> "Benar, kami sedikit di atas. Namun perlu diperhatikan, kami termasuk asuransi barang standar dalam tarif (kompetitor mungkin tidak). Selain itu, sistem IT kami terintegrasi, menghemat kerja tim Anda - kira-kira setara 1 man-hour per hari. Jika semua dijumlahkan, selisih 10% itu terbayar dengan nilai tambah... Data kami di klien serupa, OTIF kami 98%, jauh di atas threshold."
+                                    <br><span class="text-sm text-gray-400 italic">(Menggunakan value-based selling: bandingkan total value, bukan harga saja. Gunakan data OTIF.)</span>
+                                </li>
+                            </ul>
+                            <p class="mt-4"><strong>Analisis:</strong> Menghadapi procurement butuh data-driven dan fokus win-win. Yakinkan bahwa UGC = handal + efisien overall, bukan sekadar vendor termurah.</p>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 5.3 --><div id="tab-bab5-3" class="tab-pane">
+                        <div class="content-card">
+                            <h3>5.3 Situasi: Follow-Up Prospek yang Menghilang</h3>
+                            <p><strong>Konteks:</strong> Prospek (Pak Anton) "ghosting" setelah proposal dikirim dua minggu lalu.</p>
+                            <p><strong>Simulasi Aksi (Multi-channel & Value Add):</strong></p>
+                            <ul class="list-disc list-outside ml-5 space-y-3">
+                                <li>
+                                    <strong>Hari 3:</strong> Email sopan. "Apakah ada pertanyaan atau masukan? Kami siap merevisi..." (Nada membantu).
+                                </li>
+                                <li>
+                                    <strong>Hari 7:</strong> Telepon (gagal) + WhatsApp singkat. "Pagi Pak Anton... Ada update menarik: UGC baru mendapat slot space tambahan untuk rute Surabaya, yang kebetulan cocok dengan kebutuhan PT Sukses..."
+                                    <br><span class="text-sm text-gray-400 italic">(Memberikan alasan baru/value baru untuk merespons).</span>
+                                </li>
+                                <li>
+                                    <strong>Hari 10:</strong> Email kedua. "Saya paham mungkin timing belum pas... saya lampirkan satu studi kasus yang mirip..." (Memberi value/pendidikan).
+                                </li>
+                                <li>
+                                    <strong>Hari 14:</strong> Lihat info LinkedIn (gudang baru). Kirim InMail. "Congrats Pak Anton atas gudang barunya... Ini relevan dengan solusi kami kemarin..." (Personalisasi).
+                                </li>
+                                <li>
+                                    <strong>Hari 15:</strong> Prospek balas (isu budget). Sales langsung tawarkan solusi. "Bagaimana jika kita atur pertemuan singkat... brainstorming cara agar solusi ini cocok budget? (mungkin mulai proyek skala kecil dulu)."
+                                </li>
+                            </ul>
+                            <p class="mt-4"><strong>Analisis:</strong> Berhasil mendapat respon dengan persistensi sopan, pendekatan multi-channel, dan selalu memberi value baru di setiap follow-up, bukan hanya "jadi gimana?".</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 5.4 --><div id="tab-bab5-4" class="tab-pane">
+                        <div class="content-card">
+                            <h3>5.4 Situasi: Negosiasi Harga Ketat</h3>
+                            <p><strong>Konteks:</strong> Calon klien potensial menekan harga. "Vendor lain kasih 20% lebih murah. Kalau Anda bisa samakan, deal sekarang." (Margin UGC akan rugi).</p>
+                            <p><strong>Simulasi Dialog Kunci (Trade-off):</strong></p>
+                            <ul class="list-disc list-outside ml-5 space-y-3">
+                                <li>
+                                    <strong>Klien:</strong> "Jujur saja Pak, harga Anda mesti turun 15% lagi..."
+                                </li>
+                                <li>
+                                    <strong>Sales:</strong> "Saya mengerti... Namun, izinkan saya memberi perspektif: dengan menurunkan 15%, terus terang kami khawatir tidak bisa memberikan layanan optimal... Begini Pak, bagaimana kalau kita cari jalan tengah... Mungkin kita bisa ubah scope untuk menekan biaya. Misal: volume pengiriman minimal dinaikkan per batch..."
+                                    <br><span class="text-sm text-gray-400 italic">(Jangan latah banting harga. Tawarkan solusi kreatif: ubah scope).</span>
+                                </li>
+                                <li>
+                                    <strong>Klien:</strong> "Volume minimal mungkin bisa, berapa naiknya?"
+                                </li>
+                                <li>
+                                    <strong>Sales:</strong> "Kalau minimal per shipment 20% lebih banyak, saya bisa berikan diskon 10%... 15% mungkin bisa jika Bapak bersedia kontrak 2 tahun sekaligus. Jadi volume terjamin lebih lama, kami berani beri harga lebih rendah."
+                                    <br><span class="text-sm text-gray-400 italic">(Gunakan trade-off: diskon lebih dengan komitmen lebih).</span>
+                                </li>
+                            </ul>
+                            <p class="mt-4"><strong>Analisis:</strong> Jangan berikan konsesi tanpa mendapatkan sesuatu (give-and-take). Jaga marjin lewat kreatifitas (volume, durasi kontrak) daripada sekadar banting harga.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Akhir Halaman: Bab 5 --><!-- Halaman: Bab 6 --><section id="page-bab6" class="page-content hidden">
+                <h1 class="section-title">Bab 6: Integrasi dengan Tim Marketing</h1>
+                <p class="subheadline">Menyatukan Kekuatan Sales & Marketing.</p>
+
+                <div class="content-card mb-6">
+                    <p>Untuk mencapai penjualan hebat di era modern, kolaborasi erat antara tim sales dan marketing adalah keharusan. Sales dan marketing di UGC Logistics ibarat dua sisi mata uang yang harus sinkron agar strategi go-to-market efektif.</p>
+                </div>
+                
+                <!-- Navigasi Tab --><div class="tab-nav">
+                    <button class="tab-button active" onclick="showTab('page-bab6', 'tab-bab6-1', this)">6.1 Konten</button>
+                    <button class="tab-button" onclick="showTab('page-bab6', 'tab-bab6-2', this)">6.2 Koordinasi Lead</button>
+                    <button class="tab-button" onclick="showTab('page-bab6', 'tab-bab6-3', this)">6.3 Pameran</button>
+                    <button class="tab-button" onclick="showTab('page-bab6', 'tab-bab6-4', this)">6.4 Program Khusus</button>
+                    <button class="tab-button" onclick="showTab('page-bab6', 'tab-bab6-5', this)">6.5 Sinkronisasi</button>
+                </div>
+                
+                <!-- Konten Tab --><div class="tab-content-wrapper">
+                    <!-- Tab Pane 6.1 --><div id="tab-bab6-1" class="tab-pane active">
+                        <div class="content-card">
+                            <h3>6.1 Pemanfaatan Konten Marketing & Social Media</h3>
+                            <p>Tim marketing menghasilkan berbagai konten (artikel, infografis, studi kasus). Sales harus aktif memanfaatkannya:</p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Social Media Sharing:</strong> Share konten marketing di LinkedIn pribadi Anda, disertai opini. Ini membangun personal brand Anda sebagai ahli.</li>
+                                <li><strong>Menggunakan Konten dalam Sales Cycle:</strong> Kirim konten yang relevan (misal whitepaper) ke prospek spesifik. Ini adalah sales enablement.</li>
+                                <li><strong>Webinar & Events:</strong> Undang prospek Anda hadir di webinar marketing. Follow-up cepat MQL dari event.</li>
+                                <li><strong>Feedback Loop:</strong> Sampaikan ke marketing apa konten yang dibutuhkan sales di lapangan.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 6.2 --><div id="tab-bab6-2" class="tab-pane">
+                        <div class="content-card">
+                            <h3>6.2 Koordinasi Lead (MQL ke SQL) dan CRM</h3>
+                            <p>MQL (Marketing Qualified Leads) adalah prospek dari marketing. Tugas sales mengubahnya jadi SQL (Sales Qualified Lead).</p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Definisi Kriteria Jelas:</strong> Sales & marketing harus sepakat definisi MQL yang siap dilimpahkan.</li>
+                                <li><strong>Kecepatan Respons:</strong> Target respon MQL < 24 jam, idealnya < 8 jam.</li>
+                                <li><strong>CRM Discipline:</strong> Gunakan CRM sebagai single source of truth. Marketing input lead, sales update status.</li>
+                                <li><strong>MQL Nurturing:</strong> Jika lead belum siap, kembalikan ke marketing untuk di-nurture, lalu kembali ke sales saat sudah matang.</li>
+                                <li><strong>Regular Alignment Meetings:</strong> Adakan meeting bulanan sales-marketing bahas kualitas lead.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 6.3 --><div id="tab-bab6-3" class="tab-pane">
+                        <div class="content-card">
+                            <h3>6.3 Materi Pameran & Branding</h3>
+                            <p>Saat pameran, marketing urus booth, sales urus approach. Agar hasil maksimal:</p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Briefing Pra-event:</strong> Marketing share tema booth, pesan inti, dan promo. Sales harus pahami agar komunikasi selaras.</li>
+                                <li><strong>Brosur & Gimmick:</strong> Ketahui isi brosur, jangan asal bagi gimmick.</li>
+                                <li><strong>Lead Collection System:</strong> Sepakati cara kumpulkan data (form, scan QR). Teamwork di booth.</li>
+                                <li><strong>After Event Follow-up:</strong> Marketing kirim email blast "terima kasih", sales call one-by-one untuk tindak lanjut konkret.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Tab Pane 6.4 --><div id="tab-bab6-4" class="tab-pane">
+                        <div class="content-card">
+                            <h3>6.4 Program Khusus: C.A.R.G.O Rewards & Project Cargo Positioning</h3>
+                            <p>Dua program marketing UGC yang spesifik perlu integrasi sales:</p>
+                            <p><strong>C.A.R.G.O Rewards (Cashback & Acquisition Rewards for Growth Opportunities):</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Sales Education:</strong> Pastikan setiap sales paham detail program (Hello Discount, Active Cashback, Unlimited Points).</li>
+                                <li><strong>Sales Pitch Integration:</strong> Selalu mention program ini sebagai nilai tambah dan pembeda saat negosiasi. Hitung nilai poin/cashback untuk klien.</li>
+                                <li><strong>Retention & Upsell:</strong> Gunakan program ini untuk mendorong retensi dan upsell ("transaksi sedikit lagi naik tier...").</li>
+                            </ul>
+                            <p class="mt-4"><strong>Project Cargo Positioning:</strong></p>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Training & Collateral:</strong> Sales harus ikut training dan menguasai materi (video, case studies) Project Cargo.</li>
+                                <li><strong>Joint Calls:</strong> Ajak tim marketing atau technical dalam meeting prospek besar Project Cargo.</li>
+                                <li><strong>Thought Leadership:</strong> Sales harus aware dan mempromosikan konten (artikel, webinar) marketing tentang Project Cargo ke target market.</li>
+                                <li><strong>Unified Message:</strong> Pastikan sales pitch di lapangan menggemakan tagline/USP yang sudah disepakati (misal: "spesialis logistik proyek kompleks").</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tab Pane 6.5 --><div id="tab-bab6-5" class="tab-pane">
+                        <div class="content-card">
+                            <h3>6.5 Sinkronisasi Target dan Feedback</h3>
+                            <ul class="list-disc list-outside ml-5">
+                                <li><strong>Target Bersama (Revenue/ Pipeline):</strong> Set beberapa KPI bersama (misal konversi MQL ke SQL, revenue dari project cargo) agar sales-marketing saling dukung.</li>
+                                <li><strong>Saling Duduk Bareng Analisis:</strong> Evaluasi kampanye marketing dan dampaknya ke sales secara rutin.</li>
+                                <li><strong>Percaya Data, Bukan Feeling:</strong> Gunakan data CRM untuk diskusi objektif, hindari "blame game".</li>
+                                <li><strong>Program Sales Enablement:</strong> Minta marketing bikin sesi pelatihan penggunaan materi baru atau update produk.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Akhir Halaman: Bab 6 --><!-- Halaman: Penutup --><section id="page-penutup" class="page-content hidden">
+                <h1 class="section-title">Penutup</h1>
+                <p class="subheadline">Menuju Tim Sales UGC Logistics yang Unggul.</p>
+
+                <div class="content-card space-y-4">
+                    <p>Melalui playbook ini, kita telah mengupas tuntas strategi dan taktik untuk meningkatkan motivasi, kapabilitas, kesadaran, dan skill tim sales UGC Logistics. Mulai dari pembentukan mindset problem solver, penggunaan strategi multi-channel, penguasaan framework penjualan, menjalankan tahapan penjualan B2B, simulasi, hingga kolaborasi erat dengan tim marketing.</p>
+                    <p>Pada akhirnya, segala ilmu dan strategi ini bertujuan untuk satu hal: memenangkan hati pelanggan B2B lintas industri dan mendorong peningkatan revenue UGC Logistics secara berkelanjutan.</p>
+                    
+                    <h3 class="pt-4">Ingatlah beberapa poin pamungkas berikut:</h3>
+                    <ul class="list-disc list-outside ml-5">
+                        <li><strong>Pelanggan sebagai Fokus:</strong> Selalu mulai dari memahami kebutuhan pelanggan. Jadilah pendengar ulung.</li>
+                        <li><strong>Jual Solusi, Bukan Produk:</strong> Pelanggan B2B membeli nilai bagi bisnis mereka.</li>
+                        <li><strong>Berani Memberi Insight:</strong> Jangan takut tampil sebagai pakar yang mengedukasi.</li>
+                        <li><strong>Persistensi & Disiplin:</strong> Kegigihan yang cerdas membedakan top sales. Lakukan follow-up dengan tekun dan kelola CRM.</li>
+                        <li><strong>Kolaborasi Tim:</strong> Manfaatkan dukungan tim marketing, operasional, dan manajemen.</li>
+                        <li><strong>Continuous Learning:</strong> Dunia logistik dan penjualan terus berkembang. Selalu upgrade pengetahuan dan asah skill.</li>
+                        <li><strong>Motivasi dari Dalam:</strong> Tetapkan goal pribadi, rayakan kemenangan kecil, dan tetap positif.</li>
+                    </ul>
+
+                    <p class="border-l-4 accent-border pl-4 italic text-gray-200 mt-6">
+                        Bayangkan setiap anggota tim... dengan percaya diri melangkah ke kantor klien, cerita sukses di tangan, motivasi di hati... Pelanggan melihat UGC Logistics bukan sekadar vendor, tetapi mitra strategis... Revenue tumbuh pesat bukan karena kita banting harga, tapi karena klien percaya dan puas dengan layanan kita.
+                    </p>
+                    <p>Semoga playbook ini menjadi panduan praktis dan siap pakai bagi Anda dalam perjalanan menuju target-target ambisius kita. Selamat bertumbuh, berjuang, dan berprestasi sebagai garda terdepan UGC Logistics.</p>
+                </div>
+            </section>
+            <!-- Akhir Halaman: Penutup --><!-- Halaman: Ringkasan --><section id="page-ringkasan" class="page-content hidden">
+                <h1 class="section-title">Ringkasan Visual (Cheat Sheet)</h1>
+                <p class="subheadline">"Sales UGC Logistics SUPERSTAR"</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">S - Solution Mindset</h3>
+                        <p>Fokus pada solusi & kebutuhan pelanggan, bukan produk semata.</p>
+                    </div>
+                    
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">U - Utilize Channels</h3>
+                        <p>Manfaatkan semua channel (offline, telepon, digital, referal, expo) secara terpadu.</p>
+                    </div>
+
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">P - Personalize Approach</h3>
+                        <p>Terapkan consultative selling - setiap pelanggan unik, bangun trust & hubungan.</p>
+                    </div>
+                    
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">E - Emphasize Value</h3>
+                        <p>Jual value, hitung ROI pelanggan, jangan perang harga.</p>
+                    </div>
+
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">R - Resilience</h3>
+                        <p>Gigih follow-up (80% deal butuh ≥5 kontak), atasi penolakan dengan positif.</p>
+                    </div>
+                    
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">S - Share Insights</h3>
+                        <p>Jadilah Challenger saat perlu - beri insight baru yang edukatif.</p>
+                    </div>
+
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">T - Team with Marketing</h3>
+                        <p>Bekerjasama dengan marketing untuk leads, konten, dan program (CARGO Rewards & Project Cargo).</p>
+                    </div>
+
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">A - Ask & Listen</h3>
+                        <p>Ajukan pertanyaan cerdas, dengarkan 2x lebih banyak. Pelanggan akan "memberi tahu cara menjual ke mereka".</p>
+                    </div>
+
+                    <div class="content-card border-l-4 accent-border">
+                        <h3 class="text-2xl font-bold accent-color mb-2">R - Retain & Grow</h3>
+                        <p>Jangan lupa servis pelanggan existing. Retensi & upsell = kunci pertumbuhan berkelanjutan.</p>
+                    </div>
+                </div>
+                
+                <p class="text-center text-lg font-semibold text-white mt-10">
+                    Dengan SUPERSTAR principles di atas, mari taklukkan target dan jadilah bintang penjualan UGC Logistics!
+                </p>
+
+            </section>
+            <!-- Akhir Halaman: Ringkasan --></main>
+        <!-- AKHIR KONTEN UTAMA --></div>
+
+    <!-- JavaScript untuk Interaktivitas --><script>
+        let currentPage = 'page-pendahuluan';
+        let currentActiveLink = document.getElementById('nav-pendahuluan');
+
+        /**
+         * Menampilkan halaman utama (Bab) yang dipilih
+         */
+        function showPage(pageId, navElement) {
+            // 1. Sembunyikan halaman yang sedang aktif
+            const activePage = document.getElementById(currentPage);
+            if (activePage) {
+                activePage.classList.add('hidden');
+            }
+
+            // 2. Tampilkan halaman yang baru
+            const newPage = document.getElementById(pageId);
+            if (newPage) {
+                newPage.classList.remove('hidden');
+                currentPage = pageId;
+            }
+
+            // 3. Hapus status aktif dari link navigasi sebelumnya
+            if (currentActiveLink) {
+                currentActiveLink.classList.remove('active', 'active-desktop');
+            }
+
+            // 4. Tambahkan status aktif ke link navigasi yang baru
+            if (navElement) {
+                navElement.classList.add('active', 'active-desktop');
+                currentActiveLink = navElement;
+            }
+            
+            // 5. Reset tab di halaman baru ke tab pertama (JIKA ADA TAB)
+            if (newPage) {
+                const firstTabButton = newPage.querySelector('.tab-button:first-child');
+                const firstTabPane = newPage.querySelector('.tab-pane:first-child');
+                
+                if (firstTabButton && firstTabPane) {
+                    // Nonaktifkan semua tab lain
+                    newPage.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    newPage.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active');
+                        pane.classList.add('hidden');
+                    });
+                    
+                    // Aktifkan tab pertama
+                    firstTabButton.classList.add('active');
+                    firstTabPane.classList.add('active');
+                    firstTabPane.classList.remove('hidden');
+                }
+            }
+            
+            // 6. Scroll ke atas halaman
+            window.scrollTo(0, 0);
+        }
+
+        /**
+         * Menampilkan tab (sub-bab) yang dipilih di dalam halaman
+         */
+        function showTab(pageId, tabId, buttonElement) {
+            const page = document.getElementById(pageId);
+            if (!page) return;
+            
+            // 1. Sembunyikan semua tab-pane di dalam page ini
+            const tabPanes = page.querySelectorAll('.tab-pane');
+            tabPanes.forEach(pane => {
+                pane.classList.remove('active');
+                pane.classList.add('hidden'); // Memastikan tersembunyi
+            });
+
+            // 2. Deaktivasi semua tab-button di dalam page ini
+            const tabButtons = page.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // 3. Tampilkan tab-pane yang dipilih
+            const newTabPane = document.getElementById(tabId);
+            if (newTabPane) {
+                newTabPane.classList.add('active');
+                newTabPane.classList.remove('hidden'); // Memastikan terlihat
+            }
+
+            // 4. Aktivasi tab-button yang diklik
+            if (buttonElement) {
+                buttonElement.classList.add('active');
+            }
+        }
+
+        // Terapkan status awal saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            // Logika untuk menampilkan teks nav mobile hanya pada hover/active akan ditangani CSS Tailwind.
+            // Tidak perlu lagi JavaScript untuk toggle `hidden` pada `nav-text` di mobile.
+        });
+    </script>
+
+</body>
+</html>

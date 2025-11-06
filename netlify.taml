@@ -1,0 +1,7 @@
+# Konfigurasi ini memberi tahu Netlify di mana menemukan fungsi backend Anda
+[functions]
+  directory = "netlify/functions"
+
+[build]
+  # Direktori tempat file statis Anda (index.html) berada
+  publish = "."

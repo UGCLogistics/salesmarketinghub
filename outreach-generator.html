@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <title>UGC Outreach Script Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Latar belakang gelap dengan dekorasi radial */
+            background-color: #0F172A; /* slate-950 */
+            background-image: radial-gradient(circle at top, #ff460020, transparent 40%);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        /* Efek Kaca (Glassmorphism) */
+        .glass-card {
+            background: rgba(0, 0, 0, 0.2); /* Latar belakang hitam transparan */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem; /* 16px */
+        }
+        /* Style untuk input dan label */
+        label {
+            display: block;
+            margin-bottom: 0.5rem; /* 8px */
+            font-size: 0.875rem; /* 14px */
+            font-weight: 500;
+            color: #E2E8F0; /* slate-200 */
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        select,
+        textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3); /* Latar belakang input lebih gelap */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem; /* 8px */
+            color: #F1F5F9; /* slate-100 */
+            padding: 0.5rem 0.75rem; /* 8px 12px */
+            font-size: 0.875rem; /* 14px */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #ff4600; /* Warna aksen saat fokus */
+            box-shadow: 0 0 0 2px #ff460060; /* Bayangan fokus */
+        }
+        /* Tombol */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.625rem 1rem; /* 10px 16px */
+            border-radius: 0.5rem; /* 8px */
+            font-weight: 600;
+            font-size: 0.875rem; /* 14px */
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .btn-primary {
+            background-color: #ff4600;
+            color: white;
+            border-color: #ff4600;
+        }
+        .btn-primary:hover {
+            background-color: #e03e00; /* Sedikit lebih gelap saat hover */
+            border-color: #e03e00;
+        }
+        .btn-primary:disabled {
+            background-color: #a0522d; /* Warna saat dinonaktifkan */
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .btn-secondary {
+            background-color: #334155; /* slate-700 */
+            color: #F1F5F9; /* slate-100 */
+            border-color: #475569; /* slate-600 */
+        }
+        .btn-secondary:hover {
+            background-color: #475569; /* slate-600 */
+        }
+        .btn-whatsapp {
+            background-color: #25D366;
+            color: white;
+            border-color: #25D366;
+        }
+        .btn-whatsapp:hover {
+            background-color: #1EAE53;
+            border-color: #1EAE53;
+        }
+
+        /* PERBAIKAN: Style dropdown options agar serasi dengan tema gelap */
+        select option {
+            /* Catatan: Ini adalah kompromi. 
+            Kita tidak bisa membuat <option> menjadi "glassy" karena diatur oleh OS.
+            Tapi kita bisa membuatnya gelap agar serasi dengan tema.
+            */
+            background-color: #1E293B; /* slate-800 */
+            color: #E2E8F0; /* slate-200 */
+        }
+
+        /* Loader */
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff40;
+            border-top-color: #ff4600;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="text-slate-100 p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- HEADER DAN LOGO -->
+        <div class="text-center flex flex-col items-center mb-6">
+            <!-- 
+                Logo sekarang diambil dari folder yang sama dengan index.html.
+                Pastikan Anda sudah meng-upload 'logo.png' ke root repositori GitHub Anda.
+            -->
+            <img src="logo.png" alt="Logo UGC Logistics" class="h-16 w-auto mb-4" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+            <!-- Fallback text jika gambar gagal dimuat -->
+            <div style="display: none;" class="text-xl font-bold text-slate-300">Logo UGC</div>
+
+            <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">
+                Generator Outreach Script
+            </h1>
+            <p class="text-lg text-slate-300 mt-2">
+                Buat skrip Email & WhatsApp untuk Outreach ke Customer
+            </p>
+        </div>
+
+        <!-- FORM INPUT PARAMETER DINAMIS -->
+        <div class="glass-card p-6 md:p-8">
+            <h2 class="text-xl font-semibold text-white mb-6 border-b border-white/10 pb-4">
+                Parameter Dinamis
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- KOLOM 1: ACTIVITY DETAIL -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-white">Activity Detail</h3>
+                    <div>
+                        <label for="platform">Platform</label>
+                        <select id="platform">
+                            <option value="Email">Email</option>
+                            <option value="WhatsApp">WhatsApp</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="bahasa">Bahasa</label>
+                        <select id="bahasa">
+                            <option value="id">Bahasa Indonesia</option>
+                            <option value="en">English</option>
+                            <option value="zh">Mandarin</option>
+                            <option value="ar">Arabic</option>
+                            <option value="de">German</option>
+                            <option value="ja">Japanese</option>
+                            <option value="ko">Korean</option>
+                            <option value="es">Spanish</option>
+                            <option value="fr">French</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label for="gaya_bahasa">Gaya Bahasa & Pendekatan</label>
+                        <select id="gaya_bahasa">
+                            <option value="Formal">Formal</option>
+                            <option value="Formal-Casual">Formal-Casual (Semi-Formal)</option>
+                            <option value="Consultative">Consultative (Solutif)</option>
+                            <option value="Naratif">Naratif</option>
+                            <option value="Story Telling">Story Telling</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="status_prospek">Status Prospek</label>
+                        <select id="status_prospek" onchange="toggleCustom(this, 'status_prospek_custom_wrapper')">
+                            <option value="Cold Lead">Cold Lead (Prospek Dingin)</option>
+                            <option value="Warm Lead">Warm Lead (Prospek Hangat)</option>
+                            <option value="Hot Lead">Hot Lead (Prospek Panas)</option>
+                            <option value="Sudah Jadi Customer">Sudah Jadi Customer (Existing)</option>
+                            <option value="Customer Lama (Re-engage)">Customer Lama (Re-engage)</option>
+                            <option value="custom">...Kustom</option>
+                        </select>
+                    </div>
+                    <div id="status_prospek_custom_wrapper" class="hidden">
+                        <label for="status_prospek_custom">Status Kustom:</label>
+                        <input type="text" id="status_prospek_custom" placeholder="Mis: Habis meeting">
+                    </div>
+                    <div>
+                        <label for="tujuan_outreach">Tujuan Outreach</label>
+                        <select id="tujuan_outreach" onchange="toggleCustom(this, 'tujuan_outreach_custom_wrapper')">
+                            <option value="Perkenalan Awal">Perkenalan Awal (Introduction)</option>
+                            <option value="Follow Up Penawaran">Follow Up Penawaran</option>
+                            <option value="Menanyakan Kabar (Relationship)">Menanyakan Kabar (Relationship)</option>
+                            <option value="Re-engagement Customer Lama">Re-engagement Customer Lama</option>
+                            <option value="Meminta Referensi">Meminta Referensi</option>
+                            <option value="custom">...Kustom</option>
+                        </select>
+                    </div>
+                    <div id="tujuan_outreach_custom_wrapper" class="hidden">
+                        <label for="tujuan_outreach_custom">Tujuan Kustom:</label>
+                        <input type="text" id="tujuan_outreach_custom" placeholder="Mis: Follow up invoice">
+                    </div>
+                    <div>
+                        <label for="layanan">Layanan yang Ditawarkan</label>
+                        <select id="layanan" onchange="toggleCustom(this, 'layanan_custom_wrapper')">
+                            <option value="LTL (Less Than Truckload)">LTL (Less Than Truckload)</option>
+                            <option value="FTL (Full Truckload)">FTL (Full Truckload)</option>
+                            <option value="Air Freight">Air Freight</option>
+                            <option value="Sea Freight">Sea Freight</option>
+                            <option value="Warehousing & Fulfillment">Warehousing & Fulfillment</option>
+                            <option value="Import Borongan">Import Borongan</option>
+                            <option value="Air Export Door to Door">Air Export Door to Door</option>
+                            <option value="LCL (Less Than Container Load)">LCL (Less Than Container Load)</option>
+                            <option value="FCL (Full Container Load)">FCL (Full Container Load)</option>
+                            <option value="Sea Export Door to Door">Sea Export Door to Door</option>
+                            <option value="Semua Produk">Semua Produk</option>
+                            <option value="custom">...Layanan Kustom</option>
+                        </select>
+                    </div>
+                    <div id="layanan_custom_wrapper" class="hidden">
+                        <label for="layanan_custom">Layanan Kustom:</label>
+                        <input type="text" id="layanan_custom" placeholder="Mis: Jasa Custom Clearance">
+                    </div>
+                    <div>
+                        <label for="pain_point">Pain Point Customer</label>
+                        <select id="pain_point" onchange="toggleCustom(this, 'pain_point_custom_wrapper')">
+                            <option value="Biaya logistik terlalu tinggi">Biaya logistik terlalu tinggi</option>
+                            <option value="Pengiriman sering terlambat">Pengiriman sering terlambat</option>
+                            <option value="Barang rusak saat pengiriman">Barang rusak saat pengiriman</option>
+                            <option value="Proses tracking tidak jelas">Proses tracking tidak jelas</option>
+                            <option value="Layanan customer service buruk">Layanan customer service buruk</option>
+                            <option value="Masalah administrasi/dokumen">Masalah administrasi/dokumen</option>
+                            <option value="Belum diketahui">Belum diketahui / General</option>
+                            <option value="custom">...Pain Point Kustom</option>
+                        </select>
+                    </div>
+                    <div id="pain_point_custom_wrapper" class="hidden">
+                        <label for="pain_point_custom">Pain Point Kustom:</label>
+                        <input type="text" id="pain_point_custom" placeholder="Mis: Kesulitan impor bahan baku">
+                    </div>
+                </div>
+
+                <!-- KOLOM 2: CUSTOMER DETAIL -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-white">Customer Detail</h3>
+                    <div>
+                        <label for="nama_perusahaan_customer">Nama Perusahaan Customer</label>
+                        <input type="text" id="nama_perusahaan_customer" placeholder="PT. Sukses Jaya">
+                    </div>
+                    <div>
+                        <label for="nama_pic">Nama PIC Customer</label>
+                        <input type="text" id="nama_pic" placeholder="Bapak Budi">
+                    </div>
+                    <div>
+                        <label for="email_pic">Email PIC</label>
+                        <input type="email" id="email_pic" placeholder="budi@suksesjaya.com">
+                    </div>
+                    <div>
+                        <label for="hp_pic">Nomor HP PIC</label>
+                        <input type="tel" id="hp_pic" placeholder="08123456789">
+                    </div>
+                </div>
+
+                <!-- KOLOM 3: SALES DETAIL -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-white">Sales Detail (Info Anda)</h3>
+                    <div>
+                        <label for="nama_sales">Nama Sales</label>
+                        <input type="text" id="nama_sales" placeholder="Andi Wijaya">
+                    </div>
+                    <div>
+                        <label for="jabatan_sales">Jabatan Sales</label>
+                        <select id="jabatan_sales" onchange="toggleCustom(this, 'jabatan_sales_custom_wrapper')">
+                            <option value="Sales Executive">Sales Executive</option>
+                            <option value="Account Manager">Account Manager</option>
+                            <option value="Business Development">Business Development</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="custom">...Jabatan Kustom</option>
+                        </select>
+                    </div>
+                    <div id="jabatan_sales_custom_wrapper" class="hidden">
+                        <label for="jabatan_sales_custom">Jabatan Kustom:</label>
+                        <input type="text" id="jabatan_sales_custom" placeholder="Mis: Direktur">
+                    </div>
+                    <div>
+                        <label for="email_sales">Email Sales</label>
+                        <input type="email" id="email_sales" placeholder="andi.w@utamaglobalindo.com">
+                    </div>
+                    <div>
+                        <label for="hp_sales">Nomor HP Sales</label>
+                        <input type="tel" id="hp_sales" placeholder="08987654321">
+                    </div>
+                    <div>
+                        <label for="nama_perusahaan_sales">Nama Perusahaan Anda</label>
+                        <input type="text" id="nama_perusahaan_sales" value="PT Utama Globalindo Cargo">
+                    </div>
+                    <div>
+                        <label for="web_perusahaan">Web Perusahaan</label>
+                        <input type="text" id="web_perusahaan" value="www.utamaglobalindocargo.com">
+                    </div>
+                    <div>
+                        <label for="telp_perusahaan">Telepon Perusahaan</label>
+                        <input type="text" id="telp_perusahaan" value="+6221 8350 778">
+                    </div>
+                    <div>
+                        <label for="alamat_perusahaan">Alamat Perusahaan</label>
+                        <textarea id="alamat_perusahaan" rows="3">Graha Fadillah, Jl Prof Soepomo SH No 45BZ Blok C, Tebet, Jakarta Selatan 12810</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOMBOL GENERATE -->
+            <div class="mt-8 pt-6 border-t border-white/10 text-center">
+                <button id="generate-btn" class="btn btn-primary w-full md:w-1/2">
+                    <span id="btn-text">Generate Skrip</span>
+                    <div id="btn-loader" class="loader hidden"></div>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- AREA OUTPUT HASIL SKRIP -->
+        <div id="output-wrapper" class="glass-card p-6 md:p-8 hidden">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-white">Hasil Skrip</h2>
+                <div class="flex space-x-2">
+                    <button id="copy-btn" class="btn btn-secondary">Salin</button>
+                    <button id="email-btn" class="btn btn-primary">Email</button>
+                    <button id="wa-btn" class="btn btn-whatsapp">WA</button>
+                </div>
+            </div>
+
+            <div id="output-loading" class="hidden flex justify-center items-center h-40">
+                <div class="loader" style="width: 40px; height: 40px;"></div>
+            </div>
+
+            <div id="output-error" class="hidden p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
+                <!-- Pesan error akan diisi oleh JavaScript -->
+            </div>
+
+            <!-- Hasil skrip akan ditampilkan di sini -->
+            <pre id="output-script" class="whitespace-pre-wrap break-words text-slate-200 bg-black/30 p-4 rounded-lg text-sm md:text-base" style="font-family: 'Inter', sans-serif;"></pre>
+        </div>
+
+    </div>
+
+    <script>
+        // Logika untuk menampilkan/menyembunyikan input kustom
+        function toggleCustom(selectElement, wrapperId) {
+            const wrapper = document.getElementById(wrapperId);
+            if (selectElement.value === 'custom') {
+                wrapper.classList.remove('hidden');
+            } else {
+                wrapper.classList.add('hidden');
+            }
+        }
+
+        // Fungsi untuk mengambil nilai dari dropdown/input kustom
+        function getValue(id) {
+            const el = document.getElementById(id);
+            if (el.value === 'custom') {
+                const customVal = document.getElementById(id + '_custom').value;
+                return customVal || el.options[el.selectedIndex].text; // Fallback jika kustom kosong
+            }
+            return el.value;
+        }
+
+        // Elemen Tombol dan Output
+        const generateBtn = document.getElementById('generate-btn');
+        const btnText = document.getElementById('btn-text');
+        const btnLoader = document.getElementById('btn-loader');
+        
+        const outputWrapper = document.getElementById('output-wrapper');
+        const outputScriptEl = document.getElementById('output-script');
+        const outputLoading = document.getElementById('output-loading');
+        const outputError = document.getElementById('output-error');
+
+        // Elemen Tombol Aksi
+        const copyBtn = document.getElementById('copy-btn');
+        const emailBtn = document.getElementById('email-btn');
+        const waBtn = document.getElementById('wa-btn');
+
+        // URL backend proxy di Netlify
+        // Ini adalah "backend" Anda yang aman
+        const API_PROXY_URL = '/.netlify/functions/generate-script';
+
+        // Event listener untuk tombol Generate
+        generateBtn.addEventListener('click', async () => {
+            // Mengumpulkan semua data input
+            const inputs = {
+                platform: getValue('platform'),
+                bahasa: getValue('bahasa'),
+                gaya_bahasa: getValue('gaya_bahasa'),
+                status_prospek: getValue('status_prospek'),
+                tujuan_outreach: getValue('tujuan_outreach'),
+                layanan: getValue('layanan'),
+                pain_point: getValue('pain_point'),
+                nama_perusahaan_customer: document.getElementById('nama_perusahaan_customer').value,
+                nama_pic: document.getElementById('nama_pic').value,
+                email_pic: document.getElementById('email_pic').value,
+                hp_pic: document.getElementById('hp_pic').value,
+                nama_sales: document.getElementById('nama_sales').value,
+                jabatan_sales: getValue('jabatan_sales'),
+                email_sales: document.getElementById('email_sales').value,
+                hp_sales: document.getElementById('hp_sales').value,
+                nama_perusahaan_sales: document.getElementById('nama_perusahaan_sales').value,
+                web_perusahaan: document.getElementById('web_perusahaan').value,
+                telp_perusahaan: document.getElementById('telp_perusahaan').value,
+                alamat_perusahaan: document.getElementById('alamat_perusahaan').value,
+            };
+
+            // Menampilkan UI loading
+            generateBtn.disabled = true;
+            btnText.classList.add('hidden');
+            btnLoader.classList.remove('hidden');
+            
+            outputWrapper.classList.remove('hidden');
+            outputScriptEl.classList.add('hidden');
+            outputError.classList.add('hidden');
+            outputLoading.classList.remove('hidden');
+
+            try {
+                // Memanggil backend proxy Netlify
+                const response = await fetch(API_PROXY_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ inputs }), // Mengirim data input ke backend
+                });
+
+                if (!response.ok) {
+                    // Menangani error dari server (misal: 403, 500, 502)
+                    const errorBody = await response.json();
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${JSON.stringify(errorBody, null, 2)}`);
+                }
+
+                // Mendapatkan hasil dari backend
+                const result = await response.json();
+
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+
+                const script = result.script;
+                
+                // Menampilkan hasil
+                outputScriptEl.textContent = script; // Gunakan textContent agar format tetap terjaga
+                outputScriptEl.classList.remove('hidden');
+                outputError.classList.add('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                // Menampilkan error di UI
+                outputError.textContent = `ERROR: Terjadi kesalahan saat menghubungi API: ${error.message}`;
+                outputError.classList.remove('hidden');
+                outputScriptEl.classList.add('hidden');
+            } finally {
+                // Mengembalikan UI ke state normal
+                generateBtn.disabled = false;
+                btnText.classList.remove('hidden');
+                btnLoader.classList.add('hidden');
+                outputLoading.classList.add('hidden');
+            }
+        });
+
+        // Fungsi untuk memisahkan Subjek dari Body
+        function getScriptParts() {
+            const fullScript = outputScriptEl.textContent;
+            const selectedBahasa = document.getElementById('bahasa').value;
+            let scriptToParse = fullScript;
+
+            // Jika bahasa selain Indonesia, pisahkan skripnya
+            if (selectedBahasa !== 'id' && fullScript.includes('[---SEPARATOR_BAHASA---]')) {
+                scriptToParse = fullScript.split('[---SEPARATOR_BAHASA---]')[0].trim();
+            }
+
+            let subject = '';
+            let body = scriptToParse;
+
+            const lines = scriptToParse.split('\n');
+            
+            // Cari baris Subjek:
+            const subjectLineIndex = lines.findIndex(line => line.trim().toLowerCase().startsWith('subjek:'));
+
+            if (subjectLineIndex !== -1) {
+                subject = lines[subjectLineIndex].substring(lines[subjectLineIndex].indexOf(':') + 1).trim();
+                // Hapus baris subjek dari body
+                lines.splice(subjectLineIndex, 1);
+                body = lines.join('\n').trim();
+            }
+
+            return { subject, body, scriptToParse };
+        }
+
+        // Aksi Tombol Salin
+        copyBtn.addEventListener('click', () => {
+            const { scriptToParse } = getScriptParts();
+            navigator.clipboard.writeText(scriptToParse)
+                .then(() => {
+                    copyBtn.textContent = 'Tersalin!';
+                    setTimeout(() => { copyBtn.textContent = 'Salin'; }, 2000);
+                })
+                .catch(err => {
+                    console.error('Gagal menyalin:', err);
+                    alert('Gagal menyalin teks.');
+                });
+        });
+
+        // Aksi Tombol Email
+        emailBtn.addEventListener('click', () => {
+            const { subject, body } = getScriptParts();
+            const emailPic = document.getElementById('email_pic').value;
+            
+            const mailtoLink = `mailto:${emailPic}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(mailtoLink, '_blank');
+        });
+
+        // Aksi Tombol WhatsApp
+        waBtn.addEventListener('click', () => {
+            let { body } = getScriptParts(); // Ambil body (tanpa subjek)
+            let hpPic = document.getElementById('hp_pic').value.trim();
+
+            // Normalisasi nomor HP (hapus spasi, ganti 08 di awal dengan 628)
+            hpPic = hpPic.replace(/\s+/g, ''); // Hapus spasi
+            if (hpPic.startsWith('08')) {
+                hpPic = '62' + hpPic.substring(1);
+            }
+            // Hapus karakter non-numerik
+            hpPic = hpPic.replace(/[^0-9]/g, ''); 
+
+            const waLink = `https://wa.me/${hpPic}?text=${encodeURIComponent(body)}`;
+            window.open(waLink, '_blank');
+        });
+
+    </script>
+</body>
+</html>

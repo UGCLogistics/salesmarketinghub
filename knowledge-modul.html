@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playbook Logistik Interaktif</title>
+    <!-- Memuat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat Library Ikon Lucide (FIXED) -->
+    <script src="https://unpkg.com/lucide"></script>
+
+    <!-- Import Font Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Konfigurasi Tailwind & Font -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Biru navy sangat gelap untuk latar (diubah menjadi lebih gelap)
+                        'navy-dark': '#060C1F', 
+                        // Biru navy sedikit lebih terang untuk elemen UI
+                        'navy-light': '#112240', 
+                        // Warna aksen vibrant red-orange
+                        'accent': '#ff4600', 
+                        // Warna teks utama
+                        'text-primary': '#ccd6f6', 
+                        // Warna teks sekunder/lebih redup
+                        'text-secondary': '#8892b0', 
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                    },
+                },
+            },
+        };
+    </script>
+
+    <!-- CSS Kustom -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #060C1F; /* Diubah */
+            color: #ccd6f6;
+            /* Animasi latar subtle untuk menambah daya tarik */
+            animation: subtle-bg-animation 20s infinite alternate;
+        }
+
+        @keyframes subtle-bg-animation {
+            0% {
+                background-color: #060C1F; /* Diubah */
+            }
+            100% {
+                background-color: #0A142A; /* Diubah */
+            }
+        }
+
+        /* Efek Glassmorphism */
+        .glass-ui {
+            background: rgba(17, 34, 64, 0.3); /* navy-light + transparansi */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Styling Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #060C1F; /* Diubah */
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #ff4600;
+            border-radius: 20px;
+            border: 2px solid #0a192f;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #ff7033;
+        }
+
+        /* Styling untuk Navigasi */
+        /* Desktop Sidebar */
+        @media (min-width: 768px) {
+            .nav-link.active {
+                background-color: #ff4600;
+                color: #ffffff;
+                box-shadow: 0 4px 15px rgba(255, 70, 0, 0.3);
+            }
+        }
+        
+        /* Collapsed Sidebar Styles */
+        @media (min-width: 768px) {
+            nav.is-collapsed {
+                width: 80px; /* 5rem */
+                min-width: 80px; /* 5rem */
+            }
+            nav.is-collapsed .sidebar-logo {
+                display: none;
+            }
+            nav.is-collapsed .nav-link {
+                justify-content: center;
+            }
+            nav.is-collapsed .nav-text {
+                display: none;
+            }
+            nav.is-collapsed #nav-toggle {
+                justify-content: center;
+            }
+            nav.is-collapsed #nav-toggle .nav-text {
+                display: none;
+            }
+        }
+        
+        /* Mobile Bottom Nav */
+        @media (max-width: 767px) {
+            .mobile-nav {
+                overflow-x: auto;
+                -ms-overflow-style: none;  /* IE and Edge */
+                scrollbar-width: none;  /* Firefox */
+            }
+            .mobile-nav::-webkit-scrollbar {
+                display: none; /* Chrome, Safari, Opera */
+            }
+            .nav-link.active {
+                color: #ff4600;
+                border-top: 3px solid #ff4600;
+                border-bottom: 0;
+            }
+            .nav-text {
+                display: none; /* Sembunyikan semua teks di mobile */
+            }
+        }
+
+        /* Animasi untuk konten halaman */
+        .page-content {
+            display: none; /* FIX: Diubah dari opacity */
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .page-content.active {
+            display: block; /* FIX: Diubah dari opacity */
+            opacity: 1;
+        }
+        
+        /* Styling Tab */
+        .tab-button.active {
+            background-color: #ff4600;
+            color: #ffffff;
+            border-bottom-color: transparent;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Kustomisasi elemen teks */
+        .content-container h4 {
+            color: #ff4600;
+            font-weight: 600;
+            margin-top: 1.5rem; /* 24px */
+            margin-bottom: 0.5rem; /* 8px */
+            font-size: 1.125rem; /* 18px */
+        }
+        .content-container ul {
+            list-style-type: disc;
+            list-style-position: outside; /* Diubah */
+            margin-left: 1.5rem; /* Diubah (24px) */
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem; /* 8px */
+        }
+        .content-container p {
+            line-height: 1.7;
+        }
+
+    </style>
+</head>
+<body class="bg-navy-dark text-text-primary">
+
+    <!-- Wrapper Utama: Sidebar di Desktop, Konten di Kanan -->
+    <div class="flex flex-col md:flex-row min-h-screen">
+
+        <!-- 
+            NAVIGASI 
+            - Desktop: Sidebar vertikal di kiri.
+            - Mobile: Bottom-nav horizontal.
+        -->
+        <nav id="sidebar" class="glass-ui fixed z-50 
+                    md:sticky md:top-0 md:h-screen md:flex-col md:w-64 md:py-4 md:border-r-0
+                    bottom-0 w-full h-16 flex-row items-center border-t border-gray-700/50 
+                    md:border-t-0 md:border-r md:border-gray-700/50
+                    transition-all duration-300 mobile-nav">
+            
+            <!-- Logo/Judul (Hanya di Desktop) -->
+            <div class="hidden md:flex items-center justify-center p-4 mb-4 sidebar-logo">
+                <!-- Mengganti ikon anchor dengan logo -->
+                <img src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png" 
+                     alt="Logo UGC Logistics" 
+                     class="w-40 h-auto"> <!-- Ukuran disesuaikan, misal 10rem / 160px -->
+            </div>
+            
+            <!-- Kontainer Link Navigasi -->
+            <div class="flex flex-row md:flex-col justify-start md:justify-start w-full h-full md:h-auto gap-1 md:gap-2 px-2 md:px-2">
+                
+                <!-- Link Halaman Utama -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-home">
+                    <i data-lucide="home" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Halaman Utama</span>
+                </a>
+
+                <!-- Link Modul 1 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-1">
+                    <i data-lucide="package" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 1: Fondasi</span>
+                </a>
+                
+                <!-- Link Modul 2 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-2">
+                    <i data-lucide="truck" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 2: Layanan</span>
+                </a>
+
+                <!-- Link Modul 3 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-3">
+                    <i data-lucide="container" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 3: Jenis Truk</span>
+                </a>
+
+                <!-- Link Modul 4 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-4">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 4: Dangerous Goods</span>
+                </a>
+
+                <!-- Link Modul 5 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-5">
+                    <i data-lucide="arrow-up-right-square" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 5: Ekspor</span>
+                </a>
+
+                <!-- Link Modul 6 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-6">
+                    <i data-lucide="arrow-down-left-square" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 6: Impor</span>
+                </a>
+
+                <!-- Link Modul 7 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-7">
+                    <i data-lucide="file-text" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 7: Incoterms</span>
+                </a>
+
+                <!-- Link Modul 8 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-8">
+                    <i data-lucide="file-stack" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 8: Dokumen</span>
+                </a>
+
+                <!-- Link Modul 9 -->
+                <a href="#" class="nav-link flex-shrink-0 flex items-center justify-center md:justify-start gap-3 p-3 md:p-4 rounded-lg
+                                  text-text-secondary hover:bg-accent hover:text-white transition-all duration-300
+                                  md:w-full"
+                   data-page="page-9">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Modul 9: Menjadi Ahli</span>
+                </a>
+
+            </div>
+
+            <!-- Tombol Toggle (Hanya Desktop) -->
+            <div class="hidden md:block border-t border-gray-700/50 mt-auto">
+                <button id="nav-toggle" class="flex items-center justify-start gap-3 w-full p-4 text-text-secondary hover:bg-accent hover:text-white transition-colors duration-200">
+                    <i data-lucide="chevrons-left" class="w-5 h-5 flex-shrink-0"></i>
+                    <span class="nav-text font-medium">Tutup Menu</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- KONTEN UTAMA -->
+        <main class="flex-1 w-full pb-20 md:pb-0 overflow-y-auto">
+            <div class="p-4 md:p-10 max-w-7xl mx-auto">
+
+                <!-- == HALAMAN UTAMA == -->
+                <section id="page-home" class="page-content">
+                    <div class="glass-ui rounded-xl p-6 md:p-10 text-center flex flex-col items-center shadow-2xl">
+                        <!-- Mengganti ikon anchor dengan logo -->
+                        <img src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png" 
+                             alt="Logo UGC Logistics" 
+                             class="w-64 h-auto mb-6"> <!-- Ukuran disesuaikan -->
+                        <h1 class="text-3xl md:text-5xl font-bold text-white mb-4">
+                            Selamat Datang di Playbook Logistik Interaktif
+                        </h1>
+                        <p class="text-lg md:text-xl text-text-secondary max-w-3xl mx-auto mb-8">
+                            Gunakan navigasi di samping (atau di bawah pada perangkat mobile) untuk menjelajahi setiap modul pengetahuan industri logistik secara mendalam.
+                        </p>
+                        <div class="flex gap-4">
+                            <a href="#" class="bg-accent text-white font-bold py-3 px-6 rounded-lg
+                                              hover:bg-opacity-80 transition-all duration-300
+                                              shadow-lg shadow-accent/30"
+                               onclick="showPage('page-1')">
+                                Mulai Belajar (Modul 1)
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- == HALAMAN MODUL 1 == -->
+                <section id="page-1" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 1 - FONDASI INDUSTRI LOGISTIK
+                    </h1>
+
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="1-1">1. Pengantar</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="1-2">2. Logistik vs SC</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="1-3">3. Tujuan & Manfaat</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="1-4">4. Pelaku</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="1-5">5. Moda Transport</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="1-6">6. SLA & Kinerja</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="1-7">7. Teknologi</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="1-8">8. Cara Belajar</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-1-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="flag" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Pengantar Industri Logistik</h3>
+                            </div>
+                            <p class="mb-4">Industri logistik adalah sistem yang mengatur pergerakan, penyimpanan, dan pengendalian barang, informasi, serta aliran keuangan dari titik asal sampai titik tujuan secara efisien, aman, dan andal. Dalam setiap rantai pasok, logistik berperan sebagai penghubung antara pemasok, produsen, distributor, hingga pelanggan akhir.</p>
+                            <p>Bagi orang yang baru belajar, penting untuk memahami bahwa logistik bukan hanya soal kirim barang. Logistik mencakup perencanaan, pemilihan moda transport, pengelolaan gudang, penanganan dokumen, pengelolaan biaya, hingga penggunaan teknologi untuk memastikan semua proses berjalan sesuai target waktu dan kualitas.</p>
+                        </div>
+                        <div id="tab-1-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="link" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Perbedaan Logistik dan Supply Chain</h3>
+                            </div>
+                            <p class="mb-4">Logistik berfokus pada pergerakan dan penyimpanan barang, sedangkan supply chain mencakup ruang lingkup yang lebih luas, mulai dari perencanaan permintaan, pengadaan bahan baku, produksi, hingga distribusi ke pelanggan.</p>
+                            <p>Logistik adalah bagian dari supply chain. Orang yang ahli logistik harus paham bahwa keputusan di bagian logistik selalu berdampak ke seluruh supply chain, misalnya keputusan pemilihan moda transport akan mempengaruhi lead time, safety stock, dan biaya total.</p>
+                            <h4>2.1 Tiga Arus Utama dalam Logistik</h4>
+                            <ul>
+                                <li><strong>Arus barang:</strong> pergerakan fisik barang dari pemasok sampai ke pelanggan.</li>
+                                <li><strong>Arus informasi:</strong> data terkait status barang, jadwal keberangkatan, nomor resi, nomor kontainer, hingga bukti serah terima.</li>
+                                <li><strong>Arus keuangan:</strong> aliran pembayaran freight, biaya gudang, bea masuk, pajak, dan klaim.</li>
+                            </ul>
+                            <p class="mt-4">Seorang praktisi logistik yang baik harus menjaga agar ketiga arus ini selaras. Barang bergerak, informasi akurat dan tepat waktu, serta pembayaran tercatat dengan benar.</p>
+                        </div>
+                        <div id="tab-1-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="target" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Tujuan dan Manfaat Logistik yang Baik</h3>
+                            </div>
+                            <p class="mb-4">Tujuan utama logistik adalah mengantarkan barang yang tepat, ke tempat yang tepat, dalam jumlah yang tepat, pada waktu yang tepat, dengan kondisi yang tepat, dan biaya total yang optimal.</p>
+                            <p>Manfaat sistem logistik yang baik antara lain:</p>
+                            <ul>
+                                <li>Menurunkan biaya operasi tanpa mengorbankan kualitas layanan.</li>
+                                <li>Meningkatkan kepuasan pelanggan karena pengiriman lebih cepat dan bisa diandalkan.</li>
+                                <li>Mendukung pertumbuhan penjualan karena perusahaan mampu melayani lebih banyak wilayah dengan lebih efektif.</li>
+                                <li>Mengurangi kerusakan dan kehilangan barang melalui penanganan yang terstandar.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-1-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="users" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Pelaku dalam Ekosistem Logistik</h3>
+                            </div>
+                            <p class="mb-4">Dalam industri logistik terdapat beberapa jenis pelaku utama:</p>
+                            <ul>
+                                <li><strong>Shipper:</strong> pemilik barang, bisa berupa eksportir, importir, produsen, distributor, atau penjual online.</li>
+                                <li><strong>Carrier:</strong> pengangkut yang mengoperasikan moda transport, misalnya perusahaan pelayaran, maskapai kargo, perusahaan truk, dan operator kereta.</li>
+                                <li><strong>Freight forwarder:</strong> perusahaan yang mengatur pengiriman dari ujung ke ujung, mengurus booking carrier, dokumen, dan koordinasi dengan bea cukai.</li>
+                                <li><strong>Customs broker:</strong> pihak yang secara khusus mengurus kepabeanan, HS code, serta perhitungan bea masuk dan pajak.</li>
+                                <li><strong>Warehouse operator:</strong> pengelola gudang dan fasilitas penyimpanan.</li>
+                                <li><strong>Penyedia teknologi logistik:</strong> perusahaan yang menyediakan TMS, WMS, aplikasi tracking, dan platform logistik digital.</li>
+                            </ul>
+                            <p class="mt-4">Memahami peran masing masing pelaku akan membantu kita mengerti siapa melakukan apa, dan ke siapa kita harus berkoordinasi ketika terjadi masalah.</p>
+                        </div>
+                        <div id="tab-1-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="send" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Moda Transport dalam Logistik</h3>
+                            </div>
+                            <p class="mb-4">Secara umum, moda transport dibagi menjadi:</p>
+                            <ul>
+                                <li>Transport darat: truk, pickup, van, dan kereta api.</li>
+                                <li>Transport laut: kapal kontainer, kapal general cargo, kapal tanker, kapal RoRo, dan barge.</li>
+                                <li>Transport udara: pesawat kargo, belly cargo di pesawat penumpang.</li>
+                                <li>Transport multimoda: kombinasi dua moda atau lebih, misalnya truk plus kapal, atau kereta plus kapal.</li>
+                            </ul>
+                            <p class="mt-4 mb-4">Setiap moda memiliki karakteristik:</p>
+                            <ul>
+                                <li><strong>Laut:</strong> biaya lebih rendah per unit, kapasitas sangat besar, namun lead time lebih lama.</li>
+                                <li><strong>Udara:</strong> sangat cepat, cocok untuk barang bernilai tinggi atau urgent, tetapi biaya jauh lebih tinggi.</li>
+                                <li><strong>Darat:</strong> fleksibel, bisa menjangkau banyak titik, cocok untuk distribusi domestik dan regional.</li>
+                                <li><strong>Multimoda:</strong> dimanfaatkan ketika tidak ada satu moda saja yang cukup efisien, misalnya kiriman pulau ke pulau yang butuh truk dan kapal sekaligus.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-1-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="gauge" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Konsep Service Level dan Target Kinerja</h3>
+                            </div>
+                            <p class="mb-4">Agar operasional logistik terarah, perusahaan menentukan target kinerja yang disebut Service Level Agreement atau SLA. Beberapa SLA umum di logistik:</p>
+                            <ul>
+                                <li>On time pickup: persentase pickup yang dilakukan sesuai jadwal.</li>
+                                <li>On time delivery: persentase pengiriman yang tiba sesuai target waktu.</li>
+                                <li>Damage ratio: persentase kiriman yang rusak dibanding total kiriman.</li>
+                                <li>Loss ratio: persentase kiriman yang hilang atau tidak ditemukan.</li>
+                                <li>Lead time door to door: total waktu dari titik pickup sampai titik delivery.</li>
+                            </ul>
+                            <p class="mt-4 mb-4">Selain SLA, digunakan juga Key Performance Indicator atau KPI operasional, misalnya:</p>
+                            <ul>
+                                <li>Utilisasi truk: seberapa penuh truk terisi dibanding kapasitas maksimal.</li>
+                                <li>Utilisasi gudang: persentase penggunaan space gudang.</li>
+                                <li>Biaya logistik per kilogram atau per kubik.</li>
+                            </ul>
+                            <p class="mt-4">Orang yang ingin menjadi ahli logistik harus terbiasa membaca, menganalisis, dan memperbaiki KPI tersebut.</p>
+                        </div>
+                        <div id="tab-1-7" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="cpu" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">7. Peran Teknologi dalam Logistik Modern</h3>
+                            </div>
+                            <p class="mb-4">Logistik modern tidak bisa dipisahkan dari teknologi. Beberapa sistem yang umum digunakan:</p>
+                            <ul>
+                                <li><strong>TMS</strong> atau Transportation Management System untuk mengatur rute truk, jadwal, dan perhitungan biaya.</li>
+                                <li><strong>WMS</strong> atau Warehouse Management System untuk mengatur penerimaan barang, lokasi penyimpanan, picking, dan stock opname.</li>
+                                <li><strong>ERP</strong> untuk menghubungkan logistik dengan keuangan, pembelian, dan penjualan.</li>
+                                <li><strong>Sistem tracking</strong> berbasis GPS, mobile app kurir, dan kode batang atau QR code untuk melacak status barang secara real time.</li>
+                            </ul>
+                            <p class="mt-4">Teknologi ini membantu mengurangi kesalahan manual, mempercepat komunikasi, dan menyediakan data historis untuk analisa.</p>
+                        </div>
+                        <div id="tab-1-8" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="book-open" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">8. Cara Belajar Logistik Secara Sistematis</h3>
+                            </div>
+                            <p class="mb-4">Untuk menjadi ahli, materi logistik perlu dipelajari secara bertahap:</p>
+                            <ul>
+                                <li>Mulai dari pemahaman dasar tentang rantai pasok dan pelaku logistik.</li>
+                                <li>Memahami setiap jenis layanan logistik dan flow operasionalnya.</li>
+                                <li>Mendalami dokumen dan regulasi ekspor impor.</li>
+                                <li>Mengetahui detail perhitungan biaya, tarif, dan komponen harga.</li>
+                                <li>Mempelajari risiko logistik dan cara mitigasinya.</li>
+                                <li>Memahami teknologi dan data yang digunakan untuk mengelola logistik.</li>
+                            </ul>
+                            <p class="mt-4">Modul modul berikutnya dirancang agar pembaca yang awalnya awam dapat naik level menjadi praktisi yang mampu memahami dan merancang solusi logistik secara menyeluruh.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- == HALAMAN MODUL 2 == -->
+                <section id="page-2" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 2 - LAYANAN LOGISTIK DAN FLOW OPERASIONAL
+                    </h1>
+
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="2-1">1. Gambaran</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="2-2">2. Trucking LTL/FTL</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="2-3">3. Ocean Freight</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="2-4">4. Air Freight</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="2-5">5. Warehouse</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="2-6">6. Freight Forwarding</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-2-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="eye" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Gambaran Umum Layanan Logistik</h3>
+                            </div>
+                            <p>Layanan logistik dapat dibagi ke beberapa kategori utama: transport darat, laut, udara, pergudangan, fulfillment, layanan nilai tambah, dan integrator seperti freight forwarder dan penyedia 3PL atau 4PL. Untuk menjadi ahli, kita perlu memahami setiap layanan secara menyeluruh, mulai dari definisi, target pelanggan, flow operasional, sampai komponen biaya dan risiko.</p>
+                        </div>
+                        <div id="tab-2-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="truck" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Layanan Trucking Domestik LTL dan FTL</h3>
+                            </div>
+                            <h4>2.1 Definisi LTL dan FTL</h4>
+                            <p><strong>LTL atau Less than Truckload</strong> adalah pengiriman di mana barang dari beberapa pelanggan digabung dalam satu truk. Kapasitas truk dibagi berdasarkan berat atau volume, sehingga biaya per pelanggan lebih murah dibanding menyewa satu truk penuh.</p>
+                            <p class="mt-2"><strong>FTL atau Full Truckload</strong> adalah layanan sewa satu truk penuh untuk satu pelanggan. Truk biasanya berangkat dari asal menuju tujuan tanpa transit atau konsolidasi besar, sehingga lebih cepat dan risiko handling lebih sedikit.</p>
+                            
+                            <h4>2.2 Profil Pelanggan dan Kebutuhan</h4>
+                            <p>LTL biasanya digunakan oleh pelanggan yang memiliki volume pengiriman tidak terlalu besar per order, tetapi rutin dan ke banyak tujuan, misalnya distributor, seller online, perusahaan dengan banyak cabang.</p>
+                            <p class="mt-2">FTL digunakan oleh pelanggan yang memiliki volume besar dalam satu kali kiriman, misalnya pengiriman pallet dari pabrik ke gudang pusat, pengiriman bahan baku ke pabrik, atau kiriman proyek.</p>
+
+                            <h4>2.3 Flow Operasional LTL Secara Rinci</h4>
+                            <ul>
+                                <li>Penggalian kebutuhan dan penawaran harga oleh tim sales.</li>
+                                <li>Input order ke sistem dengan informasi lengkap.</li>
+                                <li>Penjadwalan pickup dan penugasan armada pickup.</li>
+                                <li>Proses pickup di lokasi shipper, termasuk cek fisik barang dan penerbitan surat jalan.</li>
+                                <li>Barang dibawa ke hub atau gudang konsolidasi untuk disortir per tujuan.</li>
+                                <li>Proses loading barang ke truk linehaul.</li>
+                                <li>Truk berangkat ke hub tujuan, dipantau melalui GPS.</li>
+                                <li>Di hub tujuan, barang dibongkar dan disortir per zona delivery.</li>
+                                <li>Proses last mile delivery dengan armada yang lebih kecil.</li>
+                                <li>Pengambilan bukti serah terima (Proof of Delivery) dan update status.</li>
+                            </ul>
+
+                            <h4>2.4 Flow Operasional FTL</h4>
+                            <p>Flow FTL lebih sederhana:</p>
+                            <ul>
+                                <li>Penawaran harga dan kesepakatan rute, tipe truk, dan SLA.</li>
+                                <li>Penjadwalan truk dan driver.</li>
+                                <li>Pickup barang langsung dari shipper.</li>
+                                <li>Barang diangkut langsung menuju consignee.</li>
+                                <li>Serah terima barang di tujuan dan pengambilan bukti terima.</li>
+                            </ul>
+
+                            <h4>2.5 Komponen Biaya Layanan Trucking</h4>
+                            <ul>
+                                <li>Biaya dasar per trip atau per kilometer.</li>
+                                <li>Biaya BBM.</li>
+                                <li>Biaya tol dan ferry.</li>
+                                <li>Biaya supir dan kenek.</li>
+                                <li>Biaya perawatan dan depresiasi kendaraan.</li>
+                                <li>Biaya administrasi dan overhead.</li>
+                                <li>Surcharge (high season, fuel surcharge).</li>
+                            </ul>
+
+                            <h4>2.6 Risiko dan Mitigasi dalam Layanan Trucking</h4>
+                            <p>Risiko utama adalah keterlambatan, kerusakan, kecelakaan, dan kehilangan. Mitigasi:</p>
+                            <ul>
+                                <li>Perencanaan rute yang realistis.</li>
+                                <li>Pemeriksaan kendaraan (pre trip inspection).</li>
+                                <li>Pelatihan sopir (defensive driving, penanganan barang).</li>
+                                <li>Penggunaan seal dan segel.</li>
+                                <li>Asuransi kendaraan dan asuransi cargo.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-2-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="ship" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Layanan Ocean Freight</h3>
+                            </div>
+                            <h4>3.1 Jenis Layanan Ocean Freight</h4>
+                            <ul>
+                                <li><strong>FCL (Full Container Load):</strong> satu pelanggan per kontainer.</li>
+                                <li><strong>LCL (Less than Container Load):</strong> beberapa pelanggan berbagi space dalam satu kontainer.</li>
+                                <li><strong>Breakbulk:</strong> barang besar yang tidak dimasukkan ke kontainer.</li>
+                                <li><strong>RoRo:</strong> untuk kendaraan yang dikemudikan langsung masuk ke kapal.</li>
+                            </ul>
+
+                            <h4>3.2 Flow Operasional FCL Ekspor</h4>
+                            <ul>
+                                <li>Eksportir dan pembeli menyepakati incoterm dan jadwal.</li>
+                                <li>Forwarder melakukan booking space ke shipping line.</li>
+                                <li>Kontainer kosong diantar ke eksportir untuk stuffing (diisi).</li>
+                                <li>Kontainer disegel dan dikirim ke terminal pelabuhan.</li>
+                                <li>Forwarder mengurus dokumen pabean ekspor.</li>
+                                <li>Kontainer dimuat ke kapal.</li>
+                                <li>Shipping line menerbitkan Bill of Lading.</li>
+                                <li>Di tujuan, importir mengurus customs clearance dan pengeluaran kontainer.</li>
+                            </ul>
+                            
+                            <h4>3.3 Komponen Biaya Ocean Freight</h4>
+                            <ul>
+                                <li>Ocean freight (biaya angkut laut).</li>
+                                <li>THC (Terminal Handling Charge) di pelabuhan asal dan tujuan.</li>
+                                <li>Biaya dokumentasi (B/L, admin).</li>
+                                <li>Biaya trucking (pre carriage dan on carriage).</li>
+                                <li>Biaya stuffing dan stripping.</li>
+                                <li>Surcharge (bunker adjustment, war risk, dll).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-2-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="plane" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Layanan Air Freight</h3>
+                            </div>
+                            <h4>4.1 Karakteristik Air Freight</h4>
+                            <p>Air freight digunakan untuk barang yang membutuhkan pengiriman cepat, bernilai tinggi, atau sensitif waktu. Biaya per kilogram jauh lebih tinggi dibanding laut.</p>
+
+                            <h4>4.2 Flow Operasional Air Freight</h4>
+                            <ul>
+                                <li>Shipper memberi data barang dan kebutuhan lead time.</li>
+                                <li>Forwarder menghitung chargeable weight dan memberi penawaran.</li>
+                                <li>Booking space ke maskapai.</li>
+                                <li>Barang dikemas sesuai standar kargo udara dan diantar ke gudang kargo bandara.</li>
+                                <li>Forwarder mengurus dokumen ekspor dan Air Waybill.</li>
+                                <li>Barang dimuat ke pesawat.</li>
+                                <li>Di bandara tujuan, forwarder tujuan mengurus clearance dan delivery.</li>
+                            </ul>
+
+                            <h4>4.3 Komponen Biaya Air Freight</h4>
+                            <ul>
+                                <li>Freight per kilogram (berdasarkan chargeable weight).</li>
+                                <li>Biaya handling di gudang kargo.</li>
+                                <li>Security screening (x-ray).</li>
+                                <li>Biaya dokumentasi dan admin.</li>
+                                <li>Trucking ke dan dari bandara.</li>
+                                <li>Surcharge (fuel surcharge, war risk).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-2-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="warehouse" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Warehouse dan Fulfillment</h3>
+                            </div>
+                            <h4>5.1 Jenis Layanan Warehouse</h4>
+                            <ul>
+                                <li>Penyimpanan (storage) jangka pendek dan panjang.</li>
+                                <li>Fulfillment order (untuk e-commerce dan retail).</li>
+                                <li>Cross docking (transit cepat tanpa penyimpanan lama).</li>
+                                <li>Value Added Services (labeling, kitting, bundling, repacking, quality check).</li>
+                            </ul>
+
+                            <h4>5.2 Flow Operasional Fulfillment</h4>
+                            <ul>
+                                <li><strong>Inbound:</strong> barang masuk, diperiksa, diinput ke sistem.</li>
+                                <li><strong>Putaway:</strong> barang ke lokasi penyimpanan.</li>
+                                <li><strong>Order Processing:</strong> sistem menerima order.</li>
+                                <li><strong>Picking:</strong> pengambilan barang berdasarkan picking list.</li>
+                                <li><strong>Packing:</strong> pengemasan aman, penempelan label.</li>
+                                <li><strong>Outbound:</strong> barang diserahkan ke carrier.</li>
+                                <li>Sistem mengupdate status stok dan menyediakan laporan.</li>
+                            </ul>
+
+                            <h4>5.3 Komponen Biaya dan KPI Warehouse</h4>
+                            <p>Biaya gudang bisa berbasis:</p>
+                            <ul>
+                                <li>Space (Rupiah per meter persegi per bulan).</li>
+                                <li>Posisi pallet (Rupiah per pallet per bulan).</li>
+                                <li>Activity based (biaya per inbound, per pick, per outbound).</li>
+                            </ul>
+                            <p class="mt-2">KPI gudang meliputi akurasi stok, akurasi picking, order cycle time, dan tingkat pemanfaatan space.</p>
+                        </div>
+                        <div id="tab-2-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="briefcase" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Freight Forwarding dan Customs Brokerage</h3>
+                            </div>
+                            <h4>6.1 Peran Freight Forwarder</h4>
+                            <p>Freight forwarder berperan sebagai integrator yang menghubungkan shipper dengan berbagai carrier. Forwarder mengatur pemilihan rute, booking ke shipping line atau maskapai, mengurus dokumen ekspor impor, serta berkomunikasi dengan broker bea cukai dan pihak lain.</p>
+
+                            <h4>6.2 Peran Customs Broker</h4>
+                            <p>Customs broker fokus pada kepabeanan. Tugas utamanya adalah menentukan HS code yang tepat, menghitung bea masuk dan pajak, mengurus pengajuan dokumen pabean, mendampingi bila ada pemeriksaan fisik, dan memastikan barang bisa keluar dari pelabuhan atau bandara tepat waktu.</p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- == HALAMAN MODUL 3 == -->
+                <section id="page-3" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 3 - JENIS TRUK, KAPASITAS, DAN PERENCANAAN MUATAN
+                    </h1>
+
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="3-1">1. Peran Truk</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="3-2">2. Jenis Truk</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="3-3">3. Kapasitas & Volume</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="3-4">4. Regulasi ODOL</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="3-5">5. Perencanaan Muatan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="3-6">6. Praktik Terbaik</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="3-7">7. Check List</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-3-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="truck" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Peran Penting Truk dalam Logistik</h3>
+                            </div>
+                            <p>Truk adalah tulang punggung logistik darat. Hampir semua barang pada akhirnya akan naik truk, baik sebagai pengangkutan utama maupun sebagai penghubung ke moda lain. Memahami jenis truk, kapasitas, batasan regulasi, serta cara menghitung muatan adalah keterampilan dasar yang wajib dimiliki.</p>
+                        </div>
+                        <div id="tab-3-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="sliders-horizontal" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Jenis Jenis Truk Umum di Indonesia</h3>
+                            </div>
+                            <h4>2.1 Kendaraan Kecil</h4>
+                            <ul>
+                                <li><strong>Pick up:</strong> Kapasitas ~1 ton, volume ~2-4 kubik. Cocok untuk last mile.</li>
+                                <li><strong>Blind van:</strong> Kapasitas mirip pick up, box tertutup. Lebih aman.</li>
+                            </ul>
+                            <h4>2.2 Truk Sedang</h4>
+                            <ul>
+                                <li><strong>CDE (Colt Diesel Engkel):</strong> 4 roda, kapasitas ~2-2,5 ton, volume ~9-10 kubik.</li>
+                                <li><strong>CDD (Colt Diesel Double):</strong> 6 roda, kapasitas ~4-5 ton, volume ~20-24 kubik.</li>
+                            </ul>
+                            <h4>2.3 Truk Berat</h4>
+                            <ul>
+                                <li><strong>Fuso:</strong> Kapasitas ~7-8 ton.</li>
+                                <li><strong>Tronton:</strong> 10 roda, kapasitas ~10-20 ton, volume ~30 kubik.</li>
+                                <li><strong>Wingbox:</strong> Dinding samping terbuka seperti sayap, memudahkan loading forklift.</li>
+                                <li><strong>Trailer 20 & 40 kaki:</strong> Untuk angkutan kontainer. 20 kaki (~20 ton), 40 kaki (~30 ton).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-3-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="scale" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Konsep Kapasitas, Payload, dan Volume</h3>
+                            </div>
+                            <h4>3.1 Gross Vehicle Weight dan Payload</h4>
+                            <p><strong>Gross Vehicle Weight</strong> adalah berat total kendaraan + muatan yang diizinkan.</p>
+                            <p class="mt-2"><strong>Payload</strong> adalah berat muatan maksimal yang boleh dibawa. Melampaui payload berarti over load.</p>
+
+                            <h4>3.2 Volume dan Konversi ke CBM</h4>
+                            <p>Volume dihitung dalam kubik (CBM) = Panjang x Lebar x Tinggi. Dalam praktik, planner menggunakan faktor pemakaian volume (misal 85% dari volume teoritis) karena barang tidak selalu bisa disusun rapat.</p>
+
+                            <h4>3.3 Contoh Perhitungan Muatan</h4>
+                            <p>Tronton (9,4m x 2,4m x 2,4m) memiliki volume teoritis. Namun, faktor seperti bentuk barang, sirkulasi udara, dan pengamanan barang harus dipertimbangkan.</p>
+                        </div>
+                        <div id="tab-3-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="gavel" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Regulasi dan Batasan ODOL</h3>
+                            </div>
+                            <p>Pemerintah menerapkan aturan untuk mencegah Over Dimension dan Over Load (ODOL). Praktisi logistik harus:</p>
+                            <ul>
+                                <li>Mengetahui batas muatan sumbu untuk tiap jenis kendaraan.</li>
+                                <li>Menghitung muatan agar tidak melebihi batas.</li>
+                                <li>Memahami risiko hukum dan keselamatan bila melanggar (tilang, larangan jembatan timbang, kecelakaan).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-3-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="clipboard-list" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Perencanaan Muatan dan Penentuan Tipe Truk</h3>
+                            </div>
+                            <p>Langkah-langkah planner:</p>
+                            <ul>
+                                <li>Mengumpulkan data dimensi, berat, dan jumlah barang.</li>
+                                <li>Menghitung total berat dan total volume.</li>
+                                <li>Menentukan apakah cocok LTL, FTL, atau trailer.</li>
+                                <li>Membandingkan skenario (misal 2 CDD vs 1 Tronton) dari sisi biaya dan risiko.</li>
+                                <li>Memastikan pemilihan truk sesuai akses jalan (jalan sempit, jembatan rendah, area larangan).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-3-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="check-check" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Praktik Terbaik dalam Penataan Muatan</h3>
+                            </div>
+                            <p>Prinsip utama penataan muatan di truk:</p>
+                            <ul>
+                                <li>Distribusikan berat secara merata.</li>
+                                <li>Letakkan muatan berat di bawah dan dekat sumbu, muatan ringan di atas.</li>
+                                <li>Gunakan alat bantu (pallet, tali pengikat, pengganjal) untuk mencegah pergeseran.</li>
+                                <li>Hindari menutup ventilasi dan pandangan supir.</li>
+                                <li>Beri penandaan jelas untuk barang mudah pecah.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-3-7" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="clipboard-check" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">7. Check List Kompetensi Modul Truk</h3>
+                            </div>
+                            <p>Setelah mempelajari modul ini, pembaca sebaiknya mampu:</p>
+                            <ul>
+                                <li>Mengidentifikasi jenis truk yang tepat berdasarkan data muatan.</li>
+                                <li>Menghitung estimasi kapasitas muatan dalam ton dan CBM.</li>
+                                <li>Memahami batasan regulasi dan risiko ODOL.</li>
+                                <li>Memahami prinsip penataan muatan yang aman.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- == HALAMAN MODUL 4 == -->
+                <section id="page-4" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 4 - DANGEROUS GOODS DAN PROSEDUR PENANGANANNYA
+                    </h1>
+
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="4-1">1. Pengertian</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="4-2">2. Klasifikasi</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="4-3">3. Dokumen (MSDS)</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="4-4">4. Regulasi</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="4-5">5. Prosedur</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="4-6">6. Risiko</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="4-7">7. Check List</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-4-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="biohazard" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Pengertian Dangerous Goods</h3>
+                            </div>
+                            <p>Dangerous Goods (barang berbahaya) adalah bahan atau benda yang dapat membahayakan kesehatan, keselamatan, properti, atau lingkungan ketika diangkut. Contohnya bahan kimia mudah terbakar, gas bertekanan, bahan korosif, dan bahan radioaktif.</p>
+                            <p class="mt-2">Memahami Dangerous Goods sangat penting karena kesalahan dalam penanganan dapat menyebabkan kecelakaan serius, kebakaran, ledakan, serta konsekuensi hukum yang berat.</p>
+                        </div>
+                        <div id="tab-4-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="layout-list" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Klasifikasi Dangerous Goods</h3>
+                            </div>
+                            <p>Secara internasional, Dangerous Goods diklasifikasikan menjadi 9 kelas utama:</p>
+                            <ul>
+                                <li><strong>Kelas 1:</strong> Bahan peledak (petasan, dinamit).</li>
+                                <li><strong>Kelas 2:</strong> Gas (LPG, oksigen, gas beracun).</li>
+                                <li><strong>Kelas 3:</strong> Cairan mudah terbakar (bensin, thinner).</li>
+                                <li><strong>Kelas 4:</strong> Padatan mudah terbakar.</li>
+                                <li><strong>Kelas 5:</strong> Bahan pengoksidasi.</li>
+                                <li><strong>Kelas 6:</strong> Bahan beracun dan infeksius.</li>
+                                <li><strong>Kelas 7:</strong> Bahan radioaktif.</li>
+                                <li><strong>Kelas 8:</strong> Bahan korosif (asam kuat).</li>
+                                <li><strong>Kelas 9:</strong> Barang berbahaya lainnya.</li>
+                            </ul>
+                            <p class="mt-2">Setiap barang berbahaya memiliki nomor PBB (UN Number) yang mengidentifikasi jenis bahaya.</p>
+                        </div>
+                        <div id="tab-4-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="file-warning" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Dokumen dan Informasi Kunci Dangerous Goods</h3>
+                            </div>
+                            <h4>3.1 Material Safety Data Sheet (MSDS)</h4>
+                            <p>MSDS adalah dokumen dari produsen bahan kimia. Isinya:</p>
+                            <ul>
+                                <li>Komposisi bahan, sifat fisik dan kimia.</li>
+                                <li>Bahaya kesehatan dan kebakaran.</li>
+                                <li>Tindakan penanganan darurat.</li>
+                            </ul>
+                            <p class="mt-2">Dalam logistik, MSDS digunakan untuk menentukan kelas DG, rekomendasi packaging, dan cara penanganan tumpahan.</p>
+                            
+                            <h4>3.2 Label dan Marking</h4>
+                            <p>Setiap kiriman DG harus diberi label bahaya (simbol, warna, angka) sesuai kelasnya, UN Number, dan proper shipping name.</p>
+                        </div>
+                        <div id="tab-4-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="gavel" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Regulasi Dangerous Goods per Moda Transport</h3>
+                            </div>
+                            <h4>4.1 Moda Udara</h4>
+                            <p>Diatur oleh <strong>IATA Dangerous Goods Regulations</strong>. Aturannya sangat ketat. Tidak semua DG boleh terbang. Wajib menggunakan kemasan standar dan Shipper Declaration for Dangerous Goods.</p>
+                            
+                            <h4>4.2 Moda Laut</h4>
+                            <p>Diatur oleh <strong>IMDG Code</strong> (International Maritime Dangerous Goods Code). Mengatur klasifikasi, pengemasan, pelabelan, penyimpanan, dan pemisahan antar DG yang tidak kompatibel di kapal.</p>
+
+                            <h4>4.3 Moda Darat dan Kereta</h4>
+                            <p>Diatur oleh <strong>ADR</strong> (jalan) dan <strong>RID</strong> (rel) di beberapa wilayah. Setiap negara juga punya regulasi nasional (kendaraan, pelatihan supir, rute).</p>
+                        </div>
+                        <div id="tab-4-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="shield-alert" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Prosedur Penanganan Dangerous Goods secara Umum</h3>
+                            </div>
+                            <ul>
+                                <li>Pastikan dokumen MSDS tersedia dan dibaca.</li>
+                                <li>Identifikasi kelas dan UN Number.</li>
+                                <li>Pastikan kemasan dan label sesuai.</li>
+                                <li>Periksa apakah moda transport mengizinkan barang tersebut.</li>
+                                <li>Pastikan staf (driver, operator gudang) telah mendapat pelatihan DG.</li>
+                                <li>Siapkan perlengkapan darurat (pasir, pemadam, APD).</li>
+                                <li>Pastikan ada prosedur tertulis untuk penanganan darurat (tumpahan, kebocoran).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-4-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="flame" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Risiko Umum dan Mitigasi dalam Dangerous Goods</h3>
+                            </div>
+                            <ul>
+                                <li>
+                                    <strong>Risiko:</strong> Kebakaran atau ledakan.
+                                    <br>
+                                    <strong>Mitigasi:</strong> Gunakan kemasan tahan bocor, hindari sumber panas.
+                                </li>
+                                <li>
+                                    <strong>Risiko:</strong> Paparan bahan beracun pada manusia.
+                                    <br>
+                                    <strong>Mitigasi:</strong> Gunakan APD, beri pelatihan P3K.
+                                </li>
+                                <li>
+                                    <strong>Risiko:</strong> Kebocoran yang mencemari lingkungan.
+                                    <br>
+                                    <strong>Mitigasi:</strong> Pastikan kemasan kuat, siapkan prosedur containment.
+                                </li>
+                            </ul>
+                        </div>
+                        <div id="tab-4-7" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="clipboard-check" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">7. Check List Kompetensi Modul Dangerous Goods</h3>
+                            </div>
+                            <p>Setelah mempelajari modul ini, pembaca sebaiknya mampu:</p>
+                            <ul>
+                                <li>Menjelaskan apa itu Dangerous Goods dan perlunya perlakuan khusus.</li>
+                                <li>Mengidentifikasi kelas bahaya berdasarkan MSDS dan label.</li>
+                                <li>Menjelaskan perbedaan aturan dasar per moda transport.</li>
+                                <li>Menyebutkan langkah-langkah utama sebelum menerima dan mengirim DG.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- == HALAMAN MODUL 5 == -->
+                <section id="page-5" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 5 - PROSEDUR EKSPOR UNTUK BERBAGAI KOMODITAS DAN MODA
+                    </h1>
+
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="5-1">1. Gambaran</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="5-2">2. Tahapan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="5-3">3. Dokumen</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="5-4">4. Prosedur/Moda</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="5-5">5. Prosedur/Komoditas</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="5-6">6. Letter of Credit</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="5-7">7. Check List</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-5-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="globe" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Gambaran Umum Proses Ekspor</h3>
+                            </div>
+                            <p>Ekspor adalah kegiatan menjual barang ke luar negeri. Proses ini melibatkan tiga aspek: komersial, logistik, dan kepabeanan. Ahli logistik ekspor harus memahami ketiganya agar pengiriman aman, patuh hukum, dan efisien.</p>
+                        </div>
+                        <div id="tab-5-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="list-steps" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Tahapan Proses Ekspor Secara Umum</h3>
+                            </div>
+                            <ul>
+                                <li>Negosiasi dan kontrak dengan pembeli (incoterm, syarat bayar).</li>
+                                <li>Persiapan barang (produksi, quality control, pengemasan ekspor).</li>
+                                <li>Persiapan dokumen komersial (invoice, packing list, certificate of origin).</li>
+                                <li>Booking jasa logistik (freight forwarder) untuk moda laut atau udara.</li>
+                                <li>Pengurusan dokumen kepabeanan ekspor dan izin khusus.</li>
+                                <li>Pengiriman barang ke pelabuhan/bandara dan proses pemuatan.</li>
+                                <li>Penyerahan dokumen pengapalan ke pembeli atau bank (jika pakai LC).</li>
+                                <li>Pelacakan perjalanan barang.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-5-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="file-up" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Dokumen Ekspor Utama dan Fungsinya</h3>
+                            </div>
+                            <ul>
+                                <li><strong>Commercial Invoice:</strong> Rincian transaksi (harga, mata uang). Dasar perhitungan bea masuk di negara tujuan.</li>
+                                <li><strong>Packing List:</strong> Rincian isi kemasan (jumlah, berat kotor/bersih). Penting untuk pemeriksaan fisik.</li>
+                                <li><strong>Certificate of Origin (COO):</strong> Menjelaskan negara asal barang. Diperlukan untuk tarif preferensi (perdagangan bebas).</li>
+                                <li><strong>Bill of Lading (B/L):</strong> Dokumen pengangkutan laut. Diterbitkan carrier, sering berfungsi sebagai dokumen kepemilikan.</li>
+                                <li><strong>Air Waybill (AWB):</strong> Dokumen pengangkutan udara. Bersifat non-negotiable.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-5-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="arrow-right-left" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Prosedur Ekspor per Moda Transport</h3>
+                            </div>
+                            <h4>4.1 Ekspor melalui Laut</h4>
+                            <ul>
+                                <li>Booking kontainer (FCL) atau slot LCL ke shipping line.</li>
+                                <li>Stuffing (isi) kontainer di pabrik atau depot.</li>
+                                <li>Mengurus dokumen kepabeanan ekspor.</li>
+                                <li>Kontainer (disegel) gate-in ke terminal.</li>
+                                <li>Kontainer dimuat ke kapal, shipping line menerbitkan B/L.</li>
+                            </ul>
+                            <h4>4.2 Ekspor melalui Udara</h4>
+                            <ul>
+                                <li>Booking space ke maskapai via forwarder.</li>
+                                <li>Barang dikemas sesuai standar kargo udara.</li>
+                                <li>Mengurus dokumen ekspor dan AWB.</li>
+                                <li>Barang diserahkan ke terminal kargo bandara (melalui x-ray).</li>
+                                <li>Barang dimuat ke pesawat.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-5-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="package-search" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Perbedaan Prosedur Ekspor per Komoditas</h3>
+                            </div>
+                            <h4>5.1 Produk Pertanian dan Pangan</h4>
+                            <p>Biasanya diperlukan:</p>
+                            <ul>
+                                <li>Sertifikat fitosanitari (karantina tumbuhan).</li>
+                                <li>Izin dan sertifikat kesehatan pangan.</li>
+                                <li>Persyaratan tambahan dari negara tujuan (standar residu pestisida).</li>
+                            </ul>
+                            <h4>5.2 Produk Farmasi dan Alat Kesehatan</h4>
+                            <p>Diperlukan:</p>
+                            <ul>
+                                <li>Sertifikat izin edar.</li>
+                                <li>Dokumen registrasi produk di negara tujuan.</li>
+                                <li>Kadang diperlukan pengiriman cold chain (suhu terkendali).</li>
+                            </ul>
+                            <h4>5.3 Produk Industri dan Mesin</h4>
+                            <p>Perlu diperhatikan:</p>
+                            <ul>
+                                <li>Sertifikat kualitas dan keselamatan (misal: CE).</li>
+                                <li>Instruksi manual dan dokumentasi teknis.</li>
+                                <li>Pengemasan yang sangat kuat.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-5-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="landmark" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Peran Letter of Credit (LC) dan Skema Pembayaran</h3>
+                            </div>
+                            <p>LC adalah komitmen bank untuk membayar penjual (eksportir) BILA penjual menyerahkan dokumen yang LENGKAP dan AKURAT sesuai syarat LC.</p>
+                            <p class="mt-2">Bank hanya melihat dokumen, bukan barang. Kesalahan pada dokumen pengapalan (misal: B/L) dapat mengakibatkan penundaan pembayaran. Praktisi logistik harus memahami syarat LC terkait dokumen.</p>
+                        </div>
+                        <div id="tab-5-7" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="clipboard-check" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">7. Check List Kompetensi Modul Ekspor</h3>
+                            </div>
+                            <p>Setelah mempelajari modul ini, pembaca sebaiknya mampu:</p>
+                            <ul>
+                                <li>Menyebutkan dan menjelaskan fungsi dokumen utama ekspor.</li>
+                                <li>Menguraikan langkah-langkah ekspor dari negosiasi hingga pengapalan.</li>
+                                <li>Menjelaskan perbedaan syarat dokumen per komoditas.</li>
+                                <li>Memahami hubungan antara dokumen logistik dan skema pembayaran (LC).</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- == HALAMAN MODUL 6 == -->
+                <section id="page-6" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 6 - PROSEDUR IMPOR UNTUK BERBAGAI KOMODITAS DAN MODA
+                    </h1>
+                    
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="6-1">1. Pengertian</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="6-2">2. Tahapan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="6-3">3. Dokumen</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="6-4">4. HS Code</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="6-5">5. Prosedur/Moda</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="6-6">6. Prosedur/Komoditas</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="6-7">7. Check List</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-6-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="globe" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Pengertian dan Tujuan Proses Impor</h3>
+                            </div>
+                            <p>Impor adalah kegiatan membeli barang dari luar negeri dan memasukkannya ke dalam negeri. Proses ini melibatkan importir, forwarder, customs broker, dan bea cukai. Tujuan utamanya adalah memastikan barang masuk dengan lancar, legal, dan biaya terkelola.</p>
+                        </div>
+                        <div id="tab-6-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="list-steps" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Tahapan Proses Impor Secara Umum</h3>
+                            </div>
+                            <ul>
+                                <li>Negosiasi dan kontrak pembelian dengan supplier (incoterm, cara bayar).</li>
+                                <li>Supplier mengirim barang dan menerbitkan dokumen (Invoice, PL, B/L, COO).</li>
+                                <li>Forwarder di negara tujuan menerima pemberitahuan kedatangan (Notice of Arrival).</li>
+                                <li>Customs broker mengajukan dokumen kepabeanan impor dan menghitung bea masuk + pajak.</li>
+                                <li>Setelah clearance (dan pembayaran bea), barang dapat dikeluarkan dari pelabuhan/bandara.</li>
+                                <li>Barang dikirim ke gudang importir.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-6-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="file-down" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Dokumen Impor Utama</h3>
+                            </div>
+                            <p>Mirip dokumen ekspor, tapi dari sudut pandang importir:</p>
+                            <ul>
+                                <li>Commercial Invoice dari supplier.</li>
+                                <li>Packing List.</li>
+                                <li>Bill of Lading (B/L) atau Air Waybill (AWB).</li>
+                                <li>Certificate of Origin (COO).</li>
+                                <li>Dokumen khusus (sertifikat kesehatan, fitosanitari, teknis).</li>
+                            </ul>
+                            <p class="mt-2">Customs broker menggunakan ini untuk menentukan HS Code dan menghitung bea.</p>
+                        </div>
+                        <div id="tab-6-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="hash" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Peran HS Code dan Perhitungan Bea Masuk</h3>
+                            </div>
+                            <p><strong>HS code</strong> adalah kode klasifikasi barang internasional. Peran HS Code sangat penting untuk menentukan:</p>
+                            <ul>
+                                <li>Tarif bea masuk yang dikenakan.</li>
+                                <li>Apakah barang memerlukan izin impor khusus.</li>
+                                <li>Apakah barang mendapatkan tarif preferensi (perjanjian dagang).</li>
+                            </ul>
+                            <p class="mt-2">Kesalahan HS code dapat mengakibatkan kekurangan/kelebihan bayar bea, dan risiko sanksi. Penentuan HS code harus hati-hati, idealnya konsultasi dengan customs broker.</p>
+                        </div>
+                        <div id="tab-6-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="arrow-right-left" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Prosedur Impor per Moda Transport</h3>
+                            </div>
+                            <h4>5.1 Impor melalui Laut</h4>
+                            <ul>
+                                <li>Kapal tiba, shipping line terbitkan Notice of Arrival.</li>
+                                <li>Customs broker mengajukan dokumen kepabeanan.</li>
+                                <li>Bea cukai memberi respons (jalur hijau, kuning, atau merah).</li>
+                                <li>Setelah bea & pajak dibayar (dan pemeriksaan jika jalur merah), kontainer bisa dikeluarkan dari terminal.</li>
+                                <li>Kontainer dikirim ke gudang importir untuk dibongkar.</li>
+                            </ul>
+                            <h4>5.2 Impor melalui Udara</h4>
+                            <ul>
+                                <li>Pesawat tiba, kargo diturunkan ke gudang kargo.</li>
+                                <li>Broker mengurus dokumen kepabeanan.</li>
+                                <li>Setelah clearance dan bayar bea, barang bisa dikeluarkan dari gudang kargo.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-6-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="package-check" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Persyaratan Khusus per Komoditas</h3>
+                            </div>
+                            <h4>6.1 Produk Pangan dan Pertanian</h4>
+                            <p>Biasanya memerlukan:</p>
+                            <ul>
+                                <li>Izin impor dari otoritas pertanian dan pangan.</li>
+                                <li>Sertifikat fitosanitari dan sertifikat kesehatan (dari negara asal).</li>
+                                <li>Pemeriksaan karantina di negara tujuan.</li>
+                            </ul>
+                            <h4>6.2 Produk Farmasi dan Alat Kesehatan</h4>
+                            <p>Memerlukan:</p>
+                            <ul>
+                                <li>Izin dari otoritas kesehatan.</li>
+                                <li>Registrasi produk.</li>
+                                <li>Wajib cold chain jika sensitif suhu.</li>
+                            </ul>
+                            <h4>6.3 Produk Elektronik dan Mesin</h4>
+                            <p>Kadang perlu:</p>
+                            <ul>
+                                <li>Sertifikat kesesuaian dengan standar nasional.</li>
+                                <li>Dokumen teknis dan manual.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-6-7" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="clipboard-check" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">7. Check List Kompetensi Modul Impor</h3>
+                            </div>
+                            <p>Setelah mempelajari modul ini, pembaca sebaiknya mampu:</p>
+                            <ul>
+                                <li>Menjelaskan alur impor dari kedatangan barang sampai tiba di gudang.</li>
+                                <li>Menjelaskan peran HS code dan konsekuensi bila salah klasifikasi.</li>
+                                <li>Mengidentifikasi dokumen yang diperlukan untuk berbagai komoditas.</li>
+                                <li>Memahami peran customs broker.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- == HALAMAN MODUL 7 == -->
+                <section id="page-7" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 7 - INCOTERMS 2020 DAN MEKANISME BIAYA
+                    </h1>
+                    
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="7-1">1. Pengantar</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="7-2">2. Kelompok</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="7-3">3. Penjelasan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="7-4">4. Pemetaan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="7-5">5. Pertimbangan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="7-6">6. Contoh Kasus</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="7-7">7. Check List</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-7-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="book-marked" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Pengantar Incoterms</h3>
+                            </div>
+                            <p>Incoterms adalah aturan standar internasional (diterbitkan ICC) untuk menjelaskan pembagian tanggung jawab, biaya, dan risiko antara penjual dan pembeli dalam transaksi internasional. Ini memperjelas siapa mengurus apa (packing, angkut, asuransi, bea masuk).</p>
+                        </div>
+                        <div id="tab-7-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="layout-grid" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Kelompok Incoterms 2020</h3>
+                            </div>
+                            <p>Incoterms 2020 dibagi menjadi dua kelompok:</p>
+                            <ul>
+                                <li><strong>Incoterms untuk semua moda transport:</strong> EXW, FCA, CPT, CIP, DAP, DPU, DDP.</li>
+                                <li><strong>Incoterms khusus untuk transport laut:</strong> FAS, FOB, CFR, CIF.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-7-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="info" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Penjelasan Singkat Tiap Incoterm Utama</h3>
+                            </div>
+                            <h4>3.1 EXW (Ex Works)</h4>
+                            <p>Penjual menyiapkan barang di tempatnya (pabrik/gudang). Pembeli menanggung hampir semua biaya dan risiko dari titik tersebut sampai tujuan.</p>
+                            
+                            <h4>3.2 FOB (Free On Board)</h4>
+                            <p>Penjual menanggung biaya dan risiko sampai barang berada DI ATAS KAPAL di pelabuhan muat. Setelah di kapal, risiko berpindah ke pembeli. Pembeli menanggung freight laut, asuransi, dan biaya di pelabuhan tujuan.</p>
+
+                            <h4>3.3 CIF (Cost, Insurance, and Freight)</h4>
+                            <p>Penjual menanggung biaya sampai pelabuhan tujuan, TERMASUK freight laut dan asuransi minimum. Risiko tetap berpindah saat barang di atas kapal di pelabuhan muat.</p>
+
+                            <h4>3.4 DAP, DPU, dan DDP</h4>
+                            <ul>
+                                <li><strong>DAP (Delivered at Place):</strong> Penjual kirim sampai tempat tujuan, tapi tidak tanggung jawab bongkar atau bea masuk.</li>
+                                <li><strong>DPU (Delivered at Place Unloaded):</strong> Penjual kirim dan MENURUNKAN barang di tempat tujuan.</li>
+                                <li><strong>DDP (Delivered Duty Paid):</strong> Penjual menanggung semua biaya dan risiko sampai tempat pembeli, TERMASUK bea dan pajak impor.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-7-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="map" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Pemetaan Tanggung Jawab dan Biaya</h3>
+                            </div>
+                            <p>Untuk memahami incoterms, petakan:</p>
+                            <ul>
+                                <li>Siapa yang mengurus export clearance?</li>
+                                <li>Siapa yang bayar main carriage (pengangkutan utama)?</li>
+                                <li>Siapa yang mengurus asuransi?</li>
+                                <li>Siapa yang mengurus import clearance dan bayar bea/pajak?</li>
+                            </ul>
+                            <p class="mt-2">Praktisi logistik harus bisa memetakan ini per incoterm.</p>
+                        </div>
+                        <div id="tab-7-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="helping-hand" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Pertimbangan Memilih Incoterm</h3>
+                            </div>
+                            <ul>
+                                <li>Kekuatan negosiasi penjual dan pembeli.</li>
+                                <li>Pengalaman masing-masing pihak mengurus logistik.</li>
+                                <li>Regulasi lokal (misal: kewajiban pakai carrier nasional).</li>
+                                <li>Struktur harga dan keinginan mengontrol kualitas layanan transport.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-7-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="lightbulb" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Contoh Kasus Praktis</h3>
+                            </div>
+                            <h4>6.1 Eksportir Pemula</h4>
+                            <p>Mungkin lebih nyaman menjual dengan EXW atau FOB (tidak perlu urus angkutan utama). Tapi, pembeli yang memilih forwarder, sehingga eksportir kurang kendali atas lead time.</p>
+                            
+                            <h4>6.2 Importir yang Ingin Kontrol Penuh</h4>
+                            <p>Importir dapat meminta CFR atau CIF (penjual bayar freight laut), tapi importir tetap mengurus clearance dan distribusi domestik. Importir bisa kontrol biaya lokal.</p>
+                        </div>
+                        <div id="tab-7-7" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="clipboard-check" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">7. Check List Kompetensi Modul Incoterms</h3>
+                            </div>
+                            <p>Setelah mempelajari modul ini, pembaca sebaiknya mampu:</p>
+                            <ul>
+                                <li>Menjelaskan arti singkat setiap incoterm utama.</li>
+                                <li>Menggambar alur tanggung jawab dan biaya per incoterm.</li>
+                                <li>Menjelaskan konsekuensi praktis bila memilih incoterm tertentu.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- == HALAMAN MODUL 8 == -->
+                <section id="page-8" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 8 - DOKUMEN LOGISTIK DAN TRADE FINANCE
+                    </h1>
+                    
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="8-1">1. Peran Dokumen</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="8-2">2. Dok. Komersial</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="8-3">3. Dok. Pengangkutan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="8-4">4. Dok. Kepabeanan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="8-5">5. Trade Finance</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="8-6">6. Check List</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-8-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="file-text" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Peran Dokumen dalam Logistik dan Perdagangan Internasional</h3>
+                            </div>
+                            <p>Dokumen adalah penghubung antara aktivitas fisik (barang) dan aktivitas keuangan (pembayaran). Barang tidak bisa keluar/masuk negara tanpa dokumen yang benar, dan pembayaran tidak akan cair bila dokumen tidak sesuai syarat.</p>
+                        </div>
+                        <div id="tab-8-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="file-bar-chart-2" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Dokumen Komersial Utama</h3>
+                            </div>
+                            <ul>
+                                <li><strong>Commercial Invoice:</strong> Nilai barang, jumlah, harga. Dasar hitung bea masuk.</li>
+                                <li><strong>Packing List:</strong> Detail isi kemasan, berat kotor/bersih. Membantu pemeriksaan fisik.</li>
+                                <li><strong>Sales Contract:</strong> Perjanjian tertulis (incoterm, cara bayar, tanggal kapal).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-8-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="file-digit" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Dokumen Pengangkutan</h3>
+                            </div>
+                            <ul>
+                                <li><strong>Bill of Lading (B/L):</strong> Diterbitkan shipping line (laut). Bukti terima barang, kontrak angkut, dan (kadang) dokumen kepemilikan.</li>
+                                <li><strong>Air Waybill (AWB):</strong> Diterbitkan maskapai (udara). Bukti angkut dan instruksi kirim.</li>
+                                <li><strong>Dokumen transport darat:</strong> Surat jalan, consignment note, manifest truk.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-8-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="file-shield" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Dokumen Kepabeanan dan Regulasi</h3>
+                            </div>
+                            <ul>
+                                <li>Pemberitahuan ekspor dan impor ke bea cukai.</li>
+                                <li>Certificate of Origin (COO) dan sertifikat preferensi tarif.</li>
+                                <li>Sertifikat kesehatan, fitosanitari, dan izin lain (tergantung komoditas).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-8-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="banknote" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Trade Finance dan Skema Pembayaran</h3>
+                            </div>
+                            <h4>5.1 Telegraphic Transfer (TT)</h4>
+                            <p>Cara sederhana, pembeli transfer langsung ke penjual. Risiko di kepercayaan.</p>
+                            
+                            <h4>5.2 Letter of Credit (LC)</h4>
+                            <p>Komitmen bank untuk membayar penjual JIKA penjual menyerahkan dokumen yang SESUAI syarat LC.</p>
+                            <ul>
+                                <li>Importir minta bank terbitkan LC untuk eksportir.</li>
+                                <li>Eksportir kapal barang dan siapkan dokumen (Invoice, B/L, PL, COO) sesuai LC.</li>
+                                <li>Eksportir serahkan dokumen ke bank untuk diperiksa.</li>
+                                <li>Jika dokumen sesuai (comply), bank membayar.</li>
+                            </ul>
+                            <p class="mt-2">Ketelitian dokumen sangat penting.</p>
+
+                            <h4>5.3 Collection (D/P, D/A)</h4>
+                            <p>Skema Document against Payment (D/P) dan Document against Acceptance (D/A) di mana bank berperan sebagai perantara tanpa jaminan penuh seperti LC.</p>
+                        </div>
+                        <div id="tab-8-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="clipboard-check" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Check List Kompetensi Modul Dokumen dan Trade Finance</h3>
+                            </div>
+                            <p>Setelah mempelajari modul ini, pembaca sebaiknya mampu:</p>
+                            <ul>
+                                <li>Menyebutkan fungsi dokumen utama dalam ekspor dan impor.</li>
+                                <li>Menjelaskan hubungan antara dokumen pengapalan dan proses pembayaran (terutama LC).</li>
+                                <li>Mengidentifikasi konsekuensi bila dokumen tidak lengkap atau tidak akurat.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- == HALAMAN MODUL 9 == -->
+                <section id="page-9" class="page-content">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white mb-6 border-l-4 border-accent pl-4">
+                        MODUL 9 - MENJADI AHLI PRAKTIS DI INDUSTRI LOGISTIK
+                    </h1>
+                    
+                    <!-- Navigasi Tab -->
+                    <div class="mb-6 flex flex-wrap gap-2 md:gap-4 border-b border-gray-700">
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="9-1">1. Teori & Praktik</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="9-2">2. Framework</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="9-3">3. Analitis & Data</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="9-4">4. Istilah</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="9-5">5. Latihan</button>
+                        <button class="tab-button text-sm md:text-base py-3 px-4 font-medium text-text-secondary hover:text-white" data-tab="9-6">6. Karir</button>
+                    </div>
+
+                    <!-- Konten Tab -->
+                    <div class="glass-ui rounded-xl p-4 md:p-8 shadow-lg content-container">
+                        <div id="tab-9-1" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="atom" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">1. Menggabungkan Pengetahuan Teori dan Praktik</h3>
+                            </div>
+                            <p>Menjadi ahli logistik tidak cukup hanya dengan teori. Ahli logistik harus mampu menggabungkan pengetahuan (layanan, dokumen, regulasi) dengan kemampuan memecahkan masalah nyata di lapangan.</p>
+                        </div>
+                        <div id="tab-9-2" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="brain-circuit" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">2. Framework Berpikir Seorang Praktisi Logistik</h3>
+                            </div>
+                            <p>Saat menghadapi permintaan pelanggan, praktisi yang matang akan:</p>
+                            <ul>
+                                <li>Memahami kebutuhan bisnis pelanggan (bukan hanya kirim barang).</li>
+                                <li>Mengidentifikasi batasan (waktu, biaya, kapasitas, regulasi, risiko).</li>
+                                <li>Memetakan alternatif solusi (lintas moda, lintas layanan).</li>
+                                <li>Menghitung estimasi biaya total dan membandingkan skenario.</li>
+                                <li>Menyusun rekomendasi yang jelas dan transparan.</li>
+                            </ul>
+                        </div>
+                        <div id="tab-9-3" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="database-zap" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">3. Kemampuan Analitis dan Penggunaan Data</h3>
+                            </div>
+                            <p>Logistik modern bergantung pada data. Kemampuan analitis yang penting:</p>
+                            <ul>
+                                <li>Membaca laporan performa (on time delivery, damage rate, utilisasi armada).</li>
+                                <li>Menggunakan data historis untuk memprediksi tren volume dan merencanakan kapasitas.</li>
+                                <li>Menggunakan data biaya untuk menemukan efisiensi (konsolidasi, optimasi rute).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-9-4" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="book-audio" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">4. Penguasaan Istilah dan Komunikasi</h3>
+                            </div>
+                            <p>Ahli logistik harus menguasai istilah teknis (HS code, lead time, demurrage, detention, laytime, dll). Selain itu, mampu menjelaskan istilah ini ke pelanggan dengan bahasa sederhana agar pelanggan paham dan percaya.</p>
+                        </div>
+                        <div id="tab-9-5" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="pencil-ruler" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">5. Latihan dan Studi Kasus Rutin</h3>
+                            </div>
+                            <p>Untuk mengasah kemampuan, disarankan latihan rutin:</p>
+                            <ul>
+                                <li>Mengambil contoh permintaan dan merancang solusi lengkap (moda, layanan, incoterm).</li>
+                                <li>Menghitung tarif (termasuk komponen biaya dan margin).</li>
+                                <li>Mengidentifikasi risiko dan menyiapkan rencana mitigasi.</li>
+                                <li>Melakukan role play negosiasi (pelanggan, forwarder, carrier).</li>
+                            </ul>
+                        </div>
+                        <div id="tab-9-6" class="tab-content">
+                            <!-- Judul dengan Ikon -->
+                            <div class="flex items-center mb-4">
+                                <i data-lucide="trending-up" class="w-7 h-7 text-accent mr-3 flex-shrink-0"></i>
+                                <h3 class="text-2xl font-bold text-white">6. Pengembangan Karir dalam Logistik</h3>
+                            </div>
+                            <p>Industri logistik menawarkan banyak jalur karir:</p>
+                            <ul>
+                                <li>Operasional (trucking, gudang, kargo).</li>
+                                <li>Sales dan customer service logistik.</li>
+                                <li>Freight forwarding dan customs brokerage.</li>
+                                <li>Perencanaan kapasitas dan supply chain planning.</li>
+                                <li>Project logistics dan logistik industri spesifik (oil/gas, e-commerce).</li>
+                            </ul>
+                            <p class="mt-2">Dengan pemahaman modul-modul ini dan latihan konsisten, pembaca dapat berkembang dari awam menjadi profesional yang wawasannya luas.</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div> <!-- Tutup padding konten -->
+        </main> <!-- Tutup Konten Utama -->
+
+    </div> <!-- Tutup Wrapper Utama -->
+
+    <!-- Script Utama untuk Interaktivitas -->
+    <script>
+        // Fungsi global untuk menampilkan halaman
+        function showPage(pageId) {
+            // Sembunyikan semua halaman
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            // Tampilkan halaman yang dipilih
+            const activePage = document.getElementById(pageId);
+            if (activePage) {
+                activePage.classList.add('active');
+            }
+
+            // Atur status aktif di navigasi
+            document.querySelectorAll('.nav-link').forEach(link => {
+                // const span = link.querySelector('.nav-text'); // Dihapus
+                if (link.dataset.page === pageId) {
+                    link.classList.add('active');
+                    // if (span) {
+                    //     span.classList.remove('md:hidden'); // Logika ini dihapus
+                    // }
+                } else {
+                    link.classList.remove('active');
+                    // if (span) {
+                    //     span.classList.add('md:hidden'); // Logika ini dihapus
+                    // }
+                }
+            });
+
+            // Gulir ke atas halaman
+            document.querySelector('main').scrollTop = 0;
+            
+            // Inisialisasi tab untuk halaman yang baru ditampilkan
+            initTabsForPage(pageId);
+        }
+
+        // Fungsi untuk inisialisasi tab di dalam halaman tertentu
+        function initTabsForPage(pageId) {
+            const page = document.getElementById(pageId);
+            if (!page) return;
+
+            const tabButtons = page.querySelectorAll('.tab-button');
+            const tabContents = page.querySelectorAll('.tab-content');
+
+            if (tabButtons.length === 0) return; // Tidak ada tab di halaman ini
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabId = button.dataset.tab;
+
+                    // Atur tombol aktif
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Tampilkan konten tab
+                    tabContents.forEach(content => {
+                        if (content.id === 'tab-' + tabId) {
+                            content.classList.add('active');
+                        } else {
+                            content.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // Tampilkan tab pertama secara default
+            if (!page.dataset.tabsInitialized) {
+                tabButtons[0].classList.add('active');
+                const firstTabContentId = 'tab-' + tabButtons[0].dataset.tab;
+                const firstTabContent = page.querySelector('#' + firstTabContentId);
+                if (firstTabContent) {
+                    firstTabContent.classList.add('active');
+                }
+                page.dataset.tabsInitialized = 'true'; // Tandai sudah diinisialisasi
+            }
+        }
+
+        // Event Listener saat semua resource (termasuk ikon) dimuat
+        window.addEventListener('load', () => {
+            // Buat ikon Lucide
+            // Panggilan ini akan merender SEMUA ikon, termasuk yang baru ditambahkan di konten tab
+            lucide.createIcons(); 
+
+            // Logika Toggle Sidebar (Baru)
+            const sidebar = document.getElementById('sidebar');
+            const navToggle = document.getElementById('nav-toggle');
+            
+            if (navToggle && sidebar) {
+                navToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('is-collapsed');
+                    const isCollapsed = sidebar.classList.contains('is-collapsed');
+                    
+                    // FIX: Mengubah querySelector dari 'i' menjadi '[data-lucide]'
+                    // Ini akan menemukan <i> di klik pertama, dan <svg> di klik berikutnya.
+                    const toggleIcon = navToggle.querySelector('[data-lucide]');
+                    
+                    const toggleText = navToggle.querySelector('.nav-text');
+
+                    if (toggleIcon) { // Menambahkan pengecekan untuk keamanan
+                        if (isCollapsed) {
+                            toggleIcon.setAttribute('data-lucide', 'chevrons-right');
+                            if(toggleText) toggleText.innerText = 'Buka Menu';
+                        } else {
+                            toggleIcon.setAttribute('data-lucide', 'chevrons-left');
+                            if(toggleText) toggleText.innerText = 'Tutup Menu';
+                        }
+                        lucide.createIcons(); // Gambar ulang ikon
+                    }
+                });
+            }
+
+            // Tambahkan event listener ke semua link navigasi
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault(); // Mencegah pindah halaman
+                    const pageId = link.dataset.page;
+                    showPage(pageId);
+                });
+            });
+
+            // Tampilkan halaman utama saat pertama kali dimuat
+            showPage('page-home');
+        });
+    </script>
+
+</body>
+</html>
