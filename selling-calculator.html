@@ -1,887 +1,980 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UGC Logistics - Tarif Selling Calculator v4.0</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>UGC Logistics - Tarif Selling Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  :root{--accent:#ff4600; --green:#16a34a; --red:#dc2626}
-  body{font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0b1220;color:#e5e7eb;font-size:13px}
-  h1,h2,h3{font-weight:500}
-  .card{background:rgba(17,24,39,.96);border:1px solid #334155;border-radius:18px}
-  .input{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:.5rem .65rem;width:100%;color:#e5e7eb;font-size:.9rem}
-  .input::placeholder{color:#64748b}
-  .input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
-  input[type=number]{appearance:textfield;-moz-appearance:textfield}
-  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{margin:0;-webkit-appearance:none}
-  .label{font-size:.82rem;color:#cbd5e1;font-weight:500;letter-spacing:.1px}
-  .desc{font-size:.7rem;color:#cbd5e1;margin-top:.25rem;line-height:1.1rem;font-weight:300}
-  .btn{background:#1f2937;border:1px solid #334155;color:#e5e7eb;border-radius:12px;padding:.55rem .9rem;font-weight:500;font-size:.88rem}
-  .btnPrimary{background:var(--accent);color:#fff;border-color:var(--accent)}
-  .btnOnGreen{background:var(--green) !important;border-color:var(--green) !important;color:#fff !important}
-  .btnOnRed{background:var(--red) !important;border-color:var(--red) !important;color:#fff !important}
-  .tile{border:1px solid #334155;background:linear-gradient(180deg,#0b1324 0%,#0a111e 100%);border-radius:16px;padding:.85rem;cursor:pointer;transition:.15s;display:flex;align-items:center;min-height:66px}
-  .tile:hover{border-color:var(--accent);transform:translateY(-1px)}
-  .tile svg{width:22px;height:22px;color:#e5e7eb;flex-shrink:0}
-  .hidden{display:none}
-  .invalid{border-color:#ef4444 !important;box-shadow:0 0 0 2px rgba(239,68,68,.25)}
-  .section-top{display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap}
+:root{--accent:#ff4600;--green:#16a34a;--red:#dc2626;}
+html,body{background:#0b1220;color:#e5e7eb;font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;font-size:0.86rem;}
 
-  /* NAV: shrink evenly, no overlap */
-  .nav-bar-wrap{border-radius:14px;position:relative;z-index:1}
-  .nav-strip{display:flex;gap:.35rem;overflow-x:auto;white-space:nowrap;padding:.2rem .25rem .25rem .25rem;justify-content:space-between}
-  .no-scrollbar::-webkit-scrollbar{display:none}
-  .no-scrollbar{scrollbar-width:none;-ms-overflow-style:none}
-  .nav-icon{display:flex;gap:.34rem;align-items:center;border:1px solid #334155;background:#0b1220;border-radius:12px;padding:.38rem .58rem;cursor:pointer;color:#cbd5e1;font-weight:500;font-size:.8rem;white-space:nowrap;flex:1 1 0;min-width:108px;justify-content:center}
-  .nav-icon.active{border-color:var(--accent);background:var(--accent);color:#fff}
-  .nav-icon.done{border-color:#16a34a}
-  .nav-icon svg{width:15px;height:15px}
+/* Tipografi */
+h1,h2,h3{font-weight:500;}
+.label{font-weight:600;font-size:.8rem;color:#cbd5e1;}
+.desc{font-weight:300;font-size:.7rem;color:#aeb7c3;margin-top:.28rem;line-height:1.2rem;}
+small{font-weight:300;}
 
-  dialog.card{max-width:min(1100px,96vw)}
-  dialog::backdrop{background:rgba(0,0,0,.6)}
-  .gridline{border-top:1px dashed #475569;margin:.3rem 0}
-  .info-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:9999px;background:#0b1220;border:1px solid #334155;color:var(--accent)}
-  .info-btn:hover{border-color:var(--accent)}
-  footer{color:#94a3b8}
-  #glossModal *{color:#ffffff !important}
-  #incotermsInfoModal *{color:#ffffff !important}
-  #glossModal{font-size:70%}
-  #glossModal h3,#incotermsInfoModal h3 {color:var(--accent) !important}
-  .gloss-table{width:100%;border-collapse:collapse}
-  .gloss-table th,.gloss-table td{border:1px solid #fff;padding:.45rem .5rem;vertical-align:top}
-  .gloss-table th{background:rgba(255,255,255,.08);font-weight:600}
+/* Komponen UI */
+.card{background:rgba(17,24,39,.96);border:1px solid #334155;border-radius:18px}
+.input{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:.5rem .65rem;width:100%;font-size:.9rem;color:#e5e7eb}
+.input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
 
-  .pager{position:sticky;bottom:-1px;background:linear-gradient(180deg, rgba(11,18,32,0), rgba(11,18,32,1));padding-top:.4rem;margin-top:.9rem;border-top:1px solid #334155;display:flex;justify-content:space-between;gap:.5rem}
+/* Tombol */
+.btn{background:#121a2a;border:1px solid #334155;border-radius:12px;padding:.44rem .72rem;font-weight:600;font-size:.8rem}
+.btnPrimary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btnOnGreen{background:var(--green)!important;border-color:var(--green)!important;color:#fff!important}
+.btnOnRed{background:var(--red)!important;border-color:var(--red)!important;color:#fff!important}
 
-  .warn{background:#1f2937;border:1px solid #f59e0b;color:#fde68a;border-radius:10px;padding:.5rem .75rem;font-size:.86rem}
+/* Tile pilihan */
+.tile{border:1px solid #334155;background:linear-gradient(180deg,#0b1324 0%,#0a111e 100%);border-radius:16px;padding:.7rem;min-height:58px;cursor:pointer;display:flex;align-items:center}
+.tile:hover{border-color:var(--accent);transform:translateY(-1px)}
+.tile svg{width:16px;height:16px;flex:0 0 16px}
 
-  /* Service banner */
-  #svcBanner{margin-top:.5rem;background:rgba(255,255,255,.05);border:1px dashed #475569;border-radius:12px;padding:.5rem .65rem;font-size:.82rem}
-  #svcBanner b{color:#fff}
+/* NAV */
+.nav-strip{display:flex;gap:.3rem;overflow-x:auto;white-space:nowrap;padding:.2rem}
+.no-scrollbar::-webkit-scrollbar{display:none}
+.no-scrollbar{scrollbar-width:none;-ms-overflow-style:none}
+.nav-icon{display:flex;gap:.35rem;align-items:center;justify-content:center;flex:1 0 auto;min-width:96px;border:1px solid #334155;background:#0b1220;border-radius:12px;padding:.38rem .54rem;font-size:.78rem;color:#cbd5e1}
+.nav-icon.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.nav-icon svg{width:12px;height:12px} /* diperkecil */
+
+/* Validasi */
+.invalid{border-color:#ef4444!important;box-shadow:0 0 0 2px rgba(239,68,68,.25)}
+
+/* Dialog */
+dialog.card{max-width:min(1100px,96vw)}
+dialog::backdrop{background:rgba(0,0,0,.6)}
+
+/* Banner layanan */
+#svcBanner{margin-top:.5rem;background:rgba(255,255,255,.05);border:1px dashed #475569;border-radius:12px;padding:.45rem .65rem;font-size:.8rem}
+#svcBanner b{color:#fff}
+
+/* Info kecil per halaman */
+.svcInfo{background:rgba(255,255,255,.04);border:1px dashed #475569;border-radius:12px;padding:.5rem .65rem;font-size:.78rem}
+.gridline{border-top:1px dashed #475569;margin:.35rem 0}
+
+/* Accordion */
+.acc-h{cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:.48rem .65rem;border:1px solid #334155;border-radius:10px;background:#0f172a}
+.acc-b{padding:.6rem .25rem}
+
+/* Glosarium (teks putih + tabel) */
+#glossModal{color:#fff}
+.gloss-wrap{max-height:60vh;overflow:auto}
+.gloss-table{width:100%;border-collapse:collapse;font-size:.78rem}
+.gloss-table th,.gloss-table td{border:1px solid rgba(255,255,255,.8);padding:.5rem .6rem;vertical-align:top}
+.gloss-table th{background:rgba(255,255,255,.1);text-align:left;font-weight:600}
+.gloss-search{background:#0f172a;border:1px solid #94a3b8;color:#fff;border-radius:10px;padding:.45rem .6rem;width:100%;font-size:.85rem}
+.highlight{background:rgba(255,70,0,.18)}
+
+/* Peringatan */
+.warn{background:#1f2937;border:1px solid #f59e0b;color:#fde68a;border-radius:10px;padding:.5rem .7rem;font-size:.82rem}
 </style>
 </head>
 <body class="min-h-screen">
 <header class="card max-w-6xl mx-auto mt-6 p-5">
   <div class="flex items-center justify-between gap-4 flex-wrap">
     <div class="flex items-center gap-3">
-      <img alt="UGC Logistics" src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png" class="h-8 w-auto">
-      <h1 class="text-[1rem] leading-tight">UGC Logistics - Tarif Selling Calculator</h1>
+      <img alt="UGC Logistics" class="h-7 w-auto" src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png"/>
+      <h1 class="text-[.98rem] leading-tight">UGC Logistics - Tarif Selling Calculator</h1>
     </div>
     <div class="flex items-center gap-2">
-      <button id="btnSavePreset" class="nav-icon" title="Simpan preset data">
+      <button id="btnSavePreset" class="nav-icon" type="button" title="Simpan preset">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 3h10l4 4v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm9 0v6H6V3h8Z"/></svg>
         <span class="nav-text">Simpan Preset</span>
       </button>
-      <button id="btnLoadPreset" class="nav-icon" title="Muat preset data">
+      <button id="btnLoadPreset" class="nav-icon" type="button" title="Muat preset">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10l3.5-3.5L12 6l-3.5 3.5L12 13V3Zm-7 8a7 7 0 1 0 14 0h-2a5 5 0 1 1-10 0H5Z"/></svg>
         <span class="nav-text">Muat Preset</span>
       </button>
-      <button id="openGloss" class="nav-icon" title="Glosarium istilah">
+      <button id="openGloss" class="nav-icon" type="button" title="Glosarium">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h11a4 4 0 0 1 4 4v12h-2V8a2 2 0 0 0-2-2H4v14H2V6a2 2 0 0 1 2-2Zm6 4h6v2h-6V8Zm0 4h6v2h-6v-2Zm0 4h6v2h-6v-2Z"/></svg>
         <span class="nav-text">Glosarium</span>
       </button>
     </div>
   </div>
 
-  <div class="nav-bar-wrap">
+  <!-- NAV -->
+  <div class="mt-3">
     <div id="topNav" class="nav-strip no-scrollbar">
-      <button class="nav-icon active" data-goto="home" title="Kategori">
+      <button class="nav-icon active" data-goto="home" type="button" title="Kategori">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 10 12 3l8 7v10a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1V10Z"/></svg>
         <span class="nav-text">Kategori</span>
       </button>
-      <button class="nav-icon" data-goto="subcats" title="Subkategori">
+      <button class="nav-icon" data-goto="subcats" type="button" title="Subkategori">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h7v7H3V4Zm0 9h7v7H3v-7Zm11-9h7v7h-7V4Zm0 9h7v7h-7v-7Z"/></svg>
         <span class="nav-text">Subkategori</span>
       </button>
-      <button class="nav-icon" data-goto="p2" title="Dasar">
+      <button class="nav-icon" data-goto="p2" type="button" title="Dasar">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16v2H4V5Zm0 6h16v2H4v-2Zm0 6h10v2H4v-2Z"/></svg>
         <span class="nav-text">Dasar</span>
       </button>
-      <button class="nav-icon" data-goto="p3" title="Komponen Biaya">
+      <button class="nav-icon" data-goto="p3" type="button" title="Komponen">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7h8v8H3V7Zm10-4h8v6h-8V3Zm0 10h8v8h-8v-8Z"/></svg>
         <span class="nav-text">Komponen</span>
       </button>
-      <button class="nav-icon" data-goto="p4" title="EXIM dan Indirect">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 17.93V13h6.93A8.012 8.012 0 0 1 13 19.93ZM20.9 11H13V3.1A8.01 8.01 0 0 1 20.9 11ZM11 3.07V11H3.07A8.012 8.012 0 0 1 11 3.07ZM3.1 13H11v7.9A8.01 8.01 0 0 1 3.1 13Z"/></svg>
-        <span class="nav-text">EXIM dan Indirect</span>
+      <button class="nav-icon" data-goto="p4" type="button" title="EXIM & Indirect">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm1 17.93V13h6.93A8.012 8.012 0 0 1 13 19.93Z"/></svg>
+        <span class="nav-text">EXIM & Indirect</span>
       </button>
-      <button class="nav-icon" data-goto="p5" title="Margin dan PPN">
+      <button class="nav-icon" data-goto="p5" type="button" title="Margin & PPN">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 17h14v2H5v-2Zm2.5-9A1.5 1.5 0 1 0 9 7.5 1.5 1.5 0 0 0 7.5 8ZM7 11l10-6 1 1-10 6-1-1Z"/></svg>
-        <span class="nav-text">Margin dan PPN</span>
+        <span class="nav-text">Margin & PPN</span>
       </button>
-      <button class="nav-icon" data-goto="p6" title="Hasil">
+      <button class="nav-icon" data-goto="p6" type="button" title="Hasil">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 5.53 12.7l-1.41 1.41L9 19 21 7l-1.41-1.41L9 16.17Z"/></svg>
         <span class="nav-text">Hasil</span>
       </button>
-      <button class="nav-icon" data-goto="help" title="Cara Penggunaan">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2A10 10 0 1 0 22 12 10.011 10.011 0 0 0 12 2Zm1 17h-2v-2h2v2Zm2.07-7.75-.9.92A3 3 0 0 0 13 15h-2v-.5a3.5 3.5 0 0 1 1.03-2.47l1.24-1.26a1.5 1.5 0 1 0-2.54-1.06H9a3.5 3.5 0 1 1 6.07 2.54Z"/></svg>
+      <button class="nav-icon" data-goto="help" type="button" title="Cara Penggunaan">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2A10 10 0 1 0 22 12 10.011 10.011 0 0 0 12 2Zm1 17h-2v-2h2v2Z"/></svg>
         <span class="nav-text">Cara Penggunaan</span>
       </button>
     </div>
   </div>
 
-  <!-- Non-overlapping banner -->
+  <!-- banner layanan -->
   <div id="svcBanner" class="hidden"></div>
 </header>
 
 <main class="max-w-6xl mx-auto p-5 space-y-4">
+  <!-- KATEGORI -->
   <section id="home" class="card p-5">
-    <div class="section-top">
-      <h2 class="text-[.95rem] text-[var(--accent)]">Pilih Kategori</h2>
-      <button class="btn glossBtn">Glosarium</button>
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h2 class="text-[.92rem] text-[var(--accent)]">Pilih Kategori</h2>
+      <button class="btn" id="btnGloss1" type="button">Glosarium</button>
     </div>
     <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3 mt-2">
       <div class="tile" data-cat="domestic" title="Domestik">
-        <div class="flex items-start gap-3">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2l1-2h9l1 2h2v6H3v-6Zm12-5h3l3 3h-5V8H5V6h9Z"/></svg>
-          <div><p class="text-[.9rem]">Domestik</p><p class="text-slate-300 text-[.78rem]">LTL, FTL, Air, Sea</p></div>
-        </div>
+        <svg class="mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2l1-2h9l1 2h2v6H3v-6Zm12-5h3l3 3h-5V8H5V6h9Z"/></svg>
+        <div><div class="font-medium">Domestik</div><div class="text-[.74rem] text-slate-300">LTL, FTL, Air, Sea</div></div>
       </div>
-      <div class="tile" data-cat="exim" title="Export atau Import">
-        <div class="flex items-start gap-3">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 12h20v2H2v-2Zm9-8h2v6h3l-4 4-4-4h3V4ZM13 20h-2v-6H8l4-4 4 4h-3v6Z"/></svg>
-          <div><p class="text-[.9rem]">EXIM</p><p class="text-slate-300 text-[.78rem]">Ekspor dan Impor</p></div>
-        </div>
+      <div class="tile" data-cat="exim" title="Export Import">
+        <svg class="mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M2 12h20v2H2v-2Zm9-8h2v6h3l-4 4-4-4h3V4ZM13 20h-2v-6H8l4-4 4 4h-3v6Z"/></svg>
+        <div><div class="font-medium">EXIM</div><div class="text-[.74rem] text-slate-300">Ekspor & Impor</div></div>
       </div>
       <div class="tile" data-cat="project" title="Project Cargo">
-        <div class="flex items-start gap-3">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v2H3V3Zm2 4h14l2 4H3l2-4Zm-2 6h18v8H3v-8Zm4 2v4h10v-4H7Z"/></svg>
-          <div><p class="text-[.9rem]">Project Cargo</p><p class="text-slate-300 text-[.78rem]">Heavy lift dan special</p></div>
-        </div>
+        <svg class="mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v2H3V3Zm2 4h14l2 4H3l2-4Zm-2 6h18v8H3v-8Z"/></svg>
+        <div><div class="font-medium">Project Cargo</div><div class="text-[.74rem] text-slate-300">Heavy lift & special</div></div>
       </div>
-      <div class="tile" data-cat="warehouse" title="Warehousing dan Fulfillment">
-        <div class="flex items-start gap-3">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 10 12 4l9 6v10H3V10Zm4 2h4v6H7v-6Zm6 0h4v6h-4v-6Z"/></svg>
-        <div><p class="text-[.9rem]">Warehouse</p><p class="text-slate-300 text-[.78rem]">Storage • Pick & Pack</p></div>
-        </div>
+      <div class="tile" data-cat="warehouse" title="Warehouse">
+        <svg class="mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M3 10 12 4l9 6v10H3V10Z"/></svg>
+        <div><div class="font-medium">Warehouse</div><div class="text-[.74rem] text-slate-300">Storage & Fulfillment</div></div>
       </div>
     </div>
   </section>
 
+  <!-- SUBKATEGORI -->
   <section id="subcats" class="card p-5 hidden">
-    <div class="section-top">
-      <h2 class="text-[.95rem] text-[var(--accent)]">Pilih Subkategori</h2>
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h2 class="text-[.92rem] text-[var(--accent)]">Pilih Subkategori</h2>
       <div class="flex gap-2">
-        <button class="btn" data-prev="home">Kembali</button>
-        <button class="btn glossBtn">Glosarium</button>
+        <button class="btn" data-prev="home" type="button">Kembali</button>
+        <button class="btn" id="btnGloss2" type="button">Glosarium</button>
       </div>
     </div>
     <div id="subcatTiles" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3 mt-3"></div>
-    <div class="pager">
-      <button class="btn" data-prev="home">Kembali</button>
-      <button class="btn btnPrimary" data-next="p2">Lanjut</button>
+    <div class="svcInfo mt-3" id="svcInfo-subcats" hidden></div>
+    <div class="mt-3 flex justify-between">
+      <button class="btn" data-prev="home" type="button">Kembali</button>
+      <button class="btn btnPrimary" data-next="p2" type="button">Lanjut</button>
     </div>
   </section>
 
+  <!-- DASAR -->
   <section id="p2" class="card p-5 hidden">
-    <div class="section-top">
-      <h2 class="text-[.95rem] text-[var(--accent)]">Dasar</h2>
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h2 class="text-[.92rem] text-[var(--accent)]">Dasar</h2>
       <div class="flex gap-2">
-        <button id="btnLock" class="btn">Kunci Field</button>
-        <button id="btnUnlock" class="btn btnOnGreen">Buka Kunci</button>
-        <button class="btn glossBtn">Glosarium</button>
+        <button id="btnLock" class="btn" type="button">Kunci Field</button>
+        <button id="btnUnlock" class="btn btnOnGreen" type="button">Buka Kunci</button>
+        <button class="btn" id="btnGloss3" type="button">Glosarium</button>
       </div>
     </div>
-
+    <div class="svcInfo mt-2" id="svcInfo-p2" hidden></div>
     <div id="basics_dynamic" class="mt-3"></div>
-    <div class="pager">
-      <button class="btn" data-prev="subcats">Kembali</button>
-      <button class="btn btnPrimary" data-next="p3">Lanjut</button>
+    <div class="mt-3 flex justify-between">
+      <button class="btn" data-prev="subcats" type="button">Kembali</button>
+      <button class="btn btnPrimary" data-next="p3" type="button">Lanjut</button>
     </div>
   </section>
 
+  <!-- KOMPONEN -->
   <section id="p3" class="card p-5 hidden">
-    <div class="section-top">
+    <div class="flex items-center justify-between flex-wrap gap-3">
       <div>
-        <h2 id="p3_title" class="text-[.95rem] text-[var(--accent)]">Komponen Biaya</h2>
-        <p id="p3_desc" class="desc">Masukkan biaya satu per satu atau pakai All-in untuk mempercepat.</p>
+        <h2 class="text-[.92rem] text-[var(--accent)]">Komponen Biaya</h2>
+        <p class="desc">Isi komponen yang relevan. Bisa gunakan opsi All in untuk biaya langsung.</p>
       </div>
-      <button class="btn glossBtn">Glosarium</button>
+      <button class="btn" id="btnGloss4" type="button">Glosarium</button>
     </div>
+    <div class="svcInfo mt-2" id="svcInfo-p3" hidden></div>
 
+    <!-- All-in direct -->
     <div class="border border-slate-700 rounded-xl p-3 mb-3">
-      <div class="flex items-center gap-3">
-        <input id="allin_direct_toggle" type="checkbox" class="h-4 w-4">
-        <label for="allin_direct_toggle">Gunakan All-in Biaya Langsung</label>
-      </div>
+      <label class="inline-flex items-center gap-2 text-[.86rem]">
+        <input id="allin_direct_toggle" type="checkbox" class="h-4 w-4"/>Gunakan All in Biaya Langsung
+      </label>
       <div id="allin_direct_box" class="grid md:grid-cols-2 gap-3 mt-2 hidden">
         <div>
-          <label class="label">Total Biaya Langsung (All-in Direct)</label>
-          <input id="allin_direct_value" type="number" class="input" placeholder="25000000">
-          <p class="desc">Menggantikan penjumlahan pickup, linehaul, THC, DO, dokumen, packing, asuransi, surcharge, gudang, lainnya.</p>
+          <label class="label">Total Biaya Langsung - All in</label>
+          <input id="allin_direct_value" class="input" type="number" placeholder="25000000"/>
+          <p class="desc">Masukkan total yang sudah mencakup pickup, linehaul, THC/DO, dokumen, packing, asuransi, surcharge, gudang, lainnya.</p>
         </div>
         <div>
-          <label class="label">Catatan (opsional)</label>
-          <input id="allin_direct_note" class="input" placeholder="termasuk DO dan THC destinasi">
+          <label class="label">Catatan All in</label>
+          <input id="allin_direct_note" class="input" placeholder="Contoh: termasuk DO & THC destinasi"/>
+          <p class="desc">Opsional. Tulis keterangan ringkas isi paket all-in.</p>
         </div>
       </div>
     </div>
 
-    <div id="direct_transport" class="mt-3 grid md:grid-cols-2 gap-3 hidden">
-      <div class="comp comp-main"><label class="label">Vendor Transport Utama</label><input id="c_vendor" type="number" class="input" placeholder="12500000"><p class="desc">Linehaul utama atau konsolidasi.</p></div>
+    <!-- Transport components -->
+    <div id="direct_transport" class="grid md:grid-cols-2 gap-3 hidden">
+      <div class="comp comp-main">
+        <label class="label">Vendor Transport Utama</label>
+        <input id="c_vendor" class="input" type="number" placeholder="12500000"/>
+        <p class="desc">Tarif linehaul/trucking utama di luar pickup atau last mile.</p>
+      </div>
+
       <div class="comp comp-airsea">
         <label class="label">Air atau Sea Freight</label>
-        <input id="c_airsea" type="number" class="input" placeholder="8200000">
-        <p class="desc">Freight dari kg, CBM, atau kontainer.</p>
+        <input id="c_airsea" class="input" type="number" placeholder="8200000"/>
+        <p class="desc">Nilai freight dari vendor. Dapat diestimasi otomatis dari chargeable.</p>
         <div class="mt-2 border-t border-slate-700 pt-2">
-          <div class="flex items-center gap-2">
-            <input id="use_chargeable_est" type="checkbox" class="h-4 w-4"><span class="text-[.84rem] text-slate-300">Estimasi otomatis dari chargeable</span>
+          <label class="inline-flex items-center gap-2 text-[.86rem]">
+            <input id="use_chargeable_est" type="checkbox" class="h-4 w-4"/>Estimasi otomatis menggunakan chargeable
+          </label>
+          <div id="rate_air_wrap" class="hidden mt-2">
+            <label class="label">Tarif Udara (Rp/kg)</label>
+            <input id="rate_air_kg" class="input" type="number" placeholder="35000"/>
+            <p class="desc">Dikalikan dengan berat chargeable udara.</p>
           </div>
-          <div id="rate_air_wrap" class="hidden mt-2"><label class="label">Tarif Udara (Rp/kg)</label><input id="rate_air_kg" type="number" class="input" placeholder="35000"><p class="desc">Dikalikan chargeable kg.</p></div>
-          <div id="rate_sea_lcl_wrap" class="hidden mt-2"><label class="label">Tarif LCL (Rp/CBM)</label><input id="rate_sea_cbm" type="number" class="input" placeholder="1200000"><p class="desc">Dikalikan CBM total.</p></div>
-          <div id="rate_fcl_wrap" class="hidden mt-2"><label class="label">Tarif FCL (Rp/kontainer)</label><input id="rate_fcl_container" type="number" class="input" placeholder="12000000"><p class="desc">Per kontainer 20, 40, 40HC.</p></div>
+          <div id="rate_sea_lcl_wrap" class="hidden mt-2">
+            <label class="label">Tarif LCL (Rp/CBM)</label>
+            <input id="rate_sea_cbm" class="input" type="number" placeholder="1200000"/>
+            <p class="desc">Dikalikan dengan total CBM kiriman LCL.</p>
+          </div>
+          <div id="rate_fcl_wrap" class="hidden mt-2">
+            <label class="label">Tarif FCL (Rp/kontainer)</label>
+            <input id="rate_fcl_container" class="input" type="number" placeholder="12000000"/>
+            <p class="desc">Tarif per kontainer untuk 20, 40, atau 40HC.</p>
+          </div>
         </div>
       </div>
-      <div class="comp comp-pickup"><label class="label">Pickup (Origin)</label><input id="c_pickup" type="number" class="input" placeholder="750000"><p class="desc">Penjemputan dari shipper ke terminal.</p></div>
-      <div class="comp comp-lastmile"><label class="label">Last Mile (Destination)</label><input id="c_lastmile" type="number" class="input" placeholder="900000"><p class="desc">Pengantaran door ke consignee.</p></div>
-      <div class="comp comp-origin"><label class="label">THC atau Port (Origin)</label><input id="c_thc_origin" type="number" class="input" placeholder="450000"><p class="desc">Terminal handling origin.</p></div>
-      <div class="comp comp-dest"><label class="label">THC atau Port (Destination) dan DO</label><input id="c_thc_dest" type="number" class="input" placeholder="520000"><p class="desc">Terminal handling tujuan dan DO carrier.</p></div>
-      <div class="comp comp-ppjk"><label class="label">Customs Brokerage (PPJK)</label><input id="c_customs_fee" type="number" class="input" placeholder="1250000"><p class="desc">PEB, PIB, EDI, pendampingan.</p></div>
-      <div class="comp comp-doc"><label class="label">Dokumen (BL, AWB, DO, Manifest)</label><input id="c_doc" type="number" class="input" placeholder="300000"><p class="desc">Penerbitan dokumen dan admin.</p></div>
-      <div class="comp comp-pack"><label class="label">Packing atau Crating</label><input id="c_packing" type="number" class="input" placeholder="2100000"><p class="desc">Pengemasan tambahan.</p></div>
-      <div class="comp comp-insu"><label class="label">Asuransi Kargo (premi)</label><input id="c_insurance" type="number" class="input" placeholder="180000"><p class="desc">Premi polis kargo.</p></div>
-      <div class="comp comp-surch"><label class="label">Fuel atau Security atau DG atau Remote</label><input id="c_surcharge" type="number" class="input" placeholder="350000"><p class="desc">Surcharge dari carrier/vendor.</p></div>
-      <div class="comp comp-ware"><label class="label">Gudang atau Storage</label><input id="c_warehouse" type="number" class="input" placeholder="600000"><p class="desc">Storage in atau out.</p></div>
-      <div class="comp comp-other md:col-span-2"><label class="label">Biaya Langsung Lainnya</label><input id="c_direct_other" type="number" class="input" placeholder="0"><p class="desc">Tol, izin, lainnya.</p></div>
+
+      <div class="comp comp-pickup">
+        <label class="label">Pickup Origin</label>
+        <input id="c_pickup" class="input" type="number" placeholder="750000"/>
+        <p class="desc">Penjemputan barang dari lokasi pengirim.</p>
+      </div>
+      <div class="comp comp-lastmile">
+        <label class="label">Last Mile Destination</label>
+        <input id="c_lastmile" class="input" type="number" placeholder="900000"/>
+        <p class="desc">Pengantaran akhir ke alamat tujuan.</p>
+      </div>
+      <div class="comp comp-origin">
+        <label class="label">THC atau Port Origin</label>
+        <input id="c_thc_origin" class="input" type="number" placeholder="450000"/>
+        <p class="desc">Biaya terminal/port handling di asal.</p>
+      </div>
+      <div class="comp comp-dest">
+        <label class="label">THC atau Port Destination</label>
+        <input id="c_thc_dest" class="input" type="number" placeholder="520000"/>
+        <p class="desc">Biaya terminal/port handling di tujuan.</p>
+      </div>
+      <div class="comp comp-doc">
+        <label class="label">Dokumen (BL/AWB/Manifest)</label>
+        <input id="c_doc" class="input" type="number" placeholder="300000"/>
+        <p class="desc">Penerbitan dokumen pengiriman.</p>
+      </div>
+      <div class="comp comp-pack">
+        <label class="label">Packing/Crating</label>
+        <input id="c_packing" class="input" type="number" placeholder="2100000"/>
+        <p class="desc">Biaya packing tambahan termasuk rangka kayu bila perlu.</p>
+      </div>
+      <div class="comp comp-insu">
+        <label class="label">Asuransi Kargo</label>
+        <input id="c_insurance" class="input" type="number" placeholder="180000"/>
+        <p class="desc">Premi asuransi di luar perhitungan CIF (kecuali Incoterms CIF/CI). </p>
+      </div>
+      <div class="comp comp-surch">
+        <label class="label">Surcharge (Fuel/Security/Remote)</label>
+        <input id="c_surcharge" class="input" type="number" placeholder="350000"/>
+        <p class="desc">Tambahan biaya musiman atau area tertentu.</p>
+      </div>
+      <div class="comp comp-ware">
+        <label class="label">Gudang/Storage Transit</label>
+        <input id="c_warehouse" class="input" type="number" placeholder="600000"/>
+        <p class="desc">Transit storage di luar sewa gudang jangka panjang.</p>
+      </div>
+      <div class="comp comp-other md:col-span-2">
+        <label class="label">Langsung Lainnya</label>
+        <input id="c_direct_other" class="input" type="number" placeholder="0"/>
+        <p class="desc">Biaya langsung lain yang tidak tercantum.</p>
+      </div>
     </div>
 
-    <div id="direct_warehouse" class="mt-3 grid md:grid-cols-2 gap-3 hidden">
-      <div><label class="label">Storage (Rp per pallet per hari)</label><input id="w_store_rate" type="number" class="input" placeholder="3500"><p class="desc">Tarif simpan per pallet per hari.</p></div>
-      <div><label class="label">Jumlah Pallet</label><input id="w_store_pallets" type="number" class="input" placeholder="120"><p class="desc">Rata rata pallet tersimpan.</p></div>
-      <div><label class="label">Jumlah Hari</label><input id="w_store_days" type="number" class="input" placeholder="30"><p class="desc">Periode tagih.</p></div>
-      <div><label class="label">Handling In (Rp per pallet)</label><input id="w_handling_in_rate" type="number" class="input" placeholder="7500"><p class="desc">Bongkar dan put away.</p></div>
-      <div><label class="label">Handling Out (Rp per pallet)</label><input id="w_handling_out_rate" type="number" class="input" placeholder="7500"><p class="desc">Ambil dan staging.</p></div>
-      <div class="md:col-span-2"><label class="label">Biaya Lain</label><input id="w_other" type="number" class="input" placeholder="0"><p class="desc">WMS, material, listrik.</p></div>
+    <!-- EXIM add-ons -->
+    <div id="exim_addons" class="hidden mt-4">
+      <div class="acc-h" id="acc_exim"><span>Rincian EXIM Tambahan</span><span>▼</span></div>
+      <div class="acc-b">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div><label class="label">Export Clearance/PEB</label><input id="x_export_clear" class="input" type="number" placeholder="650000"/><p class="desc">Biaya PPJK ekspor (PEB/EDI).</p></div>
+          <div><label class="label">Security Screening</label><input id="x_security" class="input" type="number" placeholder="250000"/><p class="desc">X-ray/AVSEC cargo udara.</p></div>
+          <div><label class="label">CFS Stuffing/Destuffing</label><input id="x_cfs" class="input" type="number" placeholder="0"/><p class="desc">Konsolidasi di gudang pelabuhan.</p></div>
+          <div><label class="label">VGM/Weighing</label><input id="x_vgm" class="input" type="number" placeholder="0"/><p class="desc">Verified Gross Mass (FCL).</p></div>
+          <div><label class="label">AMS/ENS/AFR</label><input id="x_ams_ens" class="input" type="number" placeholder="0"/><p class="desc">Advance manifest sesuai negara.</p></div>
+          <div><label class="label">Telex Release</label><input id="x_telex" class="input" type="number" placeholder="0"/><p class="desc">Pelepasan BL tanpa dokumen fisik.</p></div>
+          <div><label class="label">Courier Dokumen</label><input id="x_courier" class="input" type="number" placeholder="0"/><p class="desc">Pengiriman dokumen fisik.</p></div>
+          <div><label class="label">Fumigasi</label><input id="x_fumigation" class="input" type="number" placeholder="0"/><p class="desc">Perlakuan hama untuk kemasan kayu.</p></div>
+          <div><label class="label">Palletisasi/Labeling</label><input id="x_palletization" class="input" type="number" placeholder="0"/><p class="desc">Penataan pallet & label HS/handling.</p></div>
+          <div><label class="label">War Risk</label><input id="x_war_risk" class="input" type="number" placeholder="0"/><p class="desc">Tambahan premi rute berisiko.</p></div>
+          <div><label class="label">Congestion/PSS/GRI</label><input id="x_congestion" class="input" type="number" placeholder="0"/><p class="desc">Macet/peak season/kenaikan umum.</p></div>
+          <div><label class="label">CAF - Currency Adj</label><input id="x_caf" class="input" type="number" placeholder="0"/><p class="desc">Penyesuaian kurs carrier.</p></div>
+          <div><label class="label">Delivery Order (DO) Dest</label><input id="x_do_dest" class="input" type="number" placeholder="0"/><p class="desc">Pengambilan DO import di pelabuhan.</p></div>
+          <div><label class="label">Terminal Tujuan</label><input id="x_terminal_dest" class="input" type="number" placeholder="0"/><p class="desc">Port/terminal handling di tujuan.</p></div>
+          <div><label class="label">Storage/Port Rent</label><input id="x_storage_dest" class="input" type="number" placeholder="0"/><p class="desc">Sewa tempat di pelabuhan.</p></div>
+          <div><label class="label">Import Brokerage (PPJK)</label><input id="x_import_broker" class="input" type="number" placeholder="0"/><p class="desc">Jasa bea cukai import.</p></div>
+          <div><label class="label">Inspection/Lab/SPS</label><input id="x_inspection" class="input" type="number" placeholder="0"/><p class="desc">Karantina/standar/pemeriksaan.</p></div>
+          <div><label class="label">Demurrage</label><input id="x_demurrage" class="input" type="number" placeholder="0"/><p class="desc">Denda lewat waktu di pelabuhan.</p></div>
+          <div><label class="label">Detention/Per Diem</label><input id="x_detention" class="input" type="number" placeholder="0"/><p class="desc">Denda pemakaian kontainer.</p></div>
+          <div><label class="label">Bank TT Fee</label><input id="x_bank_tt" class="input" type="number" placeholder="0"/><p class="desc">Biaya transfer internasional.</p></div>
+          <div><label class="label">Remote Area Surcharge</label><input id="x_remote" class="input" type="number" placeholder="0"/><p class="desc">Tambahan area terpencil.</p></div>
+        </div>
+
+        <!-- Scope -->
+        <div class="border border-slate-700 rounded-xl p-3 mt-3">
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 text-[.86rem]">
+            <label class="inline-flex items-center gap-2"><input id="scope_pickup" type="checkbox" class="h-4 w-4"/>Ikutkan Pickup</label>
+            <label class="inline-flex items-center gap-2"><input id="scope_origin" type="checkbox" class="h-4 w-4"/>Ikutkan Origin Handling</label>
+            <label class="inline-flex items-center gap-2"><input id="scope_freight" type="checkbox" class="h-4 w-4"/>Ikutkan Freight</label>
+            <label class="inline-flex items-center gap-2"><input id="scope_insurance" type="checkbox" class="h-4 w-4"/>Ikutkan Asuransi</label>
+            <label class="inline-flex items-center gap-2"><input id="scope_dest" type="checkbox" class="h-4 w-4"/>Ikutkan Destinasi Handling</label>
+            <label class="inline-flex items-center gap-2"><input id="scope_import" type="checkbox" class="h-4 w-4"/>Ikutkan Import Brokerage</label>
+            <label class="inline-flex items-center gap-2"><input id="scope_lastmile" type="checkbox" class="h-4 w-4"/>Ikutkan Last Mile</label>
+            <label class="inline-flex items-center gap-2"><input id="scope_duties" type="checkbox" class="h-4 w-4"/>Ikutkan Duties & Pajak</label>
+          </div>
+          <div class="mt-2 flex gap-2 flex-wrap">
+            <button id="btnScopeDoorDoor" class="btn" type="button">Preset Door-Door</button>
+            <button id="btnScopeDoorPort" class="btn" type="button">Preset Door-Port</button>
+            <button id="btnScopePortPort" class="btn" type="button">Preset Port-Port</button>
+            <button id="btnScopePortDoor" class="btn" type="button">Preset Port-Door</button>
+            <button id="incotermsSuggest" class="btn" type="button">Sarankan dari Incoterms</button>
+            <button id="incotermsInfoBtn" class="btn" type="button">Penjelasan Incoterms</button>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="pager">
-      <button class="btn" data-prev="p2">Kembali</button>
-      <button class="btn btnPrimary" data-next="p4">Lanjut</button>
+    <!-- WAREHOUSE -->
+    <div id="direct_warehouse" class="hidden mt-3">
+      <div class="acc-h" id="acc_wh"><span>Komponen Warehouse</span><span>▼</span></div>
+      <div class="acc-b grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div><label class="label">Storage (Rp/pallet/hari)</label><input id="w_store_rate" class="input" type="number" placeholder="3500"/><p class="desc">Tarif sewa per pallet per hari.</p></div>
+        <div><label class="label">Jumlah Pallet</label><input id="w_store_pallets" class="input" type="number" placeholder="120"/><p class="desc">Total pallet tersimpan.</p></div>
+        <div><label class="label">Jumlah Hari</label><input id="w_store_days" class="input" type="number" placeholder="30"/><p class="desc">Lama penyimpanan.</p></div>
+        <div><label class="label">Handling In (Rp/pallet)</label><input id="w_handling_in_rate" class="input" type="number" placeholder="7500"/><p class="desc">Biaya saat inbound ke gudang.</p></div>
+        <div><label class="label">Handling Out (Rp/pallet)</label><input id="w_handling_out_rate" class="input" type="number" placeholder="7500"/><p class="desc">Biaya saat outbound.</p></div>
+        <div class="md:col-span-2"><label class="label">Lainnya</label><input id="w_other" class="input" type="number" placeholder="0"/><p class="desc">Biaya tambahan selain di atas.</p></div>
+
+        <div class="md:col-span-3 border-t border-slate-700 pt-2"></div>
+        <label class="md:col-span-3 inline-flex items-center gap-2"><input id="w_use_cbm" type="checkbox" class="h-4 w-4"/>Gunakan tarif berdasarkan CBM per hari</label>
+        <div id="w_cbm_wrap" class="grid md:grid-cols-3 gap-3 hidden">
+          <div><label class="label">Tarif (Rp/CBM/hari)</label><input id="w_rate_cbm_day" class="input" type="number" placeholder="1200"/><p class="desc">Tarif storage bila berbasis CBM.</p></div>
+          <div><label class="label">Rata-rata CBM</label><input id="w_avg_cbm" class="input" type="number" placeholder="250"/><p class="desc">Total volume tersimpan per hari.</p></div>
+          <div><label class="label">Jumlah Hari</label><input id="w_cbm_days" class="input" type="number" placeholder="30"/><p class="desc">Lama penyimpanan berbasis CBM.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-3 flex justify-between">
+      <button class="btn" data-prev="p2" type="button">Kembali</button>
+      <button class="btn btnPrimary" data-next="p4" type="button">Lanjut</button>
     </div>
   </section>
 
+  <!-- EXIM & INDIRECT -->
   <section id="p4" class="card p-5 hidden">
-    <div class="section-top">
-      <h2 class="text-[.95rem] text-[var(--accent)]">EXIM dan Tidak Langsung</h2>
-      <button class="btn glossBtn">Glosarium</button>
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h2 class="text-[.92rem] text-[var(--accent)]">EXIM & Tidak Langsung</h2>
+      <button class="btn" id="btnGloss5" type="button">Glosarium</button>
     </div>
+    <div class="svcInfo mt-2" id="svcInfo-p4" hidden></div>
 
-    <div id="exim_block" class="hidden">
+    <div id="exim_block">
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
         <div>
-          <label class="label flex items-center gap-2">Incoterms
-            <button id="incotermsInfoBtn" type="button" class="info-btn" title="Penjelasan incoterms">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M12 2a10 10 0 1 0 .001 20.001A10 10 0 0 0 12 2Zm1 15h-2v-2h2v2Zm1-8.5a2 2 0 0 0-4 0h2a.5.5 0 1 1 1 0c0 .5-.3.8-.9 1.2-.9.6-1.1 1.1-1.1 2.3h2c0-.7.1-.8.6-1.1.9-.6 1.4-1.2 1.4-2.4Z"/></svg>
-            </button>
-          </label>
+          <label class="label">Incoterms</label>
           <select id="x_incoterms" class="input">
             <option>EXW</option><option>FCA</option><option>FOB</option>
             <option>CFR</option><option>CIF</option><option>DAP</option><option>DDP</option>
           </select>
-          <p class="desc">Menentukan pembagian biaya dan risiko.</p>
+          <p class="desc">Pilih terms yang disepakati. Gunakan tombol saran scope agar sesuai.</p>
         </div>
-        <div><label class="label">Nilai Barang</label><input id="x_goods" type="number" class="input" placeholder="125000000"><p class="desc">Nilai invoice komersial.</p></div>
-        <div><label class="label">Asuransi (premi) atau 0</label><input id="x_ins_premium" type="number" class="input" placeholder="200000"><p class="desc">Isi 0 bila memakai kalkulasi persen.</p></div>
-        <div><label class="label">Rate Asuransi (%)</label><input id="x_ins_rate" type="number" class="input" placeholder="0.2"><p class="desc">Alternatif perhitungan premi.</p></div>
-        <div><label class="label">Freight untuk CIF</label><input id="x_freight" type="number" class="input" placeholder="12000000"><p class="desc">Disertakan dalam nilai CIF yaitu barang + asuransi + freight.</p></div>
-        <div class="flex items-center gap-2"><input id="use_airsea_for_cif" type="checkbox" class="h-4 w-4"><span class="text-[.84rem] text-slate-300">Sinkronkan dengan nilai Air/Sea Freight</span></div>
+        <div><label class="label">Nilai Barang</label><input id="x_goods" class="input" type="number" placeholder="125000000"/><p class="desc">Harga barang sesuai skema transaksi.</p></div>
+        <div><label class="label">Asuransi (premi)</label><input id="x_ins_premium" class="input" type="number" placeholder="200000"/><p class="desc">Isi 0 bila premi dihitung persen.</p></div>
+        <div><label class="label">Rate Asuransi (%)</label><input id="x_ins_rate" class="input" type="number" placeholder="0.2"/><p class="desc">Contoh 0.2 berarti 0.2 persen.</p></div>
+        <div><label class="label">Freight (CIF)</label><input id="x_freight" class="input" type="number" placeholder="12000000"/><p class="desc">Freight unsur CIF bila tidak terhubung otomatis.</p></div>
+        <label class="inline-flex items-center gap-2 text-[.86rem]"><input id="use_airsea_for_cif" type="checkbox" class="h-4 w-4"/>Gunakan nilai Air/Sea Freight di Komponen sebagai Freight CIF</label>
       </div>
+
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
-        <div><label class="label">Duty (%)</label><input id="x_duty_rate" type="number" class="input" placeholder="5"></div>
-        <div><label class="label">Cukai (%)</label><input id="x_excise_rate" type="number" class="input" placeholder="0"></div>
-        <div><label class="label">PPN Impor (%)</label><input id="x_vat_rate" type="number" class="input" value="11"></div>
-        <div><label class="label">PPh 22 Impor (%)</label><input id="x_pph_rate" type="number" class="input" placeholder="2.5"></div>
-        <div class="lg:col-span-2"><label class="label">Pajak atau Levy Lain (total)</label><input id="x_other_taxes" type="number" class="input" placeholder="0"></div>
-        <div class="flex items-center gap-2"><input id="include_taxes" type="checkbox" class="h-4 w-4" checked><span class="text-[.84rem] text-slate-300">Tambahkan duties dan pajak ke biaya (DDP atau All in)</span></div>
+        <div><label class="label">Duty (%)</label><input id="x_duty_rate" class="input" type="number" placeholder="5"/><p class="desc">Bea masuk atas CIF.</p></div>
+        <div><label class="label">Cukai (%)</label><input id="x_excise_rate" class="input" type="number" placeholder="0"/><p class="desc">Untuk barang kena cukai.</p></div>
+        <div><label class="label">PPN Impor (%)</label><input id="x_vat_rate" class="input" type="number" value="11"/><p class="desc">PPN atas CIF+duty+cukai.</p></div>
+        <div><label class="label">PPh 22 Impor (%)</label><input id="x_pph_rate" class="input" type="number" placeholder="2.5"/><p class="desc">Tarif sesuai ketentuan.</p></div>
+        <div class="lg:col-span-2"><label class="label">Pajak/Levy Lain</label><input id="x_other_taxes" class="input" type="number" placeholder="0"/><p class="desc">Tambahan pajak bila ada.</p></div>
+        <label class="inline-flex items-center gap-2 text-[.86rem]"><input id="include_taxes" type="checkbox" class="h-4 w-4"/>Tambahkan duties & pajak ke biaya dasar sesuai scope</label>
       </div>
     </div>
 
-    <h3 class="mb-2 text-[.9rem] mt-4">Biaya Tidak Langsung</h3>
+    <h3 class="mt-4 mb-2 text-[.9rem] font-semibold">Biaya Tidak Langsung</h3>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-      <div><label class="label">Admin atau Operasional</label><input id="i_admin" type="number" class="input" placeholder="500000"><p class="desc">Gaji operasional, ATK, biaya internal.</p></div>
-      <div><label class="label">Peralatan atau Perizinan</label><input id="i_equip" type="number" class="input" placeholder="250000"><p class="desc">Forklift, izin, sertifikasi.</p></div>
-      <div><label class="label">Overhead (% x Direct)</label><input id="i_oh_rate" type="number" class="input" placeholder="7"><p class="desc">Alokasi biaya umum.</p></div>
-      <div><label class="label">FX Buffer (% x Direct)</label><input id="i_fx_rate" type="number" class="input" placeholder="1"><p class="desc">Cadangan fluktuasi kurs.</p></div>
-      <div><label class="label">Contingency (% x Direct)</label><input id="i_cont_rate" type="number" class="input" placeholder="3"><p class="desc">Cadangan risiko tak terduga.</p></div>
-      <div><label class="label">Lainnya (Tetap)</label><input id="i_fixed_other" type="number" class="input" placeholder="0"><p class="desc">Biaya tetap lain.</p></div>
+      <div><label class="label">Admin/Operasional</label><input id="i_admin" class="input" type="number" placeholder="500000"/><p class="desc">Biaya administrasi internal.</p></div>
+      <div><label class="label">Peralatan/Perizinan</label><input id="i_equip" class="input" type="number" placeholder="250000"/><p class="desc">Sewa alat, izin, keamanan.</p></div>
+      <div><label class="label">Overhead (%) x Direct</label><input id="i_oh_rate" class="input" type="number" placeholder="7"/><p class="desc">Persen overhead dari biaya langsung.</p></div>
+      <div><label class="label">FX Buffer (%)</label><input id="i_fx_rate" class="input" type="number" placeholder="1"/><p class="desc">Penyangga fluktuasi kurs.</p></div>
+      <div><label class="label">Contingency (%)</label><input id="i_cont_rate" class="input" type="number" placeholder="3"/><p class="desc">Cadangan risiko operasional.</p></div>
+      <div><label class="label">Lainnya (tetap)</label><input id="i_fixed_other" class="input" type="number" placeholder="0"/><p class="desc">Biaya tidak langsung lain.</p></div>
     </div>
 
     <div class="border border-slate-700 rounded-xl p-3 mt-4">
-      <div class="flex items-center gap-3">
-        <input id="allin_base_toggle" type="checkbox" class="h-4 w-4">
-        <label for="allin_base_toggle">Override Total Biaya Dasar (C) dengan All in Base Cost</label>
-      </div>
+      <label class="inline-flex items-center gap-2 text-[.86rem]">
+        <input id="allin_base_toggle" type="checkbox" class="h-4 w-4"/>Override Total Biaya Dasar (C) dengan All-in Base Cost
+      </label>
       <div id="allin_base_box" class="grid md:grid-cols-2 gap-3 mt-2 hidden">
-        <div>
-          <label class="label">All in Base Cost (C)</label>
-          <input id="allin_base_value" type="number" class="input" placeholder="48750000">
-          <p class="desc">Jika aktif, perhitungan memakai nilai ini sebagai C dan mengabaikan rincian di atas.</p>
-        </div>
-        <div>
-          <label class="label">Catatan (opsional)</label>
-          <input id="allin_base_note" class="input" placeholder="termasuk duties dan pajak, exclude PPN keluaran">
-        </div>
+        <div><label class="label">All-in Base Cost (C)</label><input id="allin_base_value" class="input" type="number" placeholder="48750000"/><p class="desc">Menggantikan perhitungan C otomatis.</p></div>
+        <div><label class="label">Catatan</label><input id="allin_base_note" class="input" placeholder="Contoh: termasuk duties, exclude PPN keluaran"/><p class="desc">Opsional.</p></div>
       </div>
     </div>
 
-    <div id="marginWarn" class="warn hidden mt-3">Margin di bawah standar 10%. Konsultasikan dengan Sales Manager.</div>
+    <div id="marginWarn" class="warn hidden mt-3">Margin di bawah 10 persen. Mohon konfirmasi ke Sales Manager.</div>
 
-    <div class="pager">
-      <button class="btn" data-prev="p3">Kembali</button>
-      <button class="btn btnPrimary" data-next="p5">Lanjut</button>
+    <div class="mt-3 flex justify-between">
+      <button class="btn" data-prev="p3" type="button">Kembali</button>
+      <button class="btn btnPrimary" data-next="p5" type="button">Lanjut</button>
     </div>
   </section>
 
+  <!-- MARGIN -->
   <section id="p5" class="card p-5 hidden">
-    <div class="section-top">
-      <h2 class="text-[.95rem] text-[var(--accent)]">Margin dan PPN</h2>
-      <button class="btn glossBtn">Glosarium</button>
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h2 class="text-[.92rem] text-[var(--accent)]">Margin & PPN</h2>
+      <div class="flex items-center gap-2">
+        <button id="btnSim" class="btn" type="button">Simulasi Otomatis</button>
+        <button class="btn" id="btnGloss6" type="button">Glosarium</button>
+      </div>
     </div>
+    <div class="svcInfo mt-2" id="svcInfo-p5" hidden></div>
 
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-      <div>
-        <label class="label">Target Margin (%)</label>
-        <input id="m_margin_rate" type="number" class="input" placeholder="35">
-        <p class="desc">Rumus: Selling = C /(1 - margin%).</p>
-      </div>
-      <div><label class="label">PPN Keluaran (%)</label><input id="m_vat_out_rate" type="number" class="input" value="11"><p class="desc">Tarif PPN yang ditambahkan pada selling.</p></div>
-      <div class="flex items-center gap-2 mt-6"><input id="m_apply_vat" type="checkbox" class="h-4 w-4" checked><span class="text-[.84rem] text-slate-200">Tambahkan PPN pada selling</span></div>
+      <div><label class="label">Target Margin (%)</label><input id="m_margin_rate" class="input" type="number" placeholder="35"/><p class="desc">Rumus selling: Selling = C /(1 - margin%).</p></div>
+      <div><label class="label">PPN Keluaran (%)</label><input id="m_vat_out_rate" class="input" type="number" value="11"/><p class="desc">PPN pada invoice.</p></div>
+      <label class="inline-flex items-center gap-2 mt-6 text-[.86rem]"><input id="m_apply_vat" type="checkbox" class="h-4 w-4" checked/>Tambahkan PPN pada selling</label>
     </div>
-    <div id="marginPageWarn" class="warn hidden mt-2">Margin di bawah standar 10%. Konsultasikan dengan Sales Manager.</div>
+    <div id="marginPageWarn" class="warn hidden mt-2">Margin di bawah 10 persen. Mohon konfirmasi ke Sales Manager.</div>
+
     <div class="mt-3 flex items-center gap-3">
-      <button id="btnCalc" class="btn btnPrimary">Hitung Selling</button>
-      <button class="btn" onclick="location.reload()">Reset</button>
+      <button id="btnCalc" class="btn btnPrimary" type="button">Hitung Selling</button>
+      <button class="btn" type="button" onclick="location.reload()">Reset</button>
     </div>
-    <div class="pager">
-      <button class="btn" data-prev="p4">Kembali</button>
-      <button class="btn btnPrimary" data-next="p6">Ke Hasil</button>
+
+    <div class="mt-3 flex justify-between">
+      <button class="btn" data-prev="p4" type="button">Kembali</button>
+      <button class="btn btnPrimary" data-next="p6" type="button">Ke Hasil</button>
     </div>
   </section>
 
+  <!-- HASIL -->
   <section id="p6" class="card p-5 hidden">
-    <div class="section-top">
-      <h2 class="text-[.95rem] text-[var(--accent)]">Hasil dan Ringkasan</h2>
-      <button class="btn glossBtn">Glosarium</button>
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h2 class="text-[.92rem] text-[var(--accent)]">Hasil & Ringkasan</h2>
+      <button class="btn" id="btnGloss7" type="button">Glosarium</button>
     </div>
-    <div id="results" class="text-[.88rem] text-slate-100 mt-2">Belum ada hasil. Klik <b>Hitung Selling</b> di halaman Margin.</div>
-    <div id="marginResultWarn" class="warn hidden mt-3">Margin di bawah standar 10%. Konsultasikan dengan Sales Manager.</div>
-    <div class="pager">
-      <button class="btn" data-prev="p5">Kembali</button>
-      <button class="btn btnPrimary" data-next="help">Lanjut</button>
+    <div class="svcInfo mt-2" id="svcInfo-p6" hidden></div>
+    <div id="results" class="text-[.9rem] mt-3">Belum ada hasil. Klik <b>Hitung Selling</b> di halaman Margin.</div>
+    <div id="marginResultWarn" class="warn hidden mt-3">Margin di bawah 10 persen. Mohon konfirmasi ke Sales Manager.</div>
+    <div class="mt-3 flex justify-between">
+      <button class="btn" data-prev="p5" type="button">Kembali</button>
+      <button class="btn btnPrimary" data-next="help" type="button">Lanjut</button>
     </div>
   </section>
 
+  <!-- HELP -->
   <section id="help" class="card p-5 hidden">
-    <div class="section-top">
-      <h2 class="text-[.95rem] text-[var(--accent)]">Cara Penggunaan</h2>
-      <button class="btn glossBtn">Glosarium</button>
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h2 class="text-[.92rem] text-[var(--accent)]">Cara Penggunaan</h2>
+      <button class="btn" id="btnGloss8" type="button">Glosarium</button>
     </div>
-    <ol class="list-decimal pl-5 mt-2 space-y-2 text-slate-100 text-[.9rem]">
+    <ol class="list-decimal pl-5 mt-2 space-y-2 text-[.9rem]">
       <li>Pilih Kategori lalu Subkategori layanan.</li>
-      <li>Isi Dasar termasuk nama customer, rute, vendor, armada, jumlah koli, berat, dan dimensi.</li>
-      <li>Di Komponen Biaya isi satu per satu atau aktifkan All in Biaya Langsung.</li>
-      <li>Untuk EXIM, isi incoterms, nilai barang, asuransi, freight, dan pajak.</li>
-      <li>Di Margin dan PPN, isi target margin lalu klik Hitung Selling.</li>
-      <li>Cek Hasil dan pastikan margin tidak di bawah standar.</li>
+      <li>Isi Dasar: customer, rute, armada, dan dimensi/parameter warehouse.</li>
+      <li>Isi Komponen langsung atau pakai All in. Untuk EXIM, buka Rincian dan atur Scope.</li>
+      <li>Isi EXIM & Tidak Langsung, pilih Incoterms serta pajak.</li>
+      <li>Di Margin, masukkan margin dan tekan Hitung Selling.</li>
+      <li>Lihat Hasil: menampilkan Layanan, Customer, Origin, Destination, Fleet, Berat, Koli, CBM.</li>
     </ol>
-    <div class="pager">
-      <button class="btn" data-prev="p6">Kembali</button>
-      <button class="btn btnPrimary" data-next="home">Selesai</button>
+    <div class="mt-3 flex justify-between">
+      <button class="btn" data-prev="p6" type="button">Kembali</button>
+      <button class="btn btnPrimary" data-next="home" type="button">Selesai</button>
     </div>
   </section>
 </main>
 
-<footer class="max-w-6xl mx-auto p-5 text-[.85rem] text-center">
-  Marketing Department PT Utama Globalindo Cargo &copy; 2025
+<footer class="max-w-6xl mx-auto p-5 text-[.8rem] text-center text-slate-400">
+  Marketing Department PT Utama Globalindo Cargo <span aria-hidden="true">©</span> 2025
 </footer>
 
-<!-- Glossary -->
+<!-- GLOSARIUM (tabel putih + pencarian) -->
 <dialog id="glossModal" class="card p-6">
   <div class="flex items-start justify-between gap-4">
     <div>
-      <h3 class="text-[.95rem]">Glosarium Istilah</h3>
-      <p class="text-[.85rem] -mt-1">Ringkasan istilah yang digunakan di tool ini.</p>
+      <h3 class="text-[.95rem]" style="color:var(--accent)">Glosarium Istilah & Incoterms</h3>
+      <p class="-mt-1 text-[.85rem]">Ketik untuk mencari istilah tertentu.</p>
     </div>
-    <button id="closeGloss" class="btn">Tutup</button>
+    <button id="closeGloss" class="btn" type="button">Tutup</button>
   </div>
-  <div class="mt-4">
-    <table class="gloss-table">
-      <thead><tr><th>Istilah</th><th>Penjelasan</th></tr></thead>
-      <tbody>
-        <tr><td>All in Biaya Langsung</td><td>Total direct seperti pickup, linehaul, THC atau DO, dokumen, packing, asuransi, surcharge, gudang, lainnya.</td></tr>
-        <tr><td>All in Base Cost (C)</td><td>Angka total biaya dasar yang menggantikan kalkulasi rinci direct, indirect, dan EXIM.</td></tr>
-        <tr><td>LTL atau FTL</td><td>Partial muatan truk versus satu truk penuh.</td></tr>
-        <tr><td>LCL atau FCL</td><td>Partial muatan kontainer versus satu kontainer penuh.</td></tr>
-        <tr><td>THC</td><td>Terminal Handling Charge, biaya penanganan di pelabuhan atau bandara.</td></tr>
-        <tr><td>DO</td><td>Delivery Order, dokumen pengambilan dari carrier.</td></tr>
-        <tr><td>PPJK</td><td>Customs brokerage.</td></tr>
-        <tr><td>Chargeable</td><td>Dasar penagihan: kg, CBM, atau kontainer.</td></tr>
-        <tr><td>CBM</td><td>Volume m3: Panjang x Lebar x Tinggi dalam meter.</td></tr>
-        <tr><td>Volumetrik Udara</td><td>(Panjang x Lebar x Tinggi) / 6000 dalam kg.</td></tr>
-        <tr><td>Incoterms</td><td>Aturan pembagian biaya dan risiko (EXW, FCA, FOB, CFR, CIF, DAP, DDP).</td></tr>
-        <tr><td>CIF</td><td>Cost + Insurance + Freight yaitu barang + asuransi + freight.</td></tr>
-        <tr><td>Indirect Cost</td><td>Admin, perizinan, overhead, buffer, contingency.</td></tr>
-        <tr><td>Margin</td><td>Selling = C /(1 - margin%).</td></tr>
-        <tr><td>PPN Keluaran</td><td>Pajak pertambahan nilai pada invoice.</td></tr>
-        <tr><td>Warehouse</td><td>Biaya storage, handling in atau out, dan lainnya.</td></tr>
+
+  <div class="mt-3">
+    <input id="glossSearch" class="gloss-search" placeholder="Cari istilah atau penjelasan... (mis. CIF, DO, Demurrage)"/>
+  </div>
+
+  <div class="gloss-wrap mt-3">
+    <table class="gloss-table" id="glossTable">
+      <thead>
+        <tr><th style="width:24%">Istilah</th><th>Penjelasan</th></tr>
+      </thead>
+      <tbody id="glossBody">
+        <!-- Istilah umum -->
+        <tr class="gloss-item"><td>All in Direct</td><td>Penjumlahan semua biaya langsung: pickup, linehaul, THC/DO, dokumen, packing, asuransi, surcharge, storage transit, lainnya.</td></tr>
+        <tr class="gloss-item"><td>Chargeable Weight</td><td>Dasar penagihan: max(berat aktual, berat volumetrik) untuk udara; untuk LCL berbasis CBM; FCL berbasis kontainer.</td></tr>
+        <tr class="gloss-item"><td>CBM</td><td>Meter kubik. Rumus: P x L x T (meter) x jumlah koli.</td></tr>
+        <tr class="gloss-item"><td>Volumetrik Udara</td><td>Konversi: (P x L x T)/6000 dalam kilogram.</td></tr>
+        <tr class="gloss-item"><td>Linehaul</td><td>Perpindahan utama antarkota/pelabuhan/bandara.</td></tr>
+        <tr class="gloss-item"><td>Last Mile</td><td>Pengiriman tahap akhir ke alamat tujuan.</td></tr>
+        <tr class="gloss-item"><td>First Mile/Pickup</td><td>Penjemputan dari lokasi pengirim ke hub/pelabuhan.</td></tr>
+        <tr class="gloss-item"><td>THC</td><td>Terminal Handling Charge. Biaya penanganan di terminal/pelabuhan.</td></tr>
+        <tr class="gloss-item"><td>DO</td><td>Delivery Order. Dokumen untuk pengeluaran barang dari pelabuhan.</td></tr>
+        <tr class="gloss-item"><td>BL / AWB / HBL / MBL</td><td>Bill of Lading, Air Waybill, House/ Master BL. Dokumen kontrak angkut.</td></tr>
+        <tr class="gloss-item"><td>CFS</td><td>Container Freight Station. Gudang untuk stuffing/destuffing LCL.</td></tr>
+        <tr class="gloss-item"><td>VGM</td><td>Verified Gross Mass. Bobot terverifikasi kontainer.</td></tr>
+        <tr class="gloss-item"><td>AMS / ENS / AFR</td><td>Advance manifest system EU/US/JP. Pelaporan manifest sebelum kedatangan.</td></tr>
+        <tr class="gloss-item"><td>Telex Release</td><td>Otorisasi rilis BL tanpa dokumen fisik.</td></tr>
+        <tr class="gloss-item"><td>Fumigasi</td><td>Perlakuan hama untuk kayu/kemasan sesuai regulasi.</td></tr>
+        <tr class="gloss-item"><td>War Risk</td><td>Tambahan premi asuransi pada rute berisiko.</td></tr>
+        <tr class="gloss-item"><td>PSS / GRI</td><td>Peak Season Surcharge dan General Rate Increase.</td></tr>
+        <tr class="gloss-item"><td>CAF / BAF</td><td>Currency Adjustment Factor / Bunker Adjustment Factor.</td></tr>
+        <tr class="gloss-item"><td>Demurrage</td><td>Denda parkir kontainer di terminal melewati jatah waktu.</td></tr>
+        <tr class="gloss-item"><td>Detention / Per Diem</td><td>Denda pemakaian kontainer di luar terminal melewati jatah waktu.</td></tr>
+        <tr class="gloss-item"><td>Storage / Port Rent</td><td>Sewa tempat di terminal/gudang pelabuhan.</td></tr>
+        <tr class="gloss-item"><td>PPJK</td><td>Perusahaan Pengurusan Jasa Kepabeanan (customs brokerage).</td></tr>
+        <tr class="gloss-item"><td>PEB / NPE / PIB</td><td>Pemberitahuan Ekspor Barang / Nota Pelayanan Ekspor / Pemberitahuan Impor Barang.</td></tr>
+        <tr class="gloss-item"><td>HS Code</td><td>Klasifikasi barang untuk penentuan tarif dan perizinan.</td></tr>
+        <tr class="gloss-item"><td>Customs Value</td><td>Nilai pabean yang menjadi dasar perhitungan bea masuk/pajak.</td></tr>
+        <tr class="gloss-item"><td>Duty (Bea Masuk)</td><td>Persentase atas CIF sesuai HS dan negara asal.</td></tr>
+        <tr class="gloss-item"><td>Excise (Cukai)</td><td>Pungutan untuk barang tertentu (contoh: hasil tembakau).</td></tr>
+        <tr class="gloss-item"><td>VAT / PPN Impor</td><td>Pajak pertambahan nilai atas importasi.</td></tr>
+        <tr class="gloss-item"><td>PPh 22 Impor</td><td>Pajak penghasilan atas importasi sesuai ketentuan.</td></tr>
+        <tr class="gloss-item"><td>COO</td><td>Certificate of Origin. Sertifikat asal barang (FTA).</td></tr>
+        <tr class="gloss-item"><td>SPS / Karantina</td><td>Sanitary and Phytosanitary. Persyaratan kesehatan/karantina.</td></tr>
+        <tr class="gloss-item"><td>Insurance Clauses (A/B/C)</td><td>Polis asuransi kargo dengan tingkat cakupan berbeda.</td></tr>
+        <tr class="gloss-item"><td>SLI</td><td>Shipper’s Letter of Instruction. Instruksi pengiriman untuk forwarder.</td></tr>
+        <tr class="gloss-item"><td>Cut-off Time</td><td>Batas waktu serah barang/dokumen untuk jadwal kapal/pesawat.</td></tr>
+        <tr class="gloss-item"><td>Remote Area Surcharge</td><td>Biaya tambahan ke wilayah sulit dijangkau.</td></tr>
+        <tr class="gloss-item"><td>Bonded Zone</td><td>Gudang berikat. Fasilitas kepabeanan untuk penangguhan bea masuk.</td></tr>
+        <tr class="gloss-item"><td>Duty Drawback</td><td>Pengembalian bea masuk atas bahan baku yang diekspor kembali.</td></tr>
+        <tr class="gloss-item"><td>Temporary Import / ATA Carnet</td><td>Mekanisme pemasukan sementara tanpa pungutan penuh.</td></tr>
+
+        <!-- Incoterms detail -->
+        <tr class="gloss-item"><td>Incoterms - EXW</td><td>Serah di tempat penjual. Buyer tanggung pickup, ekspor, freight, asuransi, impor, last mile, duties. Cocok bila buyer punya forwarder sendiri.</td></tr>
+        <tr class="gloss-item"><td>Incoterms - FCA</td><td>Serah ke carrier buyer. Seller tanggung origin handling sampai serah carrier. Buyer tanggung freight dan seterusnya.</td></tr>
+        <tr class="gloss-item"><td>Incoterms - FOB</td><td>Serah saat on board kapal di origin. Seller tanggung origin handling & loading. Buyer tanggung freight, asuransi (opsional), impor, last mile.</td></tr>
+        <tr class="gloss-item"><td>Incoterms - CFR</td><td>Seller tanggung freight sampai pelabuhan tujuan. Asuransi ditanggung buyer. Risiko pindah di kapal origin.</td></tr>
+        <tr class="gloss-item"><td>Incoterms - CIF</td><td>Seperti CFR namun seller juga menanggung asuransi minimum. Buyer menanggung impor & last mile.</td></tr>
+        <tr class="gloss-item"><td>Incoterms - DAP</td><td>Seller antar ke lokasi tujuan siap bongkar (tanpa bea masuk/pajak). Buyer urus bea masuk & pajak setempat.</td></tr>
+        <tr class="gloss-item"><td>Incoterms - DDP</td><td>Seller tanggung semua sampai lokasi tujuan termasuk duties & pajak. Buyer tinggal menerima barang.</td></tr>
       </tbody>
     </table>
   </div>
 </dialog>
 
-<!-- Incoterms details -->
-<dialog id="incotermsInfoModal" class="card p-6">
-  <div class="flex items-start justify-between gap-4">
-    <div>
-      <h3 class="text-[.95rem]">Mekanisme Incoterms</h3>
-      <p class="-mt-1 text-[.85rem]">Ringkasan siapa bayar apa, dan kapan risiko berpindah.</p>
-    </div>
-    <button id="closeIncoterms" class="btn">Tutup</button>
-  </div>
-  <div class="mt-4 grid md:grid-cols-2 gap-4 text-[.85rem] leading-6">
-    <div class="p-3 rounded-lg border border-white">
-      <p class="font-medium">EXW - Ex Works</p>
-      <ul class="list-disc pl-5">
-        <li>Biaya seller: menyiapkan barang di lokasi seller.</li>
-        <li>Biaya buyer: semua biaya dari pickup, ekspor, freight, impor, hingga delivery.</li>
-        <li>Risiko pindah: saat barang tersedia di lokasi seller.</li>
-        <li>Catatan: buyer urus ekspor atau tunjuk PPJK pihak seller.</li>
-      </ul>
-    </div>
-    <div class="p-3 rounded-lg border border-white">
-      <p class="font-medium">FCA - Free Carrier</p>
-      <ul class="list-disc pl-5">
-        <li>Biaya seller: ekspor hingga serah ke carrier yang ditunjuk buyer.</li>
-        <li>Biaya buyer: freight utama, impor, dan delivery.</li>
-        <li>Risiko pindah: saat serah ke carrier di titik yang disepakati.</li>
-        <li>Catatan: fleksibel untuk semua moda.</li>
-      </ul>
-    </div>
-    <div class="p-3 rounded-lg border border-white">
-      <p class="font-medium">FOB - Free On Board</p>
-      <ul class="list-disc pl-5">
-        <li>Biaya seller: sampai barang di atas kapal di pelabuhan muat.</li>
-        <li>Biaya buyer: freight laut, impor, dan delivery.</li>
-        <li>Risiko pindah: saat barang on board kapal.</li>
-        <li>Catatan: hanya untuk laut.</li>
-      </ul>
-    </div>
-    <div class="p-3 rounded-lg border border-white">
-      <p class="font-medium">CFR - Cost and Freight</p>
-      <ul class="list-disc pl-5">
-        <li>Biaya seller: biaya sampai pelabuhan tujuan termasuk freight.</li>
-        <li>Biaya buyer: asuransi, impor, dan delivery.</li>
-        <li>Risiko pindah: saat barang on board di origin.</li>
-        <li>Catatan: laut, asuransi bukan kewajiban seller.</li>
-      </ul>
-    </div>
-    <div class="p-3 rounded-lg border border-white">
-      <p class="font-medium">CIF - Cost, Insurance and Freight</p>
-      <ul class="list-disc pl-5">
-        <li>Biaya seller: biaya sampai pelabuhan tujuan termasuk freight dan asuransi minimum.</li>
-        <li>Biaya buyer: impor dan delivery.</li>
-        <li>Risiko pindah: saat barang on board di origin.</li>
-        <li>Catatan: laut, nilai CIF = barang + asuransi + freight.</li>
-      </ul>
-    </div>
-    <div class="p-3 rounded-lg border border-white">
-      <p class="font-medium">DAP - Delivered At Place</p>
-      <ul class="list-disc pl-5">
-        <li>Biaya seller: sampai lokasi tujuan siap bongkar, tidak termasuk bea masuk atau pajak impor.</li>
-        <li>Biaya buyer: bea masuk dan pajak impor.</li>
-        <li>Risiko pindah: saat barang siap bongkar di tempat tujuan.</li>
-        <li>Catatan: cocok untuk semua moda.</li>
-      </ul>
-    </div>
-    <div class="p-3 rounded-lg border border-white md:col-span-2">
-      <p class="font-medium">DDP - Delivered Duty Paid</p>
-      <ul class="list-disc pl-5">
-        <li>Biaya seller: seluruh biaya sampai tempat tujuan termasuk bea masuk dan pajak impor.</li>
-        <li>Biaya buyer: umumnya nol di sisi logistik, kecuali biaya bongkar lokal jika disepakati.</li>
-        <li>Risiko pindah: saat barang siap bongkar di tempat tujuan.</li>
-        <li>Catatan: pastikan legalitas untuk pembayaran pajak di negara tujuan.</li>
-      </ul>
-    </div>
-  </div>
-</dialog>
-
 <script>
-const $ = id => document.getElementById(id);
-const money = n => (isFinite(n)? Number(n).toLocaleString('id-ID', {maximumFractionDigits:0}):'0');
-const pages = ['home','subcats','p2','p3','p4','p5','p6','help'];
-let currentCategory=null, currentSubservice=null;
+/* Helper */
+const $=(id)=>document.getElementById(id);
+const money=(n)=> (isFinite(n)?Number(n).toLocaleString('id-ID',{maximumFractionDigits:0}):'0');
+const pages=['home','subcats','p2','p3','p4','p5','p6','help'];
+let currentCategory=null,currentSubservice=null;
 
-/* NAV */
+/* Navigasi halaman */
 function goto(id){
-  pages.forEach(p => { const el=$(p); if(el) el.classList.toggle('hidden', p!==id); });
-  document.querySelectorAll('.nav-icon').forEach(n => n.classList.toggle('active', n.dataset.goto===id));
+  pages.forEach(p=>$(p).classList.toggle('hidden',p!==id));
+  document.querySelectorAll('.nav-icon').forEach(n=>n.classList.toggle('active',n.dataset.goto===id));
+  window.scrollTo({top:0,behavior:'smooth'});
 }
-document.addEventListener('click', (e)=>{
-  const navBtn = e.target.closest('.nav-icon');
-  if(navBtn && navBtn.dataset.goto){ goto(navBtn.dataset.goto); return; }
-  const nextBtn = e.target.closest('[data-next]');
-  if(nextBtn){
-    const sec = e.target.closest('section');
-    const fromId = sec? sec.id : null;
-    if(!canProceed(fromId)){ const bad = document.querySelector('.input.invalid'); if(bad) bad.scrollIntoView({behavior:'smooth',block:'center'}); return; }
-    goto(nextBtn.getAttribute('data-next')); return;
-  }
-  const prevBtn = e.target.closest('[data-prev]');
-  if(prevBtn){ goto(prevBtn.getAttribute('data-prev')); return; }
-  const catTile = e.target.closest('.tile[data-cat]');
-  if(catTile){ currentCategory=catTile.dataset.cat; renderSubcats(currentCategory); updateSvcBanner(); goto('subcats'); return; }
+document.addEventListener('click',(e)=>{
+  const nav=e.target.closest('.nav-icon'); if(nav&&nav.dataset.goto){goto(nav.dataset.goto);return;}
+  const next=e.target.closest('[data-next]'); if(next){const from=e.target.closest('section')?.id||''; if(!canProceed(from)){document.querySelector('.input.invalid')?.scrollIntoView({behavior:'smooth',block:'center'});return;} goto(next.dataset.next); return;}
+  const prev=e.target.closest('[data-prev]'); if(prev){goto(prev.dataset.prev);return;}
 });
 
-/* Service banner */
-function displayCat(cat){ return {domestic:'Domestik',exim:'EXIM',project:'Project',warehouse:'Warehouse'}[cat] || ''; }
-function displaySub(v){ return (subcatsMap[currentCategory]||[]).find(x=>x.v===v)?.t || ''; }
-function updateSvcBanner(){
-  const el=$('svcBanner');
-  if(currentCategory && currentSubservice){
-    el.innerHTML = `Layanan: <b>${displayCat(currentCategory)}</b> • <b>${displaySub(currentSubservice)}</b>`;
-    el.classList.remove('hidden');
-  } else if(currentCategory){
-    el.innerHTML = `Layanan: <b>${displayCat(currentCategory)}</b>`;
-    el.classList.remove('hidden');
-  } else {
-    el.classList.add('hidden');
-  }
-}
+/* Glosarium */
+$('openGloss').onclick=()=>$('glossModal').showModal();
+['btnGloss1','btnGloss2','btnGloss3','btnGloss4','btnGloss5','btnGloss6','btnGloss7','btnGloss8'].forEach(id=>$(id).onclick=()=>$('glossModal').showModal());
+$('closeGloss').onclick=()=>$('glossModal').close();
 
-/* Gating */
-function canProceed(fromId){
-  switch(fromId){
-    case 'subcats': return !!currentSubservice;
-    case 'p2': return validateBasics();
-    case 'p3': return validateDirect();
-    case 'p4': return validateExim();
-    case 'p5': return validateMargin();
-    default: return true;
-  }
-}
-
-/* Glossary */
-$('openGloss')?.addEventListener('click', ()=>$('glossModal').showModal());
-$('closeGloss')?.addEventListener('click', ()=>$('glossModal').close());
-document.addEventListener('click', (e)=>{ if(e.target && e.target.classList.contains('glossBtn')) $('glossModal').showModal(); });
-
-/* Incoterms modal */
-document.addEventListener('click', (e)=>{
-  if(e.target && (e.target.id==='incotermsInfoBtn' || e.target.closest('#incotermsInfoBtn'))) $('incotermsInfoModal').showModal();
-  if(e.target && e.target.id==='closeIncoterms') $('incotermsInfoModal').close();
+/* Pencarian glosarium */
+const glossSearch=$('glossSearch');
+glossSearch.addEventListener('input',()=>{
+  const q=glossSearch.value.trim().toLowerCase();
+  const rows=[...document.querySelectorAll('#glossBody .gloss-item')];
+  rows.forEach(r=>{
+    const txt=r.innerText.toLowerCase();
+    r.style.display= txt.includes(q)?'':'none';
+  });
 });
 
-/* Subcategories */
-const subcatsMap = {
+/* Klik info incoterms -> buka glosarium & filter */
+$('incotermsInfoBtn').onclick=()=>{
+  $('glossModal').showModal();
+  glossSearch.value='incoterms';
+  glossSearch.dispatchEvent(new Event('input'));
+};
+
+/* Kategori */
+document.addEventListener('click',(e)=>{
+  const tile=e.target.closest('.tile[data-cat]');
+  if(tile){currentCategory=tile.dataset.cat;renderSubcats(currentCategory);updateSvcBanner();updateSectionSvcCards();updateComponentsVisibility();goto('subcats');}
+});
+
+/* Subkategori data */
+const subcatsMap={
   domestic:[
-    {v:'dom_ltl',t:'LTL (Less than Truckload)',icon:'<path d="M3 7h8v6H3V7Zm10 2h8v8h-8V9Z"/>'},
-    {v:'dom_ftl',t:'FTL (Full Truckload)',icon:'<path d="M3 13h2l1-2h9l1 2h2v6H3v-6Zm12-5h3l3 3h-5V8H5V6h9Z"/>'},
-    {v:'dom_air',t:'Air Freight (Domestik)',icon:'<path d="M2 16l20-6-7 7-2 5-3-5-8-1Z"/>'},
-    {v:'dom_sea_lcl',t:'Sea LCL (Domestik)',icon:'<path d="M3 11h18v2H3v-2Zm0 4s2 2 6 2 6-2 6-2 2 2 6 2v2H3v-4Z"/>'},
-    {v:'dom_sea_fcl',t:'Sea FCL (Domestik)',icon:'<path d="M3 10h18v8H3v-8Zm2 2v4h4v-4H5Zm6 0v4h4v-4H4Z"/>'}
+    {v:'dom_ltl',t:'LTL - Less than Truckload',ic:'<path d="M3 7h8v6H3V7Zm10 2h8v8h-8V9Z"/>'},
+    {v:'dom_ftl',t:'FTL - Full Truckload',ic:'<path d="M3 13h2l1-2h9l1 2h2v6H3v-6Zm12-5h3l3 3h-5V8H5V6h9Z"/>'},
+    {v:'dom_air',t:'Air Freight Domestik',ic:'<path d="M2 16l20-6-7 7-2 5-3-5-8-1Z"/>'},
+    {v:'dom_sea_lcl',t:'Sea LCL Domestik',ic:'<path d="M3 11h18v2H3v-2Zm0 4s2 2 6 2 6-2 6-2 2 2 6 2v2H3v-4Z"/>'},
+    {v:'dom_sea_fcl',t:'Sea FCL Domestik',ic:'<path d="M3 10h18v8H3v-8Zm2 2v4h4v-4H5Zm6 0v4h4v-4H4Z"/>'}
   ],
-  exim:[{hdr:'Ekspor'},
-    {v:'exp_air',t:'Ekspor - Air Freight',icon:'<path d="M2 16l20-6-7 7-2 5-3-5-8-1Z"/>'},
-    {v:'exp_sea_lcl',t:'Ekspor - Sea LCL',icon:'<path d="M3 11h18v2H3v-2Zm0 4s2 2 6 2 6-2 6-2 2 2 6 2v2H3v-4Z"/>'},
-    {v:'exp_sea_fcl',t:'Ekspor - Sea FCL',icon:'<path d="M3 10h18v8H3v-8Zm2 2v4h4v-4H5Zm6 0v4h4v-4H4Z"/>'},
+  exim:[
+    {hdr:'Ekspor'},
+    {v:'exp_air',t:'Ekspor - Air Freight',ic:'<path d="M2 16l20-6-7 7-2 5-3-5-8-1Z"/>'},
+    {v:'exp_sea_lcl',t:'Ekspor - Sea LCL',ic:'<path d="M3 11h18v2H3v-2Zm0 4s2 2 6 2 6-2 6-2 2 2 6 2v2H3v-4Z"/>'},
+    {v:'exp_sea_fcl',t:'Ekspor - Sea FCL',ic:'<path d="M3 10h18v8H3v-8Zm2 2v4h4v-4H5Zm6 0v4h4v-4H4Z"/>'},
     {hdr:'Impor'},
-    {v:'imp_air',t:'Impor - Air Freight',icon:'<path d="M2 16l20-6-7 7-2 5-3-5-8-1Z"/>'},
-    {v:'imp_sea_lcl',t:'Impor - Sea LCL',icon:'<path d="M3 11h18v2H3v-2Zm0 4s2 2 6 2 6-2 6-2 2 2 6 2v2H3v-4Z"/>'},
-    {v:'imp_sea_fcl',t:'Impor - Sea FCL',icon:'<path d="M3 10h18v8H3v-8Zm2 2v4h4v-4H5Zm6 0v4h4v-4H4Z"/>'}
+    {v:'imp_air',t:'Impor - Air Freight',ic:'<path d="M2 16l20-6-7 7-2 5-3-5-8-1Z"/>'},
+    {v:'imp_sea_lcl',t:'Impor - Sea LCL',ic:'<path d="M3 11h18v2H3v-2Zm0 4s2 2 6 2 6-2 6-2 2 2 6 2v2H3v-4Z"/>'},
+    {v:'imp_sea_fcl',t:'Impor - Sea FCL',ic:'<path d="M3 10h18v8H3v-8Zm2 2v4h4v-4H5Zm6 0v4h4v-4H4Z"/>'}
   ],
-  project:[{v:'project',t:'Project Cargo (Flexible)',icon:'<path d="M3 3h18v2H3V3Zm2 4h14l2 4H3l2-4Zm-2 6h18v8H3v-8Z"/>'}],
+  project:[{v:'project',t:'Project Cargo - Flexible',ic:'<path d="M3 3h18v2H3V3Zm2 4h14l2 4H3l2-4Zm-2 6h18v8H3v-8Z"/>'}],
   warehouse:[
-    {v:'wh_storage',t:'Storage dan Handling',icon:'<path d="M3 10 12 4l9 6v10H3V10Z"/>'},
-    {v:'wh_fulfillment',t:'Fulfillment B2C',icon:'<path d="M3 7h8v6H3V7Zm10 2h8v8h-8V9Z"/>'}
+    {v:'wh_storage',t:'Storage & Handling',ic:'<path d="M3 10 12 4l9 6v10H3V10Z"/>'},
+    {v:'wh_fulfillment',t:'Fulfillment B2C',ic:'<path d="M3 7h8v6H3V7Zm10 2h8v8h-8V9Z"/>'}
   ]
 };
 function renderSubcats(cat){
-  const holder=$('subcatTiles'); holder.innerHTML='';
+  const holder=$('subcatTiles');holder.innerHTML='';
   (subcatsMap[cat]||[]).forEach(it=>{
-    if(it.hdr){
-      const h=document.createElement('div');
-      h.className='col-span-3 text-[.72rem] uppercase tracking-wider text-slate-400 mt-2';
-      h.textContent=it.hdr; holder.appendChild(h); return;
-    }
-    const d=document.createElement('div'); d.className='tile'; d.dataset.sub=it.v;
-    d.innerHTML=`<div class="flex items-start gap-3"><svg viewBox="0 0 24 24" fill="currentColor">${it.icon}</svg><div><div class="text-[.92rem]">${it.t}</div><div class="text-slate-300 text-[.78rem]">Klik untuk pilih</div></div></div>`;
-    d.addEventListener('click', ()=>{ currentSubservice=it.v; updateSvcBanner(); renderBasics(); updateComponentsVisibility(); toggleEximBlock(); goto('p2'); });
+    if(it.hdr){const h=document.createElement('div');h.className='col-span-3 text-[.7rem] uppercase tracking-wider text-slate-400 mt-2';h.textContent=it.hdr;holder.appendChild(h);return;}
+    const d=document.createElement('div');d.className='tile';d.dataset.sub=it.v;
+    d.innerHTML=`<svg class="mr-3" viewBox="0 0 24 24" fill="currentColor">${it.ic}</svg><div><div class="font-medium">${it.t}</div><div class="text-[.74rem] text-slate-300">Klik untuk pilih</div></div>`;
+    d.onclick=()=>{currentSubservice=it.v;updateSvcBanner();updateSectionSvcCards();renderBasics();updateComponentsVisibility();goto('p2');};
     holder.appendChild(d);
+  });
+  updateSectionSvcCards();
+}
+function catText(c){return {domestic:'Domestik',exim:'EXIM',project:'Project',warehouse:'Warehouse'}[c]||''}
+function subText(){const list=subcatsMap[currentCategory]||[];return list.find(x=>x.v===currentSubservice)?.t||''}
+function updateSvcBanner(){
+  const el=$('svcBanner'); if(!currentCategory){el.classList.add('hidden');return;}
+  el.innerHTML = currentSubservice? `Layanan: <b>${catText(currentCategory)}</b> • <b>${subText()}</b>` : `Layanan: <b>${catText(currentCategory)}</b>`;
+  el.classList.remove('hidden');
+}
+function updateSectionSvcCards(){
+  const label=(currentCategory?`Layanan: ${catText(currentCategory)}${currentSubservice?' • '+subText():''}`:'');
+  ['svcInfo-subcats','svcInfo-p2','svcInfo-p3','svcInfo-p4','svcInfo-p5','svcInfo-p6'].forEach(id=>{
+    const el=$(id); if(!el) return; if(label){el.textContent=label;el.hidden=false;} else {el.hidden=true;}
   });
 }
 
-/* Basics */
+/* DASAR dinamis */
 function renderBasics(){
   const wrap=$('basics_dynamic');
-  const commonCustomer = `<div><label class="label">Nama Customer</label><input id="customer_name" class="input" placeholder="PT Contoh Abadi"><p class="desc">Nama perusahaan atau individu.</p></div>`;
-  const commonFleet = `<div><label class="label">Armada atau Fleet</label><input id="fleet_used" class="input" placeholder="CDD Long, 40HC, Air Cargo"><p class="desc">Jenis armada yang digunakan.</p></div>`;
+  const commonCustomer=`<div><label class="label">Nama Customer</label><input id="customer_name" class="input" placeholder="PT Contoh Abadi"/><p class="desc">Nama perusahaan/individu penerima penawaran.</p></div>`;
+  const commonFleet=`<div><label class="label">Armada/Fleet</label><input id="fleet_used" class="input" placeholder="CDD Long, 40HC, Air Cargo"/><p class="desc">Jenis armada atau moda pengiriman.</p></div>`;
   if(currentCategory==='warehouse'){
-    wrap.innerHTML = `
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-      ${commonCustomer}
-      <div><label class="label">Warehouse Site</label><input id="wh_site" class="input" placeholder="Marunda DC"><p class="desc">Lokasi gudang.</p></div>
-      <div><label class="label">Periode Tagih (hari)</label><input id="wh_period_days" type="number" class="input" placeholder="30"><p class="desc">Rentang hari penagihan.</p></div>
-      ${commonFleet}
-    </div>`;
-  } else {
-    wrap.innerHTML = `
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-      ${commonCustomer}
-      <div><label class="label">Origin</label><input id="route_origin" class="input" placeholder="Jakarta (IDJKT)"><p class="desc">Kota atau port asal.</p></div>
-      <div><label class="label">Destination</label><input id="route_dest" class="input" placeholder="Surabaya (IDSUB)"><p class="desc">Kota atau port tujuan.</p></div>
-      <div><label class="label">Vendor</label><input id="vendor_name" class="input" placeholder="JNE atau Maersk atau XYZ Trucking"><p class="desc">Mitramoda, forwarder, atau hauler.</p></div>
-      <div><label class="label">Ref Vendor atau Lane</label><input id="vendor_ref" class="input" placeholder="LANE-JKT-SUB-AIR-01"><p class="desc">Kode lane atau tarif referensi.</p></div>
-      <div><label class="label">Jumlah Koli</label><input id="pkg_qty" type="number" class="input" placeholder="10"><p class="desc">Banyaknya paket.</p></div>
-      <div><label class="label">Berat Aktual (kg)</label><input id="w_actual" type="number" class="input" placeholder="750"><p class="desc">Total berat aktual.</p></div>
-      <div><label class="label">Dimensi per Koli (cm)</label>
-        <div class="grid grid-cols-3 gap-2">
-          <input id="dim_l" type="number" class="input" placeholder="P 120">
-          <input id="dim_w" type="number" class="input" placeholder="L 80">
-          <input id="dim_h" type="number" class="input" placeholder="T 60">
+    wrap.innerHTML=`
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${commonCustomer}
+        <div><label class="label">Warehouse Site</label><input id="wh_site" class="input" placeholder="Marunda DC"/><p class="desc">Lokasi gudang yang dipakai.</p></div>
+        <div><label class="label">Periode Tagih (hari)</label><input id="wh_period_days" type="number" class="input" placeholder="30"/><p class="desc">Rentang hari per tagihan.</p></div>
+        ${commonFleet}
+      </div>`;
+  }else{
+    wrap.innerHTML=`
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${commonCustomer}
+        <div><label class="label">Origin</label><input id="route_origin" class="input" placeholder="Jakarta / IDJKT"/><p class="desc">Kota/kode UNLOCODE asal.</p></div>
+        <div><label class="label">Destination</label><input id="route_dest" class="input" placeholder="Surabaya / IDSUB"/><p class="desc">Kota/kode UNLOCODE tujuan.</p></div>
+        <div><label class="label">Vendor</label><input id="vendor_name" class="input" placeholder="JNE, Maersk, XYZ Trucking"/><p class="desc">Nama penyedia layanan.</p></div>
+        <div><label class="label">Ref Vendor/Lane</label><input id="vendor_ref" class="input" placeholder="LANE-JKT-SUB-AIR-01"/><p class="desc">Kode rute/vendor untuk referensi.</p></div>
+        <div><label class="label">Jumlah Koli</label><input id="pkg_qty" type="number" class="input" placeholder="10"/><p class="desc">Total koli yang dikirim.</p></div>
+        <div><label class="label">Berat Aktual (kg)</label><input id="w_actual" type="number" class="input" placeholder="750"/><p class="desc">Berat timbangan keseluruhan.</p></div>
+        <div><label class="label">Dimensi per Koli (cm)</label>
+          <div class="grid grid-cols-3 gap-2">
+            <input id="dim_l" type="number" class="input" placeholder="P 120"/>
+            <input id="dim_w" type="number" class="input" placeholder="L 80"/>
+            <input id="dim_h" type="number" class="input" placeholder="T 60"/>
+          </div>
+          <p class="desc">Sistem menghitung volumetrik dan CBM total.</p>
         </div>
-        <p class="desc">Sistem menghitung volumetrik dan CBM total.</p>
-      </div>
-      <div id="fcl_wrap" class="hidden">
-        <label class="label">FCL Container</label>
-        <select id="fcl_type" class="input">
-          <option value="20">20 (sekitar 33 CBM, max 28 ton)</option>
-          <option value="40">40 (sekitar 67 CBM, max 28 ton)</option>
-          <option value="40HC">40 HC (sekitar 76 CBM, max 28 ton)</option>
-        </select>
-        <p class="desc">Referensi kapasitas untuk perencanaan.</p>
-      </div>
-      ${commonFleet}
-    </div>`;
+        <div id="fcl_wrap" class="hidden">
+          <label class="label">FCL Container</label>
+          <select id="fcl_type" class="input">
+            <option value="20">20 - ~33 CBM</option>
+            <option value="40">40 - ~67 CBM</option>
+            <option value="40HC">40HC - ~76 CBM</option>
+          </select>
+          <p class="desc">Tipe kontainer untuk layanan FCL.</p>
+        </div>
+        ${commonFleet}
+      </div>`;
   }
 }
 
-/* Visibility */
-const serviceComponentMap = {
+/* Visibilitas komponen */
+const serviceComponentMap={
   dom_ltl:['comp-main','comp-pickup','comp-lastmile','comp-surch','comp-ware','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-other'],
   dom_ftl:['comp-main','comp-pickup','comp-lastmile','comp-surch','comp-ware','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-other'],
   dom_air:['comp-airsea','comp-pickup','comp-lastmile','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
   dom_sea_lcl:['comp-airsea','comp-pickup','comp-lastmile','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
-  dom_sea_fcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
-  exp_air:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
-  exp_sea_lcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
-  exp_sea_fcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
-  imp_air:['comp-airsea','comp-lastmile','comp-dest','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
-  imp_sea_lcl:['comp-airsea','comp-lastmile','comp-dest','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
-  imp_sea_fcl:['comp-airsea','comp-lastmile','comp-dest','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
+  dom_sea_fcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
+  exp_air:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
+  exp_sea_lcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
+  exp_sea_fcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
+  imp_air:['comp-airsea','comp-lastmile','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
+  imp_sea_lcl:['comp-airsea','comp-lastmile','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
+  imp_sea_fcl:['comp-airsea','comp-lastmile','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
   project:['comp-main','comp-pickup','comp-lastmile','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other']
 };
 function updateComponentsVisibility(){
-  const ss=currentSubservice||'';
-  const showTransport = !!ss && !String(ss).startsWith('wh_');
-  const allinDirect = $('allin_direct_toggle').checked;
-  $('direct_transport').classList.toggle('hidden', !showTransport || allinDirect);
-  $('direct_warehouse').classList.toggle('hidden', !(currentCategory==='warehouse' && !allinDirect));
-  if(showTransport){
+  const ss=currentSubservice||''; const allIn=$('allin_direct_toggle').checked;
+  const transport=!!ss&&!String(ss).startsWith('wh_');
+  $('direct_transport').classList.toggle('hidden',!transport||allIn);
+  $('direct_warehouse').classList.toggle('hidden',!(currentCategory==='warehouse'&&!allIn));
+  $('exim_addons').classList.toggle('hidden',!(currentCategory==='exim'));
+  if(transport){
     const show=new Set(serviceComponentMap[ss]||[]);
     document.querySelectorAll('#direct_transport .comp').forEach(el=>{
-      const key=[...el.classList].find(c=>c.startsWith('comp-')); el.classList.toggle('hidden', !show.has(key));
+      const key=[...el.classList].find(c=>c.startsWith('comp-')); el.classList.toggle('hidden',!show.has(key));
     });
-    const isFcl = /_sea_fcl$/.test(ss);
-    $('fcl_wrap')?.classList.toggle('hidden', !isFcl);
-    $('rate_air_wrap')?.classList.toggle('hidden', !(ss.includes('air')));
-    $('rate_sea_lcl_wrap')?.classList.toggle('hidden', !(ss.includes('sea_lcl')));
-    $('rate_fcl_wrap')?.classList.toggle('hidden', !isFcl);
+    const isFcl=/_sea_fcl$/.test(ss);
+    $('fcl_wrap')?.classList.toggle('hidden',!isFcl);
+    $('rate_air_wrap')?.classList.toggle('hidden',!(ss.includes('air')));
+    $('rate_sea_lcl_wrap')?.classList.toggle('hidden',!(ss.includes('sea_lcl')));
+    $('rate_fcl_wrap')?.classList.toggle('hidden',!isFcl);
   }
-  $('allin_direct_box').classList.toggle('hidden', !$('allin_direct_toggle').checked);
+  $('allin_direct_box').classList.toggle('hidden',!allIn);
+  $('w_cbm_wrap')?.classList.toggle('hidden',!$('w_use_cbm')?.checked);
 }
+document.addEventListener('change',(e)=>{if(e.target.id==='allin_direct_toggle'||e.target.id==='w_use_cbm')updateComponentsVisibility();});
 
-/* Validators */
-function flag(el, ok, msg){ if(!el) return; if(ok){ el.classList.remove('invalid'); el.removeAttribute('title'); } else { el.classList.add('invalid'); el.setAttribute('title', msg||'Wajib diisi'); } }
+/* Validator */
+function flag(el,ok,msg){if(!el)return true; if(ok){el.classList.remove('invalid');el.removeAttribute('title');}else{el.classList.add('invalid');el.setAttribute('title',msg||'Wajib diisi');} return ok;}
 function validateBasics(){
-  if(!currentCategory) return false;
-  if(currentCategory==='warehouse'){ const site=$('wh_site'); const days=$('wh_period_days'); flag(site, (site?.value||'').trim().length>0, 'Nama site wajib'); flag(days, Number(days?.value)>0, 'Hari wajib'); return (site?.value||'').trim() && Number(days.value)>0; }
-  const ro=$('route_origin'), rd=$('route_dest'); flag(ro,(ro?.value||'').trim().length>0,'Origin wajib'); flag(rd,(rd?.value||'').trim().length>0,'Destination wajib'); return (ro?.value||'').trim() && (rd?.value||'').trim();
+  if(!currentCategory)return false;
+  if(currentCategory==='warehouse'){
+    const site=$('wh_site'),days=$('wh_period_days'); return flag(site,(site?.value||'').trim().length>0,'Nama site wajib')&&flag(days,Number(days?.value)>0,'Hari wajib');
+  }
+  const ro=$('route_origin'),rd=$('route_dest'); return flag(ro,(ro?.value||'').trim().length>0,'Origin wajib')&&flag(rd,(rd?.value||'').trim().length>0,'Destination wajib');
 }
 function validateDirect(){
   if(!currentSubservice) return false;
   if(currentSubservice.startsWith('wh_')) return true;
-  if($('allin_direct_toggle').checked){ const ok = Number(($('allin_direct_value').value||0))>0; flag($('allin_direct_value'), ok, 'Isi total all in direct'); return ok; }
-  const ids=['c_vendor','c_airsea','c_pickup','c_lastmile','c_thc_origin','c_thc_dest','c_customs_fee','c_doc','c_packing','c_insurance','c_surcharge','c_warehouse','c_direct_other'];
-  const any = ids.some(id => Number($(id)?.value||0) > 0);
-  flag($('c_vendor'), any, 'Isi minimal satu biaya langsung atau gunakan All in Direct'); return any;
+  if($('allin_direct_toggle').checked) return flag($('allin_direct_value'),Number($('allin_direct_value').value||0)>0,'Isi total all in direct');
+  const ids=['c_vendor','c_airsea','c_pickup','c_lastmile','c_thc_origin','c_thc_dest','c_doc','c_packing','c_insurance','c_surcharge','c_warehouse','c_direct_other'];
+  const any=ids.some(id=>Number($(id)?.value||0)>0); flag($('c_vendor'),any,'Isi minimal satu biaya langsung atau gunakan All in'); return any;
 }
-function validateExim(){
-  const exShown = !$('exim_block').classList.contains('hidden');
-  if(!exShown) return true;
-  const goodsOk = Number($('x_goods').value||0)>0; flag($('x_goods'), goodsOk, 'Nilai barang wajib');
-  const useSync=$('use_airsea_for_cif').checked;
-  if(useSync){ const okSync=Number($('c_airsea').value||0)>0 || $('allin_direct_toggle').checked; flag($('c_airsea'), okSync,'Isi Air atau Sea Freight'); return goodsOk && okSync; }
-  const frOk = Number($('x_freight').value||0)>0; flag($('x_freight'), frOk, 'Freight untuk CIF wajib'); return goodsOk && frOk;
-}
-function validateMargin(){ 
-  const m = Number($('m_margin_rate').value||0);
-  const ok = m>0 && m<100;
-  flag($('m_margin_rate'), ok, 'Margin harus lebih dari 0 dan kurang dari 100');
-  const warn = m>0 && m<10;
-  $('marginPageWarn').classList.toggle('hidden', !warn);
-  $('marginWarn').classList.toggle('hidden', !warn);
-  return ok;
-}
+function validateMargin(){const m=Number($('m_margin_rate').value||0);const ok=m>0&&m<100;flag($('m_margin_rate'),ok,'Margin harus 0-100');const low=m>0&&m<10;$('marginPageWarn').classList.toggle('hidden',!low);$('marginWarn').classList.toggle('hidden',!low);return ok;}
+function canProceed(from){switch(from){case'subcats':return !!currentSubservice;case'p2':return validateBasics();case'p3':return validateDirect();case'p4':return true;default:return true;}}
 
-/* Lock/Unlock */
+/* Kunci/Unlock */
 function setLockState(locked){
-  const fields = document.querySelectorAll('input,select,textarea');
-  fields.forEach(el=>{
-    if(el.id && (el.id==='btnLock' || el.id==='btnUnlock')) return;
-    if(locked){ el.setAttribute('disabled','disabled'); }
-    else{ el.removeAttribute('disabled'); }
-  });
-  if(locked){
-    $('btnLock').classList.add('btnOnRed');
-    $('btnUnlock').classList.remove('btnOnGreen');
-  } else {
-    $('btnUnlock').classList.add('btnOnGreen');
-    $('btnLock').classList.remove('btnOnRed');
-  }
+  document.querySelectorAll('input,select,textarea').forEach(el=>{locked?el.setAttribute('disabled','disabled'):el.removeAttribute('disabled')});
+  if(locked){$('btnLock').classList.add('btnOnRed');$('btnUnlock').classList.remove('btnOnGreen');}
+  else{$('btnUnlock').classList.add('btnOnGreen');$('btnLock').classList.remove('btnOnRed');}
 }
-document.addEventListener('click', (e)=>{
-  if(e.target && e.target.id==='btnLock'){ setLockState(true); }
-  if(e.target && e.target.id==='btnUnlock'){ setLockState(false); }
-});
+$('btnLock').onclick=()=>setLockState(true);
+$('btnUnlock').onclick=()=>setLockState(false);
 
-/* Presets */
-$('btnSavePreset').addEventListener('click', ()=>{
-  const name = prompt('Nama preset vendor atau route (contoh: JKT-SUB Air - Maersk)?');
-  if(!name) return;
-  const keys=['route_origin','route_dest','vendor_name','vendor_ref','pkg_qty','w_actual','dim_l','dim_w','dim_h','customer_name','fleet_used'];
-  const data={category:currentCategory,subservice:currentSubservice};
-  keys.forEach(k=> data[k]=($(k)?.value||''));
-  localStorage.setItem('UGC_PRESET_'+name, JSON.stringify(data));
-  alert('Preset disimpan: '+name);
-});
-$('btnLoadPreset').addEventListener('click', ()=>{
-  const names=[]; for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i)||''; if(k.startsWith('UGC_PRESET_')) names.push(k.replace('UGC_PRESET_','')); }
-  if(!names.length){ alert('Belum ada preset.'); return; }
-  const name=prompt('Ketik nama preset:\n'+names.join('\n'));
-  if(!name) return;
-  const raw=localStorage.getItem('UGC_PRESET_'+name); if(!raw) return alert('Preset tidak ditemukan.');
-  const data=JSON.parse(raw); currentCategory=data.category; currentSubservice=data.subservice;
-  renderSubcats(currentCategory); renderBasics(); updateSvcBanner();
-  setTimeout(()=>{
-    ['route_origin','route_dest','vendor_name','vendor_ref','pkg_qty','w_actual','dim_l','dim_w','dim_h','customer_name','fleet_used'].forEach(k=> { if($(k) && data[k]!==undefined) $(k).value=data[k]; });
-    updateComponentsVisibility(); toggleEximBlock(); goto('p2');
-  },0);
-});
+/* Toggle all-in base box */
+$('allin_base_toggle').onchange=()=>$('allin_base_box').classList.toggle('hidden',!$('allin_base_toggle').checked);
 
-/* Dimension helper */
+/* Dimensi & chargeable */
 function computeDims(){
-  const qty = Number(($('pkg_qty')?.value)||0);
-  const L = Number(($('dim_l')?.value)||0), W=Number(($('dim_w')?.value)||0), H=Number(($('dim_h')?.value)||0);
-  const volKgAir = (L*W*H/6000)*qty;
-  const cbm = (L*W*H/1000000)*qty;
-  const actual = Number(($('w_actual')?.value)||0);
-  const chargeableKg = Math.max(volKgAir, actual);
+  const qty=Number(($('pkg_qty')?.value)||0);
+  const L=Number(($('dim_l')?.value)||0),W=Number(($('dim_w')?.value)||0),H=Number(($('dim_h')?.value)||0);
+  const volKgAir=(L*W*H/6000)*qty;
+  const cbm=(L*W*H/1000000)*qty;
+  const actual=Number(($('w_actual')?.value)||0);
+  const chargeableKg=Math.max(volKgAir,actual);
   return {qty,L,W,H,volKgAir,cbm,actual,chargeableKg};
 }
+$('use_chargeable_est').onchange=()=>{
+  if(!$('use_chargeable_est').checked)return;
+  const ss=currentSubservice||''; const d=computeDims();
+  if(ss.includes('air')&&$('rate_air_kg')) $('c_airsea').value=Number(($('rate_air_kg').value||0))*d.chargeableKg;
+  if(ss.includes('sea_lcl')&&$('rate_sea_cbm')) $('c_airsea').value=Number(($('rate_sea_cbm').value||0))*d.cbm;
+  if(ss.includes('sea_fcl')&&$('rate_fcl_container')) $('c_airsea').value=Number(($('rate_fcl_container').value||0));
+};
 
-document.addEventListener('change', (e)=>{
-  if(e.target && e.target.id==='allin_direct_toggle') updateComponentsVisibility();
-  if(e.target && e.target.id==='allin_base_toggle'){ $('allin_base_box').classList.toggle('hidden', !e.target.checked); }
-  if(e.target && e.target.id==='use_chargeable_est'){
-    const ss=currentSubservice||'';
-    if(!$('use_chargeable_est').checked) return;
-    const d = computeDims();
-    if(ss.includes('air') && $('rate_air_kg')) $('c_airsea').value = Number(($('rate_air_kg').value||0))*d.chargeableKg;
-    if(ss.includes('sea_lcl') && $('rate_sea_cbm')) $('c_airsea').value = Number(($('rate_sea_cbm').value||0))*d.cbm;
-    if(ss.includes('sea_fcl') && $('rate_fcl_container')) $('c_airsea').value = Number(($('rate_fcl_container').value||0));
-  }
-});
+/* Accordion */
+$('acc_exim').onclick=()=>document.querySelector('#exim_addons .acc-b').classList.toggle('hidden');
+$('acc_wh').onclick=()=>document.querySelector('#direct_warehouse .acc-b').classList.toggle('hidden');
 
-function calcExim(){
+/* Scope presets & saran incoterms */
+function setScope(p){$('scope_pickup').checked=p.pickup;$('scope_origin').checked=p.origin;$('scope_freight').checked=p.freight;$('scope_insurance').checked=p.insurance;$('scope_dest').checked=p.dest;$('scope_import').checked=p.import;$('scope_lastmile').checked=p.lastmile;$('scope_duties').checked=p.duties;}
+$('btnScopeDoorDoor').onclick=()=>setScope({pickup:true,origin:true,freight:true,insurance:false,dest:true,import:true,lastmile:true,duties:false});
+$('btnScopeDoorPort').onclick=()=>setScope({pickup:true,origin:true,freight:true,insurance:false,dest:false,import:false,lastmile:false,duties:false});
+$('btnScopePortPort').onclick=()=>setScope({pickup:false,origin:true,freight:true,insurance:false,dest:true,import:false,lastmile:false,duties:false});
+$('btnScopePortDoor').onclick=()=>setScope({pickup:false,origin:false,freight:true,insurance:false,dest:true,import:true,lastmile:true,duties:false});
+$('incotermsSuggest').onclick=()=>{
+  const inc=$('x_incoterms').value;
+  const map={EXW:{pickup:true,origin:true,freight:true,insurance:false,dest:true,import:true,lastmile:true,duties:false},FCA:{pickup:true,origin:true,freight:false,insurance:false,dest:false,import:false,lastmile:false,duties:false},FOB:{pickup:true,origin:true,freight:false,insurance:false,dest:false,import:false,lastmile:false,duties:false},CFR:{pickup:true,origin:true,freight:true,insurance:false,dest:false,import:false,lastmile:false,duties:false},CIF:{pickup:true,origin:true,freight:true,insurance:true,dest:false,import:false,lastmile:false,duties:false},DAP:{pickup:true,origin:true,freight:true,insurance:false,dest:true,import:true,lastmile:true,duties:false},DDP:{pickup:true,origin:true,freight:true,insurance:false,dest:true,import:true,lastmile:true,duties:true}};
+  setScope(map[inc]||map.DAP); alert('Scope disarankan untuk '+inc+' telah diterapkan.');
+};
+
+/* EXIM pajak */
+function calcEximTaxes(){
   const goods=Number($('x_goods').value||0);
   const insPrem=Number($('x_ins_premium').value||0);
   const insRate=Number($('x_ins_rate').value||0)/100;
   let freight=Number($('x_freight').value||0);
-  if($('use_airsea_for_cif').checked) freight = Number($('c_airsea').value||0);
-  const insAuto = insPrem>0? insPrem : goods*insRate;
-  const cif = goods + insAuto + freight;
+  if($('use_airsea_for_cif').checked) freight=Number($('c_airsea').value||0);
+  const insAuto=insPrem>0?insPrem:goods*insRate;
+  const cif=goods+insAuto+freight;
   const dutyRate=Number($('x_duty_rate').value||0)/100;
   const exciseRate=Number($('x_excise_rate').value||0)/100;
   const vatRate=Number($('x_vat_rate').value||0)/100;
   const pphRate=Number($('x_pph_rate').value||0)/100;
-  const duty=cif*dutyRate, excise=cif*exciseRate;
+  const duty=cif*dutyRate,excise=cif*exciseRate;
   const vat=(cif+duty+excise)*vatRate;
   const pph=(cif+duty+excise)*pphRate;
   const other=Number($('x_other_taxes').value||0);
-  return {cif,duty,excise,vat,pph,other,total:duty+excise+vat+pph+other};
+  return {cif,goods,freight,insAuto,duty,excise,vat,pph,other,total:duty+excise+vat+pph+other};
 }
 
-function calculate(){
-  const dims = computeDims();
-
-  let direct = 0;
+/* Direct cost + scope */
+function calcDirect(){
+  let direct=0;
   if($('allin_direct_toggle').checked){
-    direct = Number($('allin_direct_value').value||0);
-  } else if(currentCategory==='warehouse'){
-    const store = Number($('w_store_rate').value||0)*Number($('w_store_pallets').value||0)*Number($('w_store_days').value||0);
-    const hin = Number($('w_handling_in_rate').value||0)*Number($('w_store_pallets').value||0);
-    const hout = Number($('w_handling_out_rate').value||0)*Number($('w_store_pallets').value||0);
-    direct = store + hin + hout + Number($('w_other').value||0);
-  } else {
-    direct = ['c_vendor','c_airsea','c_pickup','c_lastmile','c_thc_origin','c_thc_dest','c_customs_fee','c_doc','c_packing','c_insurance','c_surcharge','c_warehouse','c_direct_other']
-      .reduce((s,id)=> s + Number($(id)?.value||0),0);
+    direct+=Number($('allin_direct_value').value||0);
+  }else if(currentCategory==='warehouse'){
+    const store=Number($('w_store_rate').value||0)*Number($('w_store_pallets').value||0)*Number($('w_store_days').value||0);
+    const hin=Number($('w_handling_in_rate').value||0)*Number($('w_store_pallets').value||0);
+    const hout=Number($('w_handling_out_rate').value||0)*Number($('w_store_pallets').value||0);
+    const byCbm=$('w_use_cbm')?.checked?Number($('w_rate_cbm_day').value||0)*Number($('w_avg_cbm').value||0)*Number($('w_cbm_days').value||0):0;
+    direct+=store+hin+hout+Number($('w_other').value||0)+byCbm;
+  }else{
+    const ids=['c_vendor','c_airsea','c_pickup','c_lastmile','c_thc_origin','c_thc_dest','c_doc','c_packing','c_insurance','c_surcharge','c_warehouse','c_direct_other'];
+    direct+=ids.reduce((s,id)=>s+Number($(id)?.value||0),0);
   }
+  if(currentCategory==='exim'){
+    const scope={pickup:$('scope_pickup').checked,origin:$('scope_origin').checked,freight:$('scope_freight').checked,insurance:$('scope_insurance').checked,dest:$('scope_dest').checked,import:$('scope_import').checked,lastmile:$('scope_lastmile').checked,duties:$('scope_duties').checked};
+    if(!scope.freight) direct-=Number($('c_airsea').value||0);
+    if(!scope.pickup) direct-=Number($('c_pickup').value||0);
+    if(!scope.origin) direct-=(Number($('c_thc_origin').value||0)+Number($('x_export_clear').value||0)+Number($('x_security').value||0)+Number($('x_cfs').value||0)+Number($('x_vgm').value||0)+Number($('x_ams_ens').value||0));
+    if(!scope.insurance) direct-=Number($('c_insurance').value||0);
+    if(!scope.dest) direct-=(Number($('c_thc_dest').value||0)+Number($('x_do_dest').value||0)+Number($('x_terminal_dest').value||0)+Number($('x_storage_dest').value||0)+Number($('x_demurrage').value||0)+Number($('x_detention').value||0));
+    if(!scope.import) direct-=Number($('x_import_broker').value||0);
+    if(!scope.lastmile) direct-=Number($('c_lastmile').value||0);
+    const exids=['x_export_clear','x_security','x_cfs','x_vgm','x_ams_ens','x_telex','x_courier','x_fumigation','x_palletization','x_war_risk','x_congestion','x_caf','x_do_dest','x_terminal_dest','x_storage_dest','x_import_broker','x_inspection','x_demurrage','x_detention','x_bank_tt','x_remote'];
+    direct+=exids.reduce((s,id)=>s+Number($(id)?.value||0),0);
+  }
+  return direct;
+}
 
-  const ex = (currentCategory==='exim')? calcExim() : {total:0};
-  const includeTaxes = (currentCategory==='exim')? $('include_taxes').checked : false;
+/* Hitung utama */
+function calculate(){
+  const dims=(currentCategory==='warehouse')?{actual:0,qty:0,cbm:Number($('w_avg_cbm')?.value||0)}:computeDims();
+  let direct=calcDirect();
 
-  const indirectFixed = Number($('i_admin').value||0)+Number($('i_equip').value||0)+Number($('i_fixed_other').value||0);
-  const indirectPct = (Number($('i_oh_rate').value||0)+Number($('i_fx_rate').value||0)+Number($('i_cont_rate').value||0))/100 * direct;
+  let exTaxes={total:0}; let includeTaxes=false;
+  if(currentCategory==='exim'){exTaxes=calcEximTaxes();includeTaxes=$('include_taxes').checked&&$('scope_duties').checked;}
 
-  let baseCost = direct + indirectFixed + indirectPct + (includeTaxes? ex.total:0);
-  const useAllinBase = $('allin_base_toggle') && $('allin_base_toggle').checked;
-  if(useAllinBase){ baseCost = Number($('allin_base_value').value||0); }
+  const indirectFixed=Number($('i_admin').value||0)+Number($('i_equip').value||0)+Number($('i_fixed_other').value||0);
+  const indirectPct=(Number($('i_oh_rate').value||0)+Number($('i_fx_rate').value||0)+Number($('i_cont_rate').value||0))/100*direct;
 
-  const m = Number($('m_margin_rate').value||0)/100;
-  const denom = 1 - m;
-  if(denom<=0){ alert('Margin tidak boleh 100 persen atau lebih.'); goto('p5'); return; }
-  const selling = baseCost/denom;
-  const vat = ($('m_apply_vat').checked? selling*Number($('m_vat_out_rate').value||0)/100 : 0);
-  const total = selling + vat;
+  let baseCost=direct+indirectFixed+indirectPct+(includeTaxes?exTaxes.total:0);
+  if($('allin_base_toggle').checked){baseCost=Number($('allin_base_value').value||0);}
 
-  const warnLow = (m*100) > 0 && (m*100) < 10;
+  const m=Number($('m_margin_rate').value||0)/100; const denom=1-m;
+  if(denom<=0){alert('Margin tidak boleh 100 persen atau lebih.'); goto('p5'); return;}
+  const selling=baseCost/denom;
+  const vat=($('m_apply_vat').checked?selling*Number($('m_vat_out_rate').value||0)/100:0);
+  const total=selling+vat;
+  const low=(m*100)>0&&(m*100)<10;
 
-  const svcLabel = `${displayCat(currentCategory)} • ${displaySub(currentSubservice)}`;
-  const customer = ($('customer_name')?.value||'-');
-  const origin = ($('route_origin')?.value||'-');
-  const dest = ($('route_dest')?.value||'-');
-  const fleet = ($('fleet_used')?.value||'-');
+  const svcLabel=`${catText(currentCategory)} • ${subText()}`;
+  const customer=($('customer_name')?.value||'-');
+  const origin=($('route_origin')?.value||'-');
+  const dest=($('route_dest')?.value||'-');
+  const fleet=($('fleet_used')?.value||'-');
+  const scopeStr=(currentCategory==='exim')?['pickup','origin','freight','insurance','dest','import','lastmile','duties'].filter(k=>$('scope_'+k).checked).map(s=>s.toUpperCase()).join(', '):'N/A';
 
-  $('results').innerHTML = `
-    <div id="svcSummary" class="mb-3" style="background:rgba(255,255,255,.05);border:1px dashed #475569;border-radius:12px;padding:.5rem .65rem;font-size:.82rem">
-      Layanan: <b>${svcLabel}</b> • Customer: <b>${customer}</b> • Origin: <b>${origin}</b> • Destination: <b>${dest}</b> • Fleet: <b>${fleet}</b> • Berat: <b>${money(dims.actual)} kg</b> • Koli: <b>${money(dims.qty)}</b> • CBM: <b>${dims.cbm.toFixed(3)}</b>
+  $('results').innerHTML=`
+    <div class="svcInfo">
+      Layanan: <b>${svcLabel}</b> • Customer: <b>${customer}</b> • Origin: <b>${origin}</b> • Destination: <b>${dest}</b> • Fleet: <b>${fleet}</b> • Berat: <b>${money(dims.actual||0)} kg</b> • Koli: <b>${money(dims.qty||0)}</b> • CBM: <b>${(dims.cbm||0).toFixed(3)}</b>
+      ${currentCategory==='exim'?`<br/>Scope: <b>${scopeStr||'-'}</b> • Incoterms: <b>${$('x_incoterms').value}</b>`:''}
     </div>
-    <div class="grid grid-cols-2 gap-2">
+    <div class="grid grid-cols-2 gap-2 mt-2">
       <div class="text-slate-300">Biaya Langsung</div><div class="text-right font-medium">Rp ${money(direct)}</div>
-      ${(currentCategory==='exim')?`<div class="text-slate-300">EXIM Duties dan Pajak (termasuk)</div><div class="text-right font-medium">Rp ${money(includeTaxes? ex.total:0)}</div>`:''}
-      <div class="text-slate-300">Indirect (Tetap)</div><div class="text-right">Rp ${money(indirectFixed)}</div>
+      ${currentCategory==='exim'?`<div class="text-slate-300">Duties & Pajak ${includeTaxes?'(termasuk)':'(tidak termasuk dalam C)'}</div><div class="text-right font-medium">Rp ${money(exTaxes.total)}</div>`:''}
+      <div class="text-slate-300">Indirect (tetap)</div><div class="text-right">Rp ${money(indirectFixed)}</div>
       <div class="text-slate-300">Indirect (% x Direct)</div><div class="text-right">Rp ${money(indirectPct)}</div>
       <div class="gridline"></div><div class="gridline"></div>
-      <div class="font-medium">Total Biaya Dasar (C)</div><div class="text-right font-medium">Rp ${money(baseCost)}</div>
+      <div class="font-semibold">Total Biaya Dasar (C)</div><div class="text-right font-semibold">Rp ${money(baseCost)}</div>
     </div>
     <div class="border-t border-slate-700 my-2"></div>
     <div class="grid grid-cols-2 gap-2">
       <div class="text-slate-300">Target Margin</div><div class="text-right">${(m*100).toFixed(2)}%</div>
       <div class="text-slate-300">Denominator</div><div class="text-right">${denom.toFixed(4)}</div>
-      <div class="font-medium">Selling (sebelum PPN)</div><div class="text-right font-medium">Rp ${money(selling)}</div>
+      <div class="font-semibold">Selling sebelum PPN</div><div class="text-right font-semibold">Rp ${money(selling)}</div>
       <div>PPN Invoice</div><div class="text-right">Rp ${money(vat)}</div>
-      <div class="text-lg font-medium">TOTAL KE CUSTOMER</div><div class="text-right text-lg font-medium">Rp ${money(total)}</div>
+      <div class="text-lg font-semibold">TOTAL KE CUSTOMER</div><div class="text-right text-lg font-semibold">Rp ${money(total)}</div>
     </div>`;
-  $('marginResultWarn').classList.toggle('hidden', !warnLow);
+  $('marginResultWarn').classList.toggle('hidden',!low);
 }
 
-document.addEventListener('click', (e)=>{
-  if(e.target && e.target.id==='btnCalc'){ if(!validateMargin()){ const bad=document.querySelector('.input.invalid'); if(bad) bad.scrollIntoView({behavior:'smooth',block:'center'}); return; } calculate(); goto('p6'); }
-});
+/* Tombol utama */
+$('btnCalc').onclick=()=>{if(!validateMargin()){document.querySelector('.input.invalid')?.scrollIntoView({behavior:'smooth',block:'center'});return;} calculate(); goto('p6');};
+$('btnSim').onclick=()=>{
+  if(!currentCategory){currentCategory='exim';renderSubcats('exim');currentSubservice='exp_sea_lcl';renderBasics();updateComponentsVisibility();updateSvcBanner();updateSectionSvcCards();}
+  $('route_origin')&&($('route_origin').value='Jakarta');$('route_dest')&&($('route_dest').value='Los Angeles');$('customer_name')&&($('customer_name').value='PT Demo');$('fleet_used')&&($('fleet_used').value='LCL + Trucking');$('pkg_qty')&&($('pkg_qty').value='10');$('w_actual')&&($('w_actual').value='1200');$('dim_l')&&($('dim_l').value='120');$('dim_w')&&($('dim_w').value='80');$('dim_h')&&($('dim_h').value='60');
+  $('c_airsea')&&($('c_airsea').value='25000000');$('c_pickup')&&($('c_pickup').value='1500000');$('c_thc_origin')&&($('c_thc_origin').value='1000000');$('c_thc_dest')&&($('c_thc_dest').value='1200000');$('c_lastmile')&&($('c_lastmile').value='2000000');$('x_export_clear')&&($('x_export_clear').value='600000');$('x_do_dest')&&($('x_do_dest').value='750000');$('x_import_broker')&&($('x_import_broker').value='1500000');
+  $('x_goods')&&($('x_goods').value='500000000');$('x_ins_rate')&&($('x_ins_rate').value='0.2');$('x_duty_rate')&&($('x_duty_rate').value='5');$('x_vat_rate')&&($('x_vat_rate').value='11');$('x_pph_rate')&&($('x_pph_rate').value='2.5');$('include_taxes')&&($('include_taxes').checked=true);
+  setScope({pickup:true,origin:true,freight:true,insurance:true,dest:true,import:true,lastmile:true,duties:true});
+  $('m_margin_rate').value='30';$('m_apply_vat').checked=true; calculate(); goto('p6');
+};
 
-/* Initial state */
+/* Preset Vendor/Route */
+$('btnSavePreset').onclick=()=>{
+  const name=prompt('Nama preset vendor/route:'); if(!name) return;
+  const keys=['route_origin','route_dest','vendor_name','vendor_ref','pkg_qty','w_actual','dim_l','dim_w','dim_h','customer_name','fleet_used'];
+  const data={category:currentCategory,subservice:currentSubservice}; keys.forEach(k=>data[k]=($(k)?.value||'')); localStorage.setItem('UGC_PRESET_'+name,JSON.stringify(data)); alert('Preset tersimpan: '+name);
+};
+$('btnLoadPreset').onclick=()=>{
+  const names=[]; for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||''; if(k.startsWith('UGC_PRESET_')) names.push(k.replace('UGC_PRESET_','')); }
+  if(!names.length){alert('Belum ada preset.');return;}
+  const name=prompt('Ketik nama preset:\n'+names.join('\n')); if(!name) return;
+  const raw=localStorage.getItem('UGC_PRESET_'+name); if(!raw){alert('Preset tidak ditemukan.');return;}
+  const data=JSON.parse(raw); currentCategory=data.category; currentSubservice=data.subservice; renderSubcats(currentCategory); renderBasics(); updateSvcBanner(); updateSectionSvcCards(); updateComponentsVisibility();
+  setTimeout(()=>{['route_origin','route_dest','vendor_name','vendor_ref','pkg_qty','w_actual','dim_l','dim_w','dim_h','customer_name','fleet_used'].forEach(k=>{if($(k)&&data[k]!==undefined) $(k).value=data[k];}); goto('p2');},0);
+};
+
+/* Init */
 setLockState(false);
 </script>
 </body>
