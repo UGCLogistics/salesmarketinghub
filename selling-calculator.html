@@ -3,25 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UGC Logistics - Tarif Selling Calculator v3.9</title>
+<title>UGC Logistics - Tarif Selling Calculator v4.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   :root{--accent:#ff4600; --green:#16a34a; --red:#dc2626}
-  body{font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0b1220;color:#e5e7eb;font-size:13.25px}
+  body{font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:#0b1220;color:#e5e7eb;font-size:13px}
   h1,h2,h3{font-weight:500}
-  p,li,div,span,input,select,button,label{font-weight:400}
-  .desc{font-weight:300}
   .card{background:rgba(17,24,39,.96);border:1px solid #334155;border-radius:18px}
-  .input{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:.52rem .65rem;width:100%;color:#e5e7eb;font-size:.9rem}
+  .input{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:.5rem .65rem;width:100%;color:#e5e7eb;font-size:.9rem}
   .input::placeholder{color:#64748b}
   .input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
-  .num{text-align:right}
   input[type=number]{appearance:textfield;-moz-appearance:textfield}
   input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{margin:0;-webkit-appearance:none}
   .label{font-size:.82rem;color:#cbd5e1;font-weight:500;letter-spacing:.1px}
-  .desc{font-size:.7rem;color:#cbd5e1;margin-top:.25rem;line-height:1.1rem}
-  .btn{background:#1f2937;border:1px solid #334155;color:#e5e7eb;border-radius:12px;padding:.55rem .9rem;font-weight:500;font-size:.9rem}
+  .desc{font-size:.7rem;color:#cbd5e1;margin-top:.25rem;line-height:1.1rem;font-weight:300}
+  .btn{background:#1f2937;border:1px solid #334155;color:#e5e7eb;border-radius:12px;padding:.55rem .9rem;font-weight:500;font-size:.88rem}
   .btnPrimary{background:var(--accent);color:#fff;border-color:var(--accent)}
   .btnOnGreen{background:var(--green) !important;border-color:var(--green) !important;color:#fff !important}
   .btnOnRed{background:var(--red) !important;border-color:var(--red) !important;color:#fff !important}
@@ -32,16 +29,15 @@
   .invalid{border-color:#ef4444 !important;box-shadow:0 0 0 2px rgba(239,68,68,.25)}
   .section-top{display:flex;justify-content:space-between;align-items:center;gap:.65rem;flex-wrap:wrap}
 
-  /* Top NAV: shrink and justify edge-to-edge */
-  .nav-bar-wrap{border-radius:14px}
-  .nav-strip{display:flex;gap:.35rem;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;padding:.2rem .25rem .25rem .25rem;justify-content:space-between}
+  /* NAV: shrink evenly, no overlap */
+  .nav-bar-wrap{border-radius:14px;position:relative;z-index:1}
+  .nav-strip{display:flex;gap:.35rem;overflow-x:auto;white-space:nowrap;padding:.2rem .25rem .25rem .25rem;justify-content:space-between}
   .no-scrollbar::-webkit-scrollbar{display:none}
   .no-scrollbar{scrollbar-width:none;-ms-overflow-style:none}
   .nav-icon{display:flex;gap:.34rem;align-items:center;border:1px solid #334155;background:#0b1220;border-radius:12px;padding:.38rem .58rem;cursor:pointer;color:#cbd5e1;font-weight:500;font-size:.8rem;white-space:nowrap;flex:1 1 0;min-width:108px;justify-content:center}
   .nav-icon.active{border-color:var(--accent);background:var(--accent);color:#fff}
   .nav-icon.done{border-color:#16a34a}
   .nav-icon svg{width:15px;height:15px}
-  .chip{margin-left:.4rem;padding:.12rem .38rem;border-radius:999px;border:1px solid rgba(255,255,255,.25);font-size:.72rem;color:#e5e7eb;background:rgba(255,255,255,.06)}
 
   dialog.card{max-width:min(1100px,96vw)}
   dialog::backdrop{background:rgba(0,0,0,.6)}
@@ -61,13 +57,9 @@
 
   .warn{background:#1f2937;border:1px solid #f59e0b;color:#fde68a;border-radius:10px;padding:.5rem .75rem;font-size:.86rem}
 
-  /* Disabled state visuals */
-  input:disabled,select:disabled,textarea:disabled{opacity:.65;cursor:not-allowed}
-  label.disabled{opacity:.65}
-
-  /* Service info card */
-  .svc{background:rgba(255,255,255,.05);border:1px dashed #475569;border-radius:12px;padding:.5rem .65rem;font-size:.82rem}
-  .svc b{color:#fff}
+  /* Service banner */
+  #svcBanner{margin-top:.5rem;background:rgba(255,255,255,.05);border:1px dashed #475569;border-radius:12px;padding:.5rem .65rem;font-size:.82rem}
+  #svcBanner b{color:#fff}
 </style>
 </head>
 <body class="min-h-screen">
@@ -97,11 +89,11 @@
     <div id="topNav" class="nav-strip no-scrollbar">
       <button class="nav-icon active" data-goto="home" title="Kategori">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 10 12 3l8 7v10a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1V10Z"/></svg>
-        <span class="nav-text">Kategori</span><span id="chipCat" class="chip hidden"></span>
+        <span class="nav-text">Kategori</span>
       </button>
       <button class="nav-icon" data-goto="subcats" title="Subkategori">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h7v7H3V4Zm0 9h7v7H3v-7Zm11-9h7v7h-7V4Zm0 9h7v7h-7v-7Z"/></svg>
-        <span class="nav-text">Subkategori</span><span id="chipSub" class="chip hidden"></span>
+        <span class="nav-text">Subkategori</span>
       </button>
       <button class="nav-icon" data-goto="p2" title="Dasar">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16v2H4V5Zm0 6h16v2H4v-2Zm0 6h10v2H4v-2Z"/></svg>
@@ -129,6 +121,9 @@
       </button>
     </div>
   </div>
+
+  <!-- Non-overlapping banner -->
+  <div id="svcBanner" class="hidden"></div>
 </header>
 
 <main class="max-w-6xl mx-auto p-5 space-y-4">
@@ -190,8 +185,6 @@
       </div>
     </div>
 
-    <div id="svcCard_p2" class="svc hidden"></div>
-
     <div id="basics_dynamic" class="mt-3"></div>
     <div class="pager">
       <button class="btn" data-prev="subcats">Kembali</button>
@@ -208,8 +201,6 @@
       <button class="btn glossBtn">Glosarium</button>
     </div>
 
-    <div id="svcCard_p3" class="svc hidden"></div>
-
     <div class="border border-slate-700 rounded-xl p-3 mb-3">
       <div class="flex items-center gap-3">
         <input id="allin_direct_toggle" type="checkbox" class="h-4 w-4">
@@ -218,7 +209,7 @@
       <div id="allin_direct_box" class="grid md:grid-cols-2 gap-3 mt-2 hidden">
         <div>
           <label class="label">Total Biaya Langsung (All-in Direct)</label>
-          <input id="allin_direct_value" type="number" class="input num" placeholder="25000000">
+          <input id="allin_direct_value" type="number" class="input" placeholder="25000000">
           <p class="desc">Menggantikan penjumlahan pickup, linehaul, THC, DO, dokumen, packing, asuransi, surcharge, gudang, lainnya.</p>
         </div>
         <div>
@@ -229,40 +220,40 @@
     </div>
 
     <div id="direct_transport" class="mt-3 grid md:grid-cols-2 gap-3 hidden">
-      <div class="comp comp-main"><label class="label">Vendor Transport Utama</label><input id="c_vendor" type="number" class="input num" placeholder="12500000"><p class="desc">Linehaul utama truk atau konsolidasi.</p></div>
+      <div class="comp comp-main"><label class="label">Vendor Transport Utama</label><input id="c_vendor" type="number" class="input" placeholder="12500000"><p class="desc">Linehaul utama atau konsolidasi.</p></div>
       <div class="comp comp-airsea">
         <label class="label">Air atau Sea Freight</label>
-        <input id="c_airsea" type="number" class="input num" placeholder="8200000">
-        <p class="desc">Freight dihitung dari kg, CBM, atau kontainer.</p>
+        <input id="c_airsea" type="number" class="input" placeholder="8200000">
+        <p class="desc">Freight dari kg, CBM, atau kontainer.</p>
         <div class="mt-2 border-t border-slate-700 pt-2">
           <div class="flex items-center gap-2">
             <input id="use_chargeable_est" type="checkbox" class="h-4 w-4"><span class="text-[.84rem] text-slate-300">Estimasi otomatis dari chargeable</span>
           </div>
-          <div id="rate_air_wrap" class="hidden mt-2"><label class="label">Tarif Udara (Rp/kg)</label><input id="rate_air_kg" type="number" class="input num" placeholder="35000"><p class="desc">Dikalikan chargeable kg.</p></div>
-          <div id="rate_sea_lcl_wrap" class="hidden mt-2"><label class="label">Tarif LCL (Rp/CBM)</label><input id="rate_sea_cbm" type="number" class="input num" placeholder="1200000"><p class="desc">Dikalikan CBM total.</p></div>
-          <div id="rate_fcl_wrap" class="hidden mt-2"><label class="label">Tarif FCL (Rp/kontainer)</label><input id="rate_fcl_container" type="number" class="input num" placeholder="12000000"><p class="desc">Per kontainer 20, 40, 40HC.</p></div>
+          <div id="rate_air_wrap" class="hidden mt-2"><label class="label">Tarif Udara (Rp/kg)</label><input id="rate_air_kg" type="number" class="input" placeholder="35000"><p class="desc">Dikalikan chargeable kg.</p></div>
+          <div id="rate_sea_lcl_wrap" class="hidden mt-2"><label class="label">Tarif LCL (Rp/CBM)</label><input id="rate_sea_cbm" type="number" class="input" placeholder="1200000"><p class="desc">Dikalikan CBM total.</p></div>
+          <div id="rate_fcl_wrap" class="hidden mt-2"><label class="label">Tarif FCL (Rp/kontainer)</label><input id="rate_fcl_container" type="number" class="input" placeholder="12000000"><p class="desc">Per kontainer 20, 40, 40HC.</p></div>
         </div>
       </div>
-      <div class="comp comp-pickup"><label class="label">Pickup (Origin)</label><input id="c_pickup" type="number" class="input num" placeholder="750000"><p class="desc">Penjemputan dari shipper ke terminal.</p></div>
-      <div class="comp comp-lastmile"><label class="label">Last Mile (Destination)</label><input id="c_lastmile" type="number" class="input num" placeholder="900000"><p class="desc">Pengantaran door ke consignee.</p></div>
-      <div class="comp comp-origin"><label class="label">THC atau Port (Origin)</label><input id="c_thc_origin" type="number" class="input num" placeholder="450000"><p class="desc">Terminal handling origin.</p></div>
-      <div class="comp comp-dest"><label class="label">THC atau Port (Destination) dan DO</label><input id="c_thc_dest" type="number" class="input num" placeholder="520000"><p class="desc">Terminal handling tujuan dan DO carrier.</p></div>
-      <div class="comp comp-ppjk"><label class="label">Customs Brokerage (PPJK)</label><input id="c_customs_fee" type="number" class="input num" placeholder="1250000"><p class="desc">PEB, PIB, EDI, pendampingan.</p></div>
-      <div class="comp comp-doc"><label class="label">Dokumen (BL, AWB, DO, Manifest)</label><input id="c_doc" type="number" class="input num" placeholder="300000"><p class="desc">Penerbitan dokumen dan admin.</p></div>
-      <div class="comp comp-pack"><label class="label">Packing atau Crating</label><input id="c_packing" type="number" class="input num" placeholder="2100000"><p class="desc">Pengemasan tambahan.</p></div>
-      <div class="comp comp-insu"><label class="label">Asuransi Kargo (premi)</label><input id="c_insurance" type="number" class="input num" placeholder="180000"><p class="desc">Premi polis kargo.</p></div>
-      <div class="comp comp-surch"><label class="label">Fuel atau Security atau DG atau Remote</label><input id="c_surcharge" type="number" class="input num" placeholder="350000"><p class="desc">Surcharge dari carrier/vendor.</p></div>
-      <div class="comp comp-ware"><label class="label">Gudang atau Storage</label><input id="c_warehouse" type="number" class="input num" placeholder="600000"><p class="desc">Storage in/out.</p></div>
-      <div class="comp comp-other md:col-span-2"><label class="label">Biaya Langsung Lainnya</label><input id="c_direct_other" type="number" class="input num" placeholder="0"><p class="desc">Tol, izin, lainnya.</p></div>
+      <div class="comp comp-pickup"><label class="label">Pickup (Origin)</label><input id="c_pickup" type="number" class="input" placeholder="750000"><p class="desc">Penjemputan dari shipper ke terminal.</p></div>
+      <div class="comp comp-lastmile"><label class="label">Last Mile (Destination)</label><input id="c_lastmile" type="number" class="input" placeholder="900000"><p class="desc">Pengantaran door ke consignee.</p></div>
+      <div class="comp comp-origin"><label class="label">THC atau Port (Origin)</label><input id="c_thc_origin" type="number" class="input" placeholder="450000"><p class="desc">Terminal handling origin.</p></div>
+      <div class="comp comp-dest"><label class="label">THC atau Port (Destination) dan DO</label><input id="c_thc_dest" type="number" class="input" placeholder="520000"><p class="desc">Terminal handling tujuan dan DO carrier.</p></div>
+      <div class="comp comp-ppjk"><label class="label">Customs Brokerage (PPJK)</label><input id="c_customs_fee" type="number" class="input" placeholder="1250000"><p class="desc">PEB, PIB, EDI, pendampingan.</p></div>
+      <div class="comp comp-doc"><label class="label">Dokumen (BL, AWB, DO, Manifest)</label><input id="c_doc" type="number" class="input" placeholder="300000"><p class="desc">Penerbitan dokumen dan admin.</p></div>
+      <div class="comp comp-pack"><label class="label">Packing atau Crating</label><input id="c_packing" type="number" class="input" placeholder="2100000"><p class="desc">Pengemasan tambahan.</p></div>
+      <div class="comp comp-insu"><label class="label">Asuransi Kargo (premi)</label><input id="c_insurance" type="number" class="input" placeholder="180000"><p class="desc">Premi polis kargo.</p></div>
+      <div class="comp comp-surch"><label class="label">Fuel atau Security atau DG atau Remote</label><input id="c_surcharge" type="number" class="input" placeholder="350000"><p class="desc">Surcharge dari carrier/vendor.</p></div>
+      <div class="comp comp-ware"><label class="label">Gudang atau Storage</label><input id="c_warehouse" type="number" class="input" placeholder="600000"><p class="desc">Storage in atau out.</p></div>
+      <div class="comp comp-other md:col-span-2"><label class="label">Biaya Langsung Lainnya</label><input id="c_direct_other" type="number" class="input" placeholder="0"><p class="desc">Tol, izin, lainnya.</p></div>
     </div>
 
     <div id="direct_warehouse" class="mt-3 grid md:grid-cols-2 gap-3 hidden">
-      <div><label class="label">Storage (Rp per pallet per hari)</label><input id="w_store_rate" type="number" class="input num" placeholder="3500"><p class="desc">Tarif simpan per pallet per hari.</p></div>
-      <div><label class="label">Jumlah Pallet</label><input id="w_store_pallets" type="number" class="input num" placeholder="120"><p class="desc">Rata-rata pallet tersimpan.</p></div>
-      <div><label class="label">Jumlah Hari</label><input id="w_store_days" type="number" class="input num" placeholder="30"><p class="desc">Periode tagih.</p></div>
-      <div><label class="label">Handling In (Rp per pallet)</label><input id="w_handling_in_rate" type="number" class="input num" placeholder="7500"><p class="desc">Bongkar dan put-away.</p></div>
-      <div><label class="label">Handling Out (Rp per pallet)</label><input id="w_handling_out_rate" type="number" class="input num" placeholder="7500"><p class="desc">Ambil dan staging.</p></div>
-      <div class="md:col-span-2"><label class="label">Biaya Lain</label><input id="w_other" type="number" class="input num" placeholder="0"><p class="desc">WMS, material, listrik.</p></div>
+      <div><label class="label">Storage (Rp per pallet per hari)</label><input id="w_store_rate" type="number" class="input" placeholder="3500"><p class="desc">Tarif simpan per pallet per hari.</p></div>
+      <div><label class="label">Jumlah Pallet</label><input id="w_store_pallets" type="number" class="input" placeholder="120"><p class="desc">Rata rata pallet tersimpan.</p></div>
+      <div><label class="label">Jumlah Hari</label><input id="w_store_days" type="number" class="input" placeholder="30"><p class="desc">Periode tagih.</p></div>
+      <div><label class="label">Handling In (Rp per pallet)</label><input id="w_handling_in_rate" type="number" class="input" placeholder="7500"><p class="desc">Bongkar dan put away.</p></div>
+      <div><label class="label">Handling Out (Rp per pallet)</label><input id="w_handling_out_rate" type="number" class="input" placeholder="7500"><p class="desc">Ambil dan staging.</p></div>
+      <div class="md:col-span-2"><label class="label">Biaya Lain</label><input id="w_other" type="number" class="input" placeholder="0"><p class="desc">WMS, material, listrik.</p></div>
     </div>
 
     <div class="pager">
@@ -276,8 +267,6 @@
       <h2 class="text-[.95rem] text-[var(--accent)]">EXIM dan Tidak Langsung</h2>
       <button class="btn glossBtn">Glosarium</button>
     </div>
-
-    <div id="svcCard_p4" class="svc hidden"></div>
 
     <div id="exim_block" class="hidden">
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -293,43 +282,42 @@
           </select>
           <p class="desc">Menentukan pembagian biaya dan risiko.</p>
         </div>
-        <div><label class="label">Nilai Barang</label><input id="x_goods" type="number" class="input num" placeholder="125000000"><p class="desc">Nilai invoice komersial.</p></div>
-        <div><label class="label">Asuransi (premi) atau 0</label><input id="x_ins_premium" type="number" class="input num" placeholder="200000"><p class="desc">Isi 0 bila memakai kalkulasi persen.</p></div>
-        <div><label class="label">Rate Asuransi (%)</label><input id="x_ins_rate" type="number" class="input num" placeholder="0.2"><p class="desc">Alternatif perhitungan premi.</p></div>
-        <div><label class="label">Freight untuk CIF</label><input id="x_freight" type="number" class="input num" placeholder="12000000"><p class="desc">Disertakan dalam nilai CIF yaitu barang + asuransi + freight.</p></div>
+        <div><label class="label">Nilai Barang</label><input id="x_goods" type="number" class="input" placeholder="125000000"><p class="desc">Nilai invoice komersial.</p></div>
+        <div><label class="label">Asuransi (premi) atau 0</label><input id="x_ins_premium" type="number" class="input" placeholder="200000"><p class="desc">Isi 0 bila memakai kalkulasi persen.</p></div>
+        <div><label class="label">Rate Asuransi (%)</label><input id="x_ins_rate" type="number" class="input" placeholder="0.2"><p class="desc">Alternatif perhitungan premi.</p></div>
+        <div><label class="label">Freight untuk CIF</label><input id="x_freight" type="number" class="input" placeholder="12000000"><p class="desc">Disertakan dalam nilai CIF yaitu barang + asuransi + freight.</p></div>
         <div class="flex items-center gap-2"><input id="use_airsea_for_cif" type="checkbox" class="h-4 w-4"><span class="text-[.84rem] text-slate-300">Sinkronkan dengan nilai Air/Sea Freight</span></div>
       </div>
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-3 mt-3">
-        <div><label class="label">Duty (%)</label><input id="x_duty_rate" type="number" class="input num" placeholder="5"></div>
-        <div><label class="label">Cukai (%)</label><input id="x_excise_rate" type="number" class="input num" placeholder="0"></div>
-        <div><label class="label">PPN Impor (%)</label><input id="x_vat_rate" type="number" class="input num" value="11"></div>
-        <div><label class="label">PPh 22 Impor (%)</label><input id="x_pph_rate" type="number" class="input num" placeholder="2.5"></div>
-        <div class="lg:col-span-2"><label class="label">Pajak atau Levy Lain (total)</label><input id="x_other_taxes" type="number" class="input num" placeholder="0"></div>
-        <div class="flex items-center gap-2"><input id="include_taxes" type="checkbox" class="h-4 w-4" checked><span class="text-[.84rem] text-slate-300">Tambahkan duties dan pajak ke biaya (DDP atau All-in)</span></div>
+        <div><label class="label">Duty (%)</label><input id="x_duty_rate" type="number" class="input" placeholder="5"></div>
+        <div><label class="label">Cukai (%)</label><input id="x_excise_rate" type="number" class="input" placeholder="0"></div>
+        <div><label class="label">PPN Impor (%)</label><input id="x_vat_rate" type="number" class="input" value="11"></div>
+        <div><label class="label">PPh 22 Impor (%)</label><input id="x_pph_rate" type="number" class="input" placeholder="2.5"></div>
+        <div class="lg:col-span-2"><label class="label">Pajak atau Levy Lain (total)</label><input id="x_other_taxes" type="number" class="input" placeholder="0"></div>
+        <div class="flex items-center gap-2"><input id="include_taxes" type="checkbox" class="h-4 w-4" checked><span class="text-[.84rem] text-slate-300">Tambahkan duties dan pajak ke biaya (DDP atau All in)</span></div>
       </div>
     </div>
 
-    <div class="border-t border-slate-700 mt-4 pt-3"></div>
-    <h3 class="mb-2 text-[.9rem]">Biaya Tidak Langsung</h3>
+    <h3 class="mb-2 text-[.9rem] mt-4">Biaya Tidak Langsung</h3>
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-      <div><label class="label">Admin atau Operasional</label><input id="i_admin" type="number" class="input num" placeholder="500000"><p class="desc">Gaji operasional, ATK, biaya internal.</p></div>
-      <div><label class="label">Peralatan atau Perizinan</label><input id="i_equip" type="number" class="input num" placeholder="250000"><p class="desc">Forklift, izin, sertifikasi.</p></div>
-      <div><label class="label">Overhead (% x Direct)</label><input id="i_oh_rate" type="number" class="input num" placeholder="7"><p class="desc">Alokasi biaya umum.</p></div>
-      <div><label class="label">FX Buffer (% x Direct)</label><input id="i_fx_rate" type="number" class="input num" placeholder="1"><p class="desc">Cadangan fluktuasi kurs.</p></div>
-      <div><label class="label">Contingency (% x Direct)</label><input id="i_cont_rate" type="number" class="input num" placeholder="3"><p class="desc">Cadangan risiko tak terduga.</p></div>
-      <div><label class="label">Lainnya (Tetap)</label><input id="i_fixed_other" type="number" class="input num" placeholder="0"><p class="desc">Biaya tetap lain.</p></div>
+      <div><label class="label">Admin atau Operasional</label><input id="i_admin" type="number" class="input" placeholder="500000"><p class="desc">Gaji operasional, ATK, biaya internal.</p></div>
+      <div><label class="label">Peralatan atau Perizinan</label><input id="i_equip" type="number" class="input" placeholder="250000"><p class="desc">Forklift, izin, sertifikasi.</p></div>
+      <div><label class="label">Overhead (% x Direct)</label><input id="i_oh_rate" type="number" class="input" placeholder="7"><p class="desc">Alokasi biaya umum.</p></div>
+      <div><label class="label">FX Buffer (% x Direct)</label><input id="i_fx_rate" type="number" class="input" placeholder="1"><p class="desc">Cadangan fluktuasi kurs.</p></div>
+      <div><label class="label">Contingency (% x Direct)</label><input id="i_cont_rate" type="number" class="input" placeholder="3"><p class="desc">Cadangan risiko tak terduga.</p></div>
+      <div><label class="label">Lainnya (Tetap)</label><input id="i_fixed_other" type="number" class="input" placeholder="0"><p class="desc">Biaya tetap lain.</p></div>
     </div>
 
     <div class="border border-slate-700 rounded-xl p-3 mt-4">
       <div class="flex items-center gap-3">
         <input id="allin_base_toggle" type="checkbox" class="h-4 w-4">
-        <label for="allin_base_toggle">Override Total Biaya Dasar (C) dengan All-in Base Cost</label>
+        <label for="allin_base_toggle">Override Total Biaya Dasar (C) dengan All in Base Cost</label>
       </div>
       <div id="allin_base_box" class="grid md:grid-cols-2 gap-3 mt-2 hidden">
         <div>
-          <label class="label">All-in Base Cost (C)</label>
-          <input id="allin_base_value" type="number" class="input num" placeholder="48750000">
-          <p class="desc">Jika dicentang, perhitungan memakai nilai ini sebagai C dan mengabaikan rincian di atas.</p>
+          <label class="label">All in Base Cost (C)</label>
+          <input id="allin_base_value" type="number" class="input" placeholder="48750000">
+          <p class="desc">Jika aktif, perhitungan memakai nilai ini sebagai C dan mengabaikan rincian di atas.</p>
         </div>
         <div>
           <label class="label">Catatan (opsional)</label>
@@ -352,15 +340,13 @@
       <button class="btn glossBtn">Glosarium</button>
     </div>
 
-    <div id="svcCard_p5" class="svc hidden"></div>
-
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
       <div>
         <label class="label">Target Margin (%)</label>
-        <input id="m_margin_rate" type="number" class="input num" placeholder="35">
-        <p class="desc">Rumus: Selling = C / (1 - margin%).</p>
+        <input id="m_margin_rate" type="number" class="input" placeholder="35">
+        <p class="desc">Rumus: Selling = C /(1 - margin%).</p>
       </div>
-      <div><label class="label">PPN Keluaran (%)</label><input id="m_vat_out_rate" type="number" class="input num" value="11"><p class="desc">Tarif PPN yang ditambahkan pada selling.</p></div>
+      <div><label class="label">PPN Keluaran (%)</label><input id="m_vat_out_rate" type="number" class="input" value="11"><p class="desc">Tarif PPN yang ditambahkan pada selling.</p></div>
       <div class="flex items-center gap-2 mt-6"><input id="m_apply_vat" type="checkbox" class="h-4 w-4" checked><span class="text-[.84rem] text-slate-200">Tambahkan PPN pada selling</span></div>
     </div>
     <div id="marginPageWarn" class="warn hidden mt-2">Margin di bawah standar 10%. Konsultasikan dengan Sales Manager.</div>
@@ -393,12 +379,12 @@
       <button class="btn glossBtn">Glosarium</button>
     </div>
     <ol class="list-decimal pl-5 mt-2 space-y-2 text-slate-100 text-[.9rem]">
-      <li>Pilih <b>Kategori</b> dan <b>Subkategori</b> layanan.</li>
-      <li>Isi <b>Dasar</b> termasuk nama customer, rute, vendor, armada, jumlah koli, berat, dan dimensi.</li>
-      <li>Di <b>Komponen Biaya</b> isi satu per satu atau centang <b>All-in Biaya Langsung</b>.</li>
-      <li>Untuk <b>EXIM</b>, isi incoterms, nilai barang, asuransi, freight, dan pajak.</li>
-      <li>Di <b>Margin dan PPN</b>, isi target margin. Rumus: <code>Selling = C / (1 - margin%)</code>.</li>
-      <li>Buka <b>Hasil</b> untuk ringkasan dan validasi margin.</li>
+      <li>Pilih Kategori lalu Subkategori layanan.</li>
+      <li>Isi Dasar termasuk nama customer, rute, vendor, armada, jumlah koli, berat, dan dimensi.</li>
+      <li>Di Komponen Biaya isi satu per satu atau aktifkan All in Biaya Langsung.</li>
+      <li>Untuk EXIM, isi incoterms, nilai barang, asuransi, freight, dan pajak.</li>
+      <li>Di Margin dan PPN, isi target margin lalu klik Hitung Selling.</li>
+      <li>Cek Hasil dan pastikan margin tidak di bawah standar.</li>
     </ol>
     <div class="pager">
       <button class="btn" data-prev="p6">Kembali</button>
@@ -424,22 +410,22 @@
     <table class="gloss-table">
       <thead><tr><th>Istilah</th><th>Penjelasan</th></tr></thead>
       <tbody>
-        <tr><td>All-in Biaya Langsung</td><td>Total direct seperti pickup, linehaul, THC/DO, dokumen, packing, asuransi, surcharge, gudang, lainnya.</td></tr>
-        <tr><td>All-in Base Cost (C)</td><td>Angka total biaya dasar yang menggantikan kalkulasi rinci direct, indirect, dan EXIM.</td></tr>
-        <tr><td>LTL / FTL</td><td>Partial muatan truk vs satu truk penuh.</td></tr>
-        <tr><td>LCL / FCL</td><td>Partial muatan kontainer vs satu kontainer penuh.</td></tr>
-        <tr><td>THC</td><td>Terminal Handling Charge, biaya penanganan di pelabuhan/bandara.</td></tr>
+        <tr><td>All in Biaya Langsung</td><td>Total direct seperti pickup, linehaul, THC atau DO, dokumen, packing, asuransi, surcharge, gudang, lainnya.</td></tr>
+        <tr><td>All in Base Cost (C)</td><td>Angka total biaya dasar yang menggantikan kalkulasi rinci direct, indirect, dan EXIM.</td></tr>
+        <tr><td>LTL atau FTL</td><td>Partial muatan truk versus satu truk penuh.</td></tr>
+        <tr><td>LCL atau FCL</td><td>Partial muatan kontainer versus satu kontainer penuh.</td></tr>
+        <tr><td>THC</td><td>Terminal Handling Charge, biaya penanganan di pelabuhan atau bandara.</td></tr>
         <tr><td>DO</td><td>Delivery Order, dokumen pengambilan dari carrier.</td></tr>
         <tr><td>PPJK</td><td>Customs brokerage.</td></tr>
         <tr><td>Chargeable</td><td>Dasar penagihan: kg, CBM, atau kontainer.</td></tr>
-        <tr><td>CBM</td><td>Volume m3: P×L×T dalam meter.</td></tr>
-        <tr><td>Volumetrik Udara</td><td>(P×L×T)/6000 dalam kg.</td></tr>
+        <tr><td>CBM</td><td>Volume m3: Panjang x Lebar x Tinggi dalam meter.</td></tr>
+        <tr><td>Volumetrik Udara</td><td>(Panjang x Lebar x Tinggi) / 6000 dalam kg.</td></tr>
         <tr><td>Incoterms</td><td>Aturan pembagian biaya dan risiko (EXW, FCA, FOB, CFR, CIF, DAP, DDP).</td></tr>
-        <tr><td>CIF</td><td>Cost+Insurance+Freight = barang + asuransi + freight.</td></tr>
+        <tr><td>CIF</td><td>Cost + Insurance + Freight yaitu barang + asuransi + freight.</td></tr>
         <tr><td>Indirect Cost</td><td>Admin, perizinan, overhead, buffer, contingency.</td></tr>
-        <tr><td>Margin</td><td>Selling = C / (1 − margin%).</td></tr>
+        <tr><td>Margin</td><td>Selling = C /(1 - margin%).</td></tr>
         <tr><td>PPN Keluaran</td><td>Pajak pertambahan nilai pada invoice.</td></tr>
-        <tr><td>Warehouse</td><td>Biaya storage, handling in/out, dan lainnya.</td></tr>
+        <tr><td>Warehouse</td><td>Biaya storage, handling in atau out, dan lainnya.</td></tr>
       </tbody>
     </table>
   </div>
@@ -525,13 +511,12 @@
 const $ = id => document.getElementById(id);
 const money = n => (isFinite(n)? Number(n).toLocaleString('id-ID', {maximumFractionDigits:0}):'0');
 const pages = ['home','subcats','p2','p3','p4','p5','p6','help'];
-let currentCategory=null, currentSubservice=null, hasCalculated=false;
+let currentCategory=null, currentSubservice=null;
 
 /* NAV */
 function goto(id){
   pages.forEach(p => { const el=$(p); if(el) el.classList.toggle('hidden', p!==id); });
   document.querySelectorAll('.nav-icon').forEach(n => n.classList.toggle('active', n.dataset.goto===id));
-  updateProgress();
 }
 document.addEventListener('click', (e)=>{
   const navBtn = e.target.closest('.nav-icon');
@@ -546,45 +531,41 @@ document.addEventListener('click', (e)=>{
   const prevBtn = e.target.closest('[data-prev]');
   if(prevBtn){ goto(prevBtn.getAttribute('data-prev')); return; }
   const catTile = e.target.closest('.tile[data-cat]');
-  if(catTile){ currentCategory=catTile.dataset.cat; setChip('chipCat', displayCat(currentCategory)); goto('subcats'); renderSubcats(currentCategory); return; }
+  if(catTile){ currentCategory=catTile.dataset.cat; renderSubcats(currentCategory); updateSvcBanner(); goto('subcats'); return; }
 });
 
-/* Chips */
-function setChip(id, text){ const el=$(id); if(!el) return; el.textContent='• '+text; el.classList.remove('hidden'); }
+/* Service banner */
 function displayCat(cat){ return {domestic:'Domestik',exim:'EXIM',project:'Project',warehouse:'Warehouse'}[cat] || ''; }
 function displaySub(v){ return (subcatsMap[currentCategory]||[]).find(x=>x.v===v)?.t || ''; }
+function updateSvcBanner(){
+  const el=$('svcBanner');
+  if(currentCategory && currentSubservice){
+    el.innerHTML = `Layanan: <b>${displayCat(currentCategory)}</b> • <b>${displaySub(currentSubservice)}</b>`;
+    el.classList.remove('hidden');
+  } else if(currentCategory){
+    el.innerHTML = `Layanan: <b>${displayCat(currentCategory)}</b>`;
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
+}
 
-/* Progress gating */
+/* Gating */
 function canProceed(fromId){
   switch(fromId){
     case 'subcats': return !!currentSubservice;
-    case 'p2': return validateBasicsInline();
-    case 'p3': return validateDirectInline();
-    case 'p4': return validateEximInline();
-    case 'p5': return validateMarginInline();
+    case 'p2': return validateBasics();
+    case 'p3': return validateDirect();
+    case 'p4': return validateExim();
+    case 'p5': return validateMargin();
     default: return true;
   }
 }
-function updateProgress(){
-  const setDone = (step,done) => {
-    const el=document.querySelector(`.nav-icon[data-goto="${step}"]`); if(!el) return; el.classList.toggle('done', !!done);
-  };
-  setDone('home', !!currentCategory);
-  setDone('subcats', !!currentSubservice);
-  setDone('p2', validateBasicsInline());
-  setDone('p3', validateDirectInline());
-  setDone('p4', validateEximInline());
-  setDone('p5', validateMarginInline());
-  // refresh service info cards
-  ['p2','p3','p4','p5'].forEach(pid=>renderServiceCard(pid));
-}
 
 /* Glossary */
-function openGloss(){ $('glossModal').showModal(); }
-function closeGloss(){ $('glossModal').close(); }
-$('openGloss')?.addEventListener('click', openGloss);
-$('closeGloss')?.addEventListener('click', closeGloss);
-document.addEventListener('click', (e)=>{ if(e.target && e.target.classList.contains('glossBtn')) openGloss(); });
+$('openGloss')?.addEventListener('click', ()=>$('glossModal').showModal());
+$('closeGloss')?.addEventListener('click', ()=>$('glossModal').close());
+document.addEventListener('click', (e)=>{ if(e.target && e.target.classList.contains('glossBtn')) $('glossModal').showModal(); });
 
 /* Incoterms modal */
 document.addEventListener('click', (e)=>{
@@ -626,23 +607,22 @@ function renderSubcats(cat){
     }
     const d=document.createElement('div'); d.className='tile'; d.dataset.sub=it.v;
     d.innerHTML=`<div class="flex items-start gap-3"><svg viewBox="0 0 24 24" fill="currentColor">${it.icon}</svg><div><div class="text-[.92rem]">${it.t}</div><div class="text-slate-300 text-[.78rem]">Klik untuk pilih</div></div></div>`;
-    d.addEventListener('click', ()=>{ currentSubservice=it.v; setChip('chipSub', displaySub(it.v)); renderBasics(); updateComponentsVisibility(); toggleEximBlock(); goto('p2'); });
+    d.addEventListener('click', ()=>{ currentSubservice=it.v; updateSvcBanner(); renderBasics(); updateComponentsVisibility(); toggleEximBlock(); goto('p2'); });
     holder.appendChild(d);
   });
-  updateProgress();
 }
 
-/* Basics render */
+/* Basics */
 function renderBasics(){
   const wrap=$('basics_dynamic');
   const commonCustomer = `<div><label class="label">Nama Customer</label><input id="customer_name" class="input" placeholder="PT Contoh Abadi"><p class="desc">Nama perusahaan atau individu.</p></div>`;
-  const commonFleet = `<div><label class="label">Armada/Fleet</label><input id="fleet_used" class="input" placeholder="CDD Long, 40'HC, Air Cargo, dll"><p class="desc">Jenis armada yang digunakan.</p></div>`;
+  const commonFleet = `<div><label class="label">Armada atau Fleet</label><input id="fleet_used" class="input" placeholder="CDD Long, 40HC, Air Cargo"><p class="desc">Jenis armada yang digunakan.</p></div>`;
   if(currentCategory==='warehouse'){
     wrap.innerHTML = `
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
       ${commonCustomer}
       <div><label class="label">Warehouse Site</label><input id="wh_site" class="input" placeholder="Marunda DC"><p class="desc">Lokasi gudang.</p></div>
-      <div><label class="label">Periode Tagih (hari)</label><input id="wh_period_days" type="number" class="input num" placeholder="30"><p class="desc">Rentang hari penagihan.</p></div>
+      <div><label class="label">Periode Tagih (hari)</label><input id="wh_period_days" type="number" class="input" placeholder="30"><p class="desc">Rentang hari penagihan.</p></div>
       ${commonFleet}
     </div>`;
   } else {
@@ -653,46 +633,37 @@ function renderBasics(){
       <div><label class="label">Destination</label><input id="route_dest" class="input" placeholder="Surabaya (IDSUB)"><p class="desc">Kota atau port tujuan.</p></div>
       <div><label class="label">Vendor</label><input id="vendor_name" class="input" placeholder="JNE atau Maersk atau XYZ Trucking"><p class="desc">Mitramoda, forwarder, atau hauler.</p></div>
       <div><label class="label">Ref Vendor atau Lane</label><input id="vendor_ref" class="input" placeholder="LANE-JKT-SUB-AIR-01"><p class="desc">Kode lane atau tarif referensi.</p></div>
-      <div><label class="label">Jumlah Koli</label><input id="pkg_qty" type="number" class="input num" placeholder="10"><p class="desc">Banyaknya paket.</p></div>
-      <div><label class="label">Berat Aktual (kg)</label><input id="w_actual" type="number" class="input num" placeholder="750"><p class="desc">Total berat aktual.</p></div>
+      <div><label class="label">Jumlah Koli</label><input id="pkg_qty" type="number" class="input" placeholder="10"><p class="desc">Banyaknya paket.</p></div>
+      <div><label class="label">Berat Aktual (kg)</label><input id="w_actual" type="number" class="input" placeholder="750"><p class="desc">Total berat aktual.</p></div>
       <div><label class="label">Dimensi per Koli (cm)</label>
         <div class="grid grid-cols-3 gap-2">
-          <input id="dim_l" type="number" class="input num" placeholder="P 120">
-          <input id="dim_w" type="number" class="input num" placeholder="L 80">
-          <input id="dim_h" type="number" class="input num" placeholder="T 60">
+          <input id="dim_l" type="number" class="input" placeholder="P 120">
+          <input id="dim_w" type="number" class="input" placeholder="L 80">
+          <input id="dim_h" type="number" class="input" placeholder="T 60">
         </div>
         <p class="desc">Sistem menghitung volumetrik dan CBM total.</p>
       </div>
       <div id="fcl_wrap" class="hidden">
         <label class="label">FCL Container</label>
         <select id="fcl_type" class="input">
-          <option value="20">20' (sekitar 33 CBM, max 28 ton)</option>
-          <option value="40">40' (sekitar 67 CBM, max 28 ton)</option>
-          <option value="40HC">40' HC (sekitar 76 CBM, max 28 ton)</option>
+          <option value="20">20 (sekitar 33 CBM, max 28 ton)</option>
+          <option value="40">40 (sekitar 67 CBM, max 28 ton)</option>
+          <option value="40HC">40 HC (sekitar 76 CBM, max 28 ton)</option>
         </select>
         <p class="desc">Referensi kapasitas untuk perencanaan.</p>
       </div>
       ${commonFleet}
     </div>`;
   }
-  updateProgress();
 }
 
-/* Service info card */
-function renderServiceCard(pid){
-  const el=$('svcCard_'+pid); if(!el) return;
-  if(!currentCategory || !currentSubservice){ el.classList.add('hidden'); return; }
-  el.innerHTML = `Layanan: <b>${displayCat(currentCategory)}</b> • <b>${displaySub(currentSubservice)}</b>`;
-  el.classList.remove('hidden');
-}
-
-/* Component visibility */
+/* Visibility */
 const serviceComponentMap = {
   dom_ltl:['comp-main','comp-pickup','comp-lastmile','comp-surch','comp-ware','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-other'],
   dom_ftl:['comp-main','comp-pickup','comp-lastmile','comp-surch','comp-ware','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-other'],
   dom_air:['comp-airsea','comp-pickup','comp-lastmile','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
   dom_sea_lcl:['comp-airsea','comp-pickup','comp-lastmile','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
-  dom_sea_fcl:['comp-airsea','comp-pickup','comp-lastmile','comp-origin','comp-dest','comp-doc','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
+  dom_sea_fcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
   exp_air:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
   exp_sea_lcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
   exp_sea_fcl:['comp-airsea','comp-pickup','comp-origin','comp-doc','comp-ppjk','comp-pack','comp-insu','comp-surch','comp-ware','comp-other'],
@@ -707,62 +678,54 @@ function updateComponentsVisibility(){
   const allinDirect = $('allin_direct_toggle').checked;
   $('direct_transport').classList.toggle('hidden', !showTransport || allinDirect);
   $('direct_warehouse').classList.toggle('hidden', !(currentCategory==='warehouse' && !allinDirect));
-
   if(showTransport){
     const show=new Set(serviceComponentMap[ss]||[]);
     document.querySelectorAll('#direct_transport .comp').forEach(el=>{
       const key=[...el.classList].find(c=>c.startsWith('comp-')); el.classList.toggle('hidden', !show.has(key));
     });
-    if(String(ss).startsWith('dom_')) document.querySelectorAll('.comp-ppjk').forEach(el=> el.classList.add('hidden'));
     const isFcl = /_sea_fcl$/.test(ss);
-    if($('fcl_wrap')) $('fcl_wrap').classList.toggle('hidden', !isFcl);
-    $('rate_air_wrap').classList.toggle('hidden', !(ss.includes('air')));
-    $('rate_sea_lcl_wrap').classList.toggle('hidden', !(ss.includes('sea_lcl')));
-    $('rate_fcl_wrap').classList.toggle('hidden', !isFcl);
+    $('fcl_wrap')?.classList.toggle('hidden', !isFcl);
+    $('rate_air_wrap')?.classList.toggle('hidden', !(ss.includes('air')));
+    $('rate_sea_lcl_wrap')?.classList.toggle('hidden', !(ss.includes('sea_lcl')));
+    $('rate_fcl_wrap')?.classList.toggle('hidden', !isFcl);
   }
   $('allin_direct_box').classList.toggle('hidden', !$('allin_direct_toggle').checked);
-  updateProgress();
-}
-function toggleEximBlock(){
-  const ex = (currentCategory==='exim') && (String(currentSubservice).startsWith('exp_') || String(currentSubservice).startsWith('imp_'));
-  $('exim_block').classList.toggle('hidden', !ex);
-  updateProgress();
 }
 
 /* Validators */
 function flag(el, ok, msg){ if(!el) return; if(ok){ el.classList.remove('invalid'); el.removeAttribute('title'); } else { el.classList.add('invalid'); el.setAttribute('title', msg||'Wajib diisi'); } }
-function validateBasicsInline(){
+function validateBasics(){
   if(!currentCategory) return false;
   if(currentCategory==='warehouse'){ const site=$('wh_site'); const days=$('wh_period_days'); flag(site, (site?.value||'').trim().length>0, 'Nama site wajib'); flag(days, Number(days?.value)>0, 'Hari wajib'); return (site?.value||'').trim() && Number(days.value)>0; }
   const ro=$('route_origin'), rd=$('route_dest'); flag(ro,(ro?.value||'').trim().length>0,'Origin wajib'); flag(rd,(rd?.value||'').trim().length>0,'Destination wajib'); return (ro?.value||'').trim() && (rd?.value||'').trim();
 }
-function validateDirectInline(){
+function validateDirect(){
   if(!currentSubservice) return false;
   if(currentSubservice.startsWith('wh_')) return true;
-  if($('allin_direct_toggle').checked){ const ok = Number(($('allin_direct_value').value||0))>0; flag($('allin_direct_value'), ok, 'Isi total all-in direct'); return ok; }
+  if($('allin_direct_toggle').checked){ const ok = Number(($('allin_direct_value').value||0))>0; flag($('allin_direct_value'), ok, 'Isi total all in direct'); return ok; }
   const ids=['c_vendor','c_airsea','c_pickup','c_lastmile','c_thc_origin','c_thc_dest','c_customs_fee','c_doc','c_packing','c_insurance','c_surcharge','c_warehouse','c_direct_other'];
   const any = ids.some(id => Number($(id)?.value||0) > 0);
-  flag($('c_vendor'), any, 'Isi minimal satu biaya langsung atau gunakan All-in Direct'); return any;
+  flag($('c_vendor'), any, 'Isi minimal satu biaya langsung atau gunakan All in Direct'); return any;
 }
-function validateEximInline(){
+function validateExim(){
   const exShown = !$('exim_block').classList.contains('hidden');
   if(!exShown) return true;
   const goodsOk = Number($('x_goods').value||0)>0; flag($('x_goods'), goodsOk, 'Nilai barang wajib');
   const useSync=$('use_airsea_for_cif').checked;
-  if(useSync){ const okSync=Number($('c_airsea').value||0)>0 || $('allin_direct_toggle').checked; flag($('c_airsea'), okSync,'Isi Air/Sea Freight di komponen langsung'); return goodsOk && okSync; }
+  if(useSync){ const okSync=Number($('c_airsea').value||0)>0 || $('allin_direct_toggle').checked; flag($('c_airsea'), okSync,'Isi Air atau Sea Freight'); return goodsOk && okSync; }
   const frOk = Number($('x_freight').value||0)>0; flag($('x_freight'), frOk, 'Freight untuk CIF wajib'); return goodsOk && frOk;
 }
-function validateMarginInline(){ 
+function validateMargin(){ 
   const m = Number($('m_margin_rate').value||0);
   const ok = m>0 && m<100;
-  flag($('m_margin_rate'), ok, 'Margin harus >0 dan <100');
+  flag($('m_margin_rate'), ok, 'Margin harus lebih dari 0 dan kurang dari 100');
   const warn = m>0 && m<10;
   $('marginPageWarn').classList.toggle('hidden', !warn);
   $('marginWarn').classList.toggle('hidden', !warn);
   return ok;
 }
 
-/* Lock/Unlock behavior */
+/* Lock/Unlock */
 function setLockState(locked){
   const fields = document.querySelectorAll('input,select,textarea');
   fields.forEach(el=>{
@@ -800,19 +763,19 @@ $('btnLoadPreset').addEventListener('click', ()=>{
   if(!name) return;
   const raw=localStorage.getItem('UGC_PRESET_'+name); if(!raw) return alert('Preset tidak ditemukan.');
   const data=JSON.parse(raw); currentCategory=data.category; currentSubservice=data.subservice;
-  setChip('chipCat', displayCat(currentCategory)); setChip('chipSub', displaySub(currentSubservice));
-  goto('subcats'); renderSubcats(currentCategory); renderBasics(); setTimeout(()=>{
+  renderSubcats(currentCategory); renderBasics(); updateSvcBanner();
+  setTimeout(()=>{
     ['route_origin','route_dest','vendor_name','vendor_ref','pkg_qty','w_actual','dim_l','dim_w','dim_h','customer_name','fleet_used'].forEach(k=> { if($(k) && data[k]!==undefined) $(k).value=data[k]; });
     updateComponentsVisibility(); toggleEximBlock(); goto('p2');
   },0);
 });
 
-/* Computations helpers */
+/* Dimension helper */
 function computeDims(){
   const qty = Number(($('pkg_qty')?.value)||0);
   const L = Number(($('dim_l')?.value)||0), W=Number(($('dim_w')?.value)||0), H=Number(($('dim_h')?.value)||0);
-  const volKgAir = (L*W*H/6000)*qty; /* in kg */
-  const cbm = (L*W*H/1000000)*qty;    /* in m3 */
+  const volKgAir = (L*W*H/6000)*qty;
+  const cbm = (L*W*H/1000000)*qty;
   const actual = Number(($('w_actual')?.value)||0);
   const chargeableKg = Math.max(volKgAir, actual);
   return {qty,L,W,H,volKgAir,cbm,actual,chargeableKg};
@@ -820,10 +783,7 @@ function computeDims(){
 
 document.addEventListener('change', (e)=>{
   if(e.target && e.target.id==='allin_direct_toggle') updateComponentsVisibility();
-  if(e.target && e.target.id==='allin_base_toggle'){ $('allin_base_box').classList.toggle('hidden', !e.target.checked); updateProgress(); }
-});
-
-document.addEventListener('change', (e)=>{
+  if(e.target && e.target.id==='allin_base_toggle'){ $('allin_base_box').classList.toggle('hidden', !e.target.checked); }
   if(e.target && e.target.id==='use_chargeable_est'){
     const ss=currentSubservice||'';
     if(!$('use_chargeable_est').checked) return;
@@ -831,7 +791,6 @@ document.addEventListener('change', (e)=>{
     if(ss.includes('air') && $('rate_air_kg')) $('c_airsea').value = Number(($('rate_air_kg').value||0))*d.chargeableKg;
     if(ss.includes('sea_lcl') && $('rate_sea_cbm')) $('c_airsea').value = Number(($('rate_sea_cbm').value||0))*d.cbm;
     if(ss.includes('sea_fcl') && $('rate_fcl_container')) $('c_airsea').value = Number(($('rate_fcl_container').value||0));
-    updateProgress();
   }
 });
 
@@ -882,22 +841,23 @@ function calculate(){
 
   const m = Number($('m_margin_rate').value||0)/100;
   const denom = 1 - m;
-  if(denom<=0){ alert('Margin tidak boleh >= 100%.'); goto('p5'); return; }
+  if(denom<=0){ alert('Margin tidak boleh 100 persen atau lebih.'); goto('p5'); return; }
   const selling = baseCost/denom;
   const vat = ($('m_apply_vat').checked? selling*Number($('m_vat_out_rate').value||0)/100 : 0);
   const total = selling + vat;
 
   const warnLow = (m*100) > 0 && (m*100) < 10;
 
-  // Header info
   const svcLabel = `${displayCat(currentCategory)} • ${displaySub(currentSubservice)}`;
-  const customer = ($('customer_name')?.value||'—');
-  const origin = ($('route_origin')?.value||'—');
-  const dest = ($('route_dest')?.value||'—');
-  const fleet = ($('fleet_used')?.value||'—');
+  const customer = ($('customer_name')?.value||'-');
+  const origin = ($('route_origin')?.value||'-');
+  const dest = ($('route_dest')?.value||'-');
+  const fleet = ($('fleet_used')?.value||'-');
 
   $('results').innerHTML = `
-    <div class="svc mb-3">Layanan: <b>${svcLabel}</b> • Customer: <b>${customer}</b> • Origin: <b>${origin}</b> • Destination: <b>${dest}</b> • Fleet: <b>${fleet}</b> • Berat: <b>${money(dims.actual)} kg</b> • Koli: <b>${money(dims.qty)}</b> • CBM: <b>${dims.cbm.toFixed(3)}</b></div>
+    <div id="svcSummary" class="mb-3" style="background:rgba(255,255,255,.05);border:1px dashed #475569;border-radius:12px;padding:.5rem .65rem;font-size:.82rem">
+      Layanan: <b>${svcLabel}</b> • Customer: <b>${customer}</b> • Origin: <b>${origin}</b> • Destination: <b>${dest}</b> • Fleet: <b>${fleet}</b> • Berat: <b>${money(dims.actual)} kg</b> • Koli: <b>${money(dims.qty)}</b> • CBM: <b>${dims.cbm.toFixed(3)}</b>
+    </div>
     <div class="grid grid-cols-2 gap-2">
       <div class="text-slate-300">Biaya Langsung</div><div class="text-right font-medium">Rp ${money(direct)}</div>
       ${(currentCategory==='exim')?`<div class="text-slate-300">EXIM Duties dan Pajak (termasuk)</div><div class="text-right font-medium">Rp ${money(includeTaxes? ex.total:0)}</div>`:''}
@@ -915,11 +875,10 @@ function calculate(){
       <div class="text-lg font-medium">TOTAL KE CUSTOMER</div><div class="text-right text-lg font-medium">Rp ${money(total)}</div>
     </div>`;
   $('marginResultWarn').classList.toggle('hidden', !warnLow);
-  hasCalculated = true; updateProgress();
 }
 
 document.addEventListener('click', (e)=>{
-  if(e.target && e.target.id==='btnCalc'){ if(!validateMarginInline()){ const bad=document.querySelector('.input.invalid'); if(bad) bad.scrollIntoView({behavior:'smooth',block:'center'}); return; } calculate(); goto('p6'); }
+  if(e.target && e.target.id==='btnCalc'){ if(!validateMargin()){ const bad=document.querySelector('.input.invalid'); if(bad) bad.scrollIntoView({behavior:'smooth',block:'center'}); return; } calculate(); goto('p6'); }
 });
 
 /* Initial state */
