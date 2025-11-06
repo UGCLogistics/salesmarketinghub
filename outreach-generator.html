@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UGC Outreach Script Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -126,15 +126,9 @@
 
     <div class="max-w-7xl mx-auto space-y-6">
         
-        <!-- HEADER DAN LOGO -->
         <div class="text-center flex flex-col items-center mb-6">
-            <!-- 
-                Logo sekarang diambil dari folder yang sama dengan index.html.
-                Pastikan Anda sudah meng-upload 'logo.png' ke root repositori GitHub Anda.
-            -->
-            <img src="logo.png" alt="Logo UGC Logistics" class="h-16 w-auto mb-4" 
+            <img src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png" alt="Logo UGC Logistics" class="h-16 w-auto mb-4" 
                  onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-            <!-- Fallback text jika gambar gagal dimuat -->
             <div style="display: none;" class="text-xl font-bold text-slate-300">Logo UGC</div>
 
             <h1 class="text-3xl md:text-4xl font-bold text-white tracking-tight">
@@ -145,7 +139,6 @@
             </p>
         </div>
 
-        <!-- FORM INPUT PARAMETER DINAMIS -->
         <div class="glass-card p-6 md:p-8">
             <h2 class="text-xl font-semibold text-white mb-6 border-b border-white/10 pb-4">
                 Parameter Dinamis
@@ -153,7 +146,6 @@
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                <!-- KOLOM 1: ACTIVITY DETAIL -->
                 <div class="space-y-4">
                     <h3 class="text-lg font-semibold text-white">Activity Detail</h3>
                     <div>
@@ -257,7 +249,6 @@
                     </div>
                 </div>
 
-                <!-- KOLOM 2: CUSTOMER DETAIL -->
                 <div class="space-y-4">
                     <h3 class="text-lg font-semibold text-white">Customer Detail</h3>
                     <div>
@@ -278,7 +269,6 @@
                     </div>
                 </div>
 
-                <!-- KOLOM 3: SALES DETAIL -->
                 <div class="space-y-4">
                     <h3 class="text-lg font-semibold text-white">Sales Detail (Info Anda)</h3>
                     <div>
@@ -326,7 +316,6 @@
                 </div>
             </div>
 
-            <!-- TOMBOL GENERATE -->
             <div class="mt-8 pt-6 border-t border-white/10 text-center">
                 <button id="generate-btn" class="btn btn-primary w-full md:w-1/2">
                     <span id="btn-text">Generate Skrip</span>
@@ -336,7 +325,6 @@
 
         </div>
 
-        <!-- AREA OUTPUT HASIL SKRIP -->
         <div id="output-wrapper" class="glass-card p-6 md:p-8 hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-white">Hasil Skrip</h2>
@@ -352,10 +340,8 @@
             </div>
 
             <div id="output-error" class="hidden p-4 bg-red-900/50 border border-red-700 rounded-lg text-red-200">
-                <!-- Pesan error akan diisi oleh JavaScript -->
-            </div>
+                </div>
 
-            <!-- Hasil skrip akan ditampilkan di sini -->
             <pre id="output-script" class="whitespace-pre-wrap break-words text-slate-200 bg-black/30 p-4 rounded-lg text-sm md:text-base" style="font-family: 'Inter', sans-serif;"></pre>
         </div>
 
