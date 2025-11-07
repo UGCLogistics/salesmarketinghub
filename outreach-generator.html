@@ -100,10 +100,6 @@
 
         /* PERBAIKAN: Style dropdown options agar serasi dengan tema gelap */
         select option {
-            /* Catatan: Ini adalah kompromi. 
-            Kita tidak bisa membuat <option> menjadi "glassy" karena diatur oleh OS.
-            Tapi kita bisa membuatnya gelap agar serasi dengan tema.
-            */
             background-color: #1E293B; /* slate-800 */
             color: #E2E8F0; /* slate-200 */
         }
@@ -383,8 +379,7 @@
         const emailBtn = document.getElementById('email-btn');
         const waBtn = document.getElementById('wa-btn');
 
-        // URL backend proxy di Netlify
-        // Ini adalah "backend" Anda yang aman
+        // URL backend proxy di Vercel
         const API_PROXY_URL = '/api/generate-script';
 
         // Event listener untuk tombol Generate
@@ -423,7 +418,7 @@
             outputLoading.classList.remove('hidden');
 
             try {
-                // Memanggil backend proxy Netlify
+                // Memanggil backend proxy
                 const response = await fetch(API_PROXY_URL, {
                     method: 'POST',
                     headers: {
@@ -432,14 +427,29 @@
                     body: JSON.stringify({ inputs }), // Mengirim data input ke backend
                 });
 
+                // --- BLOK PERBAIKAN DIMULAI DI SINI ---
                 if (!response.ok) {
-                    // Menangani error dari server (misal: 403, 500, 502)
-                    const errorBody = await response.json();
-                    throw new Error(`HTTP error! status: ${response.status}, body: ${JSON.stringify(errorBody, null, 2)}`);
-                }
+                    // Jika server error (500, 504, 400, dll.), coba baca body-nya
+                    let errorText = await response.text(); // Baca sebagai teks dulu
+                    let errorMessage = errorText; // Default ke teks mentah
 
-                // Mendapatkan hasil dari backend
-                const result = await response.json();
+                    try {
+                        // Coba parse sebagai JSON (jika backend kita mengirim error JSON)
+                        const errorJson = JSON.parse(errorText);
+                        errorMessage = errorJson.error || JSON.stringify(errorJson);
+                    } catch (e) {
+                        // Biarkan, errorMessage sudah berisi teks mentah (misal: "504: GATEWAY_TIMEOUT")
+                        // Hapus tag HTML jika itu halaman error
+                        errorMessage = errorMessage.replace(/<[^>]*>?/gm, ' ').trim();
+                    }
+                    
+                    // Buang error yang lebih jelas
+                    throw new Error(`Server merespons dengan status ${response.status}: ${errorMessage}`);
+                }
+                // --- BLOK PERBAIKAN SELESAI ---
+
+                // Mendapatkan hasil dari backend (jika response.ok)
+                const result = await response.json(); // Ini seharusnya aman sekarang
 
                 if (result.error) {
                     throw new Error(result.error);
@@ -455,6 +465,7 @@
             } catch (error) {
                 console.error('Error:', error);
                 // Menampilkan error di UI
+                // Pesan error kini akan lebih deskriptif
                 outputError.textContent = `ERROR: Terjadi kesalahan saat menghubungi API: ${error.message}`;
                 outputError.classList.remove('hidden');
                 outputScriptEl.classList.add('hidden');
@@ -539,4 +550,3 @@
     </script>
 </body>
 </html>
-
