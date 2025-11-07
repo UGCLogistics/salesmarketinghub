@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UGC - Capacity Simulators</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #020617; /* slate-950 */
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        .card {
+            background-color: rgba(15, 23, 42, 0.6); /* slate-900/60 */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            border-color: #ff4600;
+            box-shadow: 0 4px 20px rgba(255, 70, 0, 0.1);
+        }
+        .card-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 1rem;
+            padding: 2rem;
+        }
+        .card-icon {
+            color: #ff4600;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-6">
+    <div class="max-w-2xl w-full">
+        <header class="text-center mb-10">
+            <a href="/index.html">
+                <img src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png" alt="Logo UGC" class="h-16 mx-auto mb-4">
+            </a>
+            <h1 class="text-3xl font-bold text-white">Capacity Simulator</h1>
+            <p class="text-lg text-slate-400">Pilih simulator yang ingin Anda gunakan.</p>
+        </header>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <a href="/wh-capacity.html" target="_blank" rel="noopener noreferrer" class="card rounded-lg">
+                <div class="card-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/><path d="M5 12h14"/><path d="M12 12v9"/></svg>
+                    <h2 class="text-xl font-semibold text-white">Warehouse Capacity Simulator</h2>
+                    <p class="text-slate-300">Hitung kebutuhan space gudang (rak, lantai, dll).</p>
+                </div>
+            </a>
+            
+            <a href="/fleet-capacity.html" target="_blank" rel="noopener noreferrer" class="card rounded-lg">
+                <div class="card-content">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon"><path d="M10 17h4v-4h-4v4Z"/><path d="M3 17h2v-4H3v4Z"/><path d="M19 17h2v-4h-2v4Z"/><path d="M14 17.5 17 15l3-2.5V17H14Z"/><path d="M10 17.5 7 15l-3-2.5V17H10Z"/><path d="M16 13V7H8v6h8Z"/><path d="M16 7l-4-5-4 5"/><path d="M12 13v4"/></svg>
+                    <h2 class="text-xl font-semibold text-white">Fleet Capacity Simulator</h2>
+                    <p class="text-slate-300">Simulasikan muatan SKU ke berbagai jenis armada.</p>
+                </div>
+            </a>
+        </div>
+        
+        <footer class="text-center text-slate-500 text-sm mt-12">
+            <a href="/index.html" class="hover:text-accent">Kembali ke Portal Utama</a>
+        </footer>
+    </div>
+</body>
+</html>
