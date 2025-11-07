@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Kalkulator Simulasi Kapasitas Gudang</title>
+<style>
+:root{
+  --bg:#0b1220; --surface:#0f172a; --card:#111827; --muted:#9aa5b1; --text:#e6e9ee; --accent:#ff4600; --line:#1f2937;
+  --stick:84px;
+  --cRack:#3b82f6; --cRackAlt:#1d4ed8; --cAisle:#22c55e; --cStage:#f59e0b; --cGrid:#0f172a;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif}
+.wrap{max-width:1320px;margin:0 auto;padding:0 16px}
+.mast{position:sticky;top:0;z-index:1200;background:rgba(11,18,32,.92);backdrop-filter:blur(8px);border-bottom:1px solid #0a1220}
+.head{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand img{height:36px;width:auto;display:block;border-radius:6px}
+.title{font-weight:900;font-size:clamp(20px,2.6vw,28px)}
+.small{font-size:.8rem}.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:14px 0}
+.grid{display:grid;gap:12px}.g-4{grid-template-columns:repeat(4,1fr)}.g-3{grid-template-columns:repeat(3,1fr)}.g-2{grid-template-columns:repeat(2,1fr)}
+label{font-weight:700;font-size:.9rem}
+.hint{margin-top:4px;color:var(--muted);font-size:.76rem;line-height:1.25}
+input[type="number"],input[type="text"],select,textarea{
+  width:100%;height:36px;border-radius:10px;border:1px solid #223042;background:#0b1220;color:var(--text);
+  padding:8px 10px;outline:none;transition:border-color .15s, box-shadow .15s;
+}
+textarea{height:88px;resize:vertical}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(255,70,0,.18)}
+.btn{appearance:none;border:none;border-radius:12px;color:#fff;font-weight:800;padding:10px 14px;cursor:pointer;transition:.16s}
+.btn.primary{background:linear-gradient(180deg,var(--accent),#e03f00)}
+.btn.secondary{background:#1f2937}
+.btn.ghost{background:transparent;color:#cbd5e1;border:1px solid #334155}
+.btn:hover{transform:translateY(-1px)}
+table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);table-layout:fixed}
+thead th{
+  position:sticky;top:var(--stick);z-index:100;background:#0e1628;color:#cbd5e1;border-bottom:1px solid var(--line);
+  padding:8px 6px;text-align:left;font-size:.68rem;text-transform:uppercase;letter-spacing:.02em;
+  white-space:normal;word-break:break-word;line-height:1.2;
+}
+thead .sub th{top:calc(var(--stick) + 28px);font-weight:400;color:#9fb0c8;background:#0c1424;padding:5px 6px;font-size:.66rem;text-transform:none}
+tbody td{
+  border-bottom:1px solid #182235;padding:6px 6px;min-height:38px;vertical-align:middle;
+  white-space:normal;word-break:break-word;line-height:1.2;
+}
+tbody tr:nth-child(even){background:rgba(2,6,23,.12)}
+.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.legend{display:flex;gap:12px;align-items:center;margin:.5rem 0}
+.chip{width:14px;height:14px;border-radius:3px;display:inline-block}
+.layout-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:.25rem 0}
+.svgbox{background:#0b1220;border:1px solid #1f2937;border-radius:12px;padding:8px}
+.simTitle small{color:#9fb0c8}
+.fab{position:fixed;right:16px;bottom:16px;z-index:1300;background:#0b1220;border:1px solid #334155;color:#e5e7eb;padding:10px 14px;border-radius:999px;cursor:pointer}
+.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:1400}
+.modal.on{display:flex}
+.overlay{position:absolute;inset:0;background:rgba(2,6,23,.6);backdrop-filter:blur(2px)}
+.dialog{position:relative;width:min(1100px,96vw);max-height:86vh;overflow:hidden;border-radius:14px;border:1px solid #334155;background:#0f172a}
+.dialog header{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #1f2937}
+.dialog .body{padding:12px;overflow:auto;max-height:calc(86vh - 54px)}
+#gTable thead th{position:sticky; top:0; z-index:2; background:#0e1628; border-bottom:1px solid #1f2937;}
+#gSearch{width:340px}
+.site-footer{border-top:1px solid var(--line);background:var(--surface);margin-top:24px}
+.site-footer .inner{display:flex;align-items:center;justify-content:center;padding:12px 0;color:#cbd5e1;font-size:.9rem;gap:6px;flex-wrap:wrap}
+</style>
+</head>
+<body>
+<div class="mast" id="mast">
+  <div class="wrap">
+    <div class="head">
+      <div class="brand">
+        <img src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png" alt="UGC Logistics Logo" />
+        <div>
+          <div class="title">Warehouse Capacity Simulator</div>
+          <div class="small muted">Gunakan Untuk Menghitung Kebutuhan Space Gudang dengan Berbagai Skenario</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" id="addRowBtn">+ Tambah SKU</button>
+        <button class="btn secondary" id="exampleBtn">Contoh Data</button>
+        <button class="btn ghost" id="exportBtn">Export CSV</button>
+        <button class="btn ghost" id="importBtn">Import</button>
+        <button class="btn ghost" id="resetBtn">Reset</button>
+        <input type="file" id="fileInput" accept=".csv" style="display:none"/>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- Data SKU -->
+  <div class="card">
+    <h2>Data SKU</h2>
+    <div class="muted small">Isi dimensi dalam cm. Pilih metode per SKU: Lantai (unit), Lantai Palet, atau Rak Palet</div>
+    <table id="skuTable" aria-label="Tabel SKU">
+      <colgroup>
+        <col style="width:18ch"><col style="width:15ch"><col style="width:10ch"><col style="width:10ch">
+        <col style="width:10ch"><col style="width:9ch"><col style="width:12ch">
+        <col style="width:10ch"><col style="width:10ch"><col style="width:11ch"><col style="width:12ch"><col style="width:11ch"><col style="width:6ch">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>SKU</th><th>Metode</th><th>Panjang L (cm)</th><th>Lebar W (cm)</th><th>Tinggi H (cm)</th>
+          <th>Kuantitas</th><th>Max tumpukan/lapis</th>
+          <th class="num">Unit/stack/pallet</th><th class="num">Stack/pallet</th>
+          <th class="num">Jejak/pos (m²)</th><th class="num">Area lantai (m²)</th><th class="num">Volume (m³)</th><th class="num">Aksi</th>
+        </tr>
+        <tr class="sub">
+          <th>Nama barang</th>
+          <th>Pilih Lantai unit, Lantai Palet, atau Rak Palet</th>
+          <th>Panjang unit</th><th>Lebar unit</th><th>Tinggi unit</th>
+          <th>Total unit</th><th>Batas tumpuk per stack/lapis</th>
+          <th>Unit per posisi sesuai metode</th><th>Jumlah posisi palet/stack</th>
+          <th>Jejak 1 posisi</th><th>Area lantai untuk SKU ini</th><th>Volume total</th><th>Hapus</th>
+        </tr>
+      </thead>
+      <tbody id="skuBody"></tbody>
+    </table>
+    <div class="small muted" style="margin-top:8px">Tips: arahkan kursor ke input untuk tooltip singkat.</div>
+  </div>
+
+  <!-- Data Pallet (opsional) -->
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <h2>Data Pallet (opsional)</h2>
+      <button class="btn primary" id="addPalBtn">+ Tambah Pallet</button>
+    </div>
+    <div class="muted small">Gunakan jika ingin menghitung kebutuhan space berdasarkan <b>jumlah & ukuran pallet</b> tertentu (misal pallet non-standar). Untuk metode Rak, geometri rak menggunakan ukuran pallet global.</div>
+    <table id="palTable" aria-label="Tabel Pallet">
+      <colgroup>
+        <col style="width:18ch"><col style="width:16ch"><col style="width:10ch"><col style="width:10ch"><col style="width:10ch"><col style="width:10ch"><col style="width:12ch"><col style="width:6ch">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Nama</th><th>Metode</th><th>Panjang L (cm)</th><th>Lebar W (cm)</th><th>Tinggi H (cm)</th><th>Qty Pallet</th><th>Max stack</th><th class="num">Aksi</th>
+        </tr>
+        <tr class="sub">
+          <th>Label pallet</th><th>Lantai Palet / Rak Palet</th><th>Ukuran L</th><th>Ukuran W</th><th>Tinggi pallet</th><th>Jumlah pallet</th><th>Tumpuk maksimum</th><th>-</th>
+        </tr>
+      </thead>
+      <tbody id="palBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Parameter umum -->
+  <div class="card grid g-4">
+    <div><label for="clearHeight">Tinggi bersih gudang (m)</label><input type="number" id="clearHeight" step="0.01" placeholder="mis. 6"><div class="hint">Dipakai membatasi tumpuk & validasi level rak.</div></div>
+    <div><label for="availArea">Luas gudang tersedia (m²)</label><input type="number" id="availArea" step="0.01" placeholder="mis. 2500"><div class="hint">Untuk okupansi.</div></div>
+    <div><label for="bufferRatio">Buffer / safety (%)</label><input type="number" id="bufferRatio" min="0" max="50" value="10"><div class="hint">Cadangan operasional & deviasi.</div></div>
+    <div><label for="floorAisleRatio">Porsi aisle metode Lantai (%)</label><input type="number" id="floorAisleRatio" min="0" max="90" value="35"><div class="hint">Dipakai pada Lantai (unit) & Block Stacking.</div></div>
+  </div>
+
+  <!-- Parameter palet global -->
+  <div class="card grid g-4">
+    <div><label for="palL">Ukuran pallet L (cm)</label><input type="number" id="palL" value="120"><div class="hint">Umum 120.</div></div>
+    <div><label for="palW">Ukuran pallet W (cm)</label><input type="number" id="palW" value="100"><div class="hint">Umum 100.</div></div>
+    <div><label for="maxPalH">Tinggi maksimum pallet (cm)</label><input type="number" id="maxPalH" value="140"><div class="hint">Termasuk pallet; membatasi lapis.</div></div>
+    <div><label for="allowRot">Rotasi 90° di pallet</label><select id="allowRot"><option value="1" selected>Ya</option><option value="0">Tidak</option></select><div class="hint">Ambil orientasi terbaik.</div></div>
+    <div><label for="palStack">Tumpuk pallet di lantai (tingkat)</label><input type="number" id="palStack" value="1" min="1" max="6"><div class="hint">Untuk Lantai Palet & Block Stacking.</div></div>
+  </div>
+
+  <!-- Preset metode, forklift, rak -->
+  <div class="card grid g-4">
+    <div><label for="storagePreset">Preset metode penyimpanan</label>
+      <select id="storagePreset">
+        <option value="selective" selected>Selective Rack</option>
+        <option value="doubledeep">Double-Deep Rack</option>
+        <option value="vna">VNA Rack</option>
+        <option value="drivein">Drive-In (LIFO)</option>
+        <option value="drivethru">Drive-Thru (FIFO)</option>
+        <option value="pushback">Push-Back Rack (LIFO)</option>
+        <option value="pflow">Pallet Flow (FIFO)</option>
+        <option value="asrs">AS/RS (estimate)</option>
+      </select>
+      <div class="hint">Metode yang tampil di Ringkasan dan Simulasi.</div>
+    </div>
+    <div><label for="forkliftProfile">Profil forklift</label>
+      <select id="forkliftProfile">
+        <option value="counterbalance" selected>Counterbalance</option>
+        <option value="reach">Reach Truck</option>
+        <option value="vna">VNA / Turret</option>
+      </select><div class="hint">Mengatur lebar aisle default.</div>
+    </div>
+    <div><label for="rackEffDepth">Kedalaman efektif lane (pallet)</label><input type="number" id="rackEffDepth" value="1" min="1" step="1"><div class="hint">Pallet berurutan dari muka.</div></div>
+    <div><label for="rackPPL">Pallet per level (PPL)</label><input type="number" id="rackPPL" value="2" min="1" step="1"><div class="hint">Lokasi sepanjang balok tiap level.</div></div>
+    <div><label for="rackLVL">Jumlah level rak (LVL)</label><input type="number" id="rackLVL" value="4" min="1" step="1"><div class="hint">Divalidasi vs tinggi bersih.</div></div>
+    <div><label for="lvlClear">Clearance per level (cm)</label><input type="number" id="lvlClear" value="10" min="0" step="1"></div>
+    <div><label for="topClear">Top clearance (cm)</label><input type="number" id="topClear" value="20" min="0" step="1"></div>
+    <div><label for="gap">Celah aman per sisi pallet (cm)</label><input type="number" id="gap" value="10" min="0" step="1"></div>
+    <div class="not-asrs"><label for="aisleW">Lebar aisle forklift (m)</label><input type="number" id="aisleW" value="3.5" step="0.1" min="1.5"></div>
+    <div class="vna-only"><label for="vnaAisleW">Lebar default VNA (m)</label><input type="number" id="vnaAisleW" value="1.8" step="0.1" min="1.5"></div>
+    <div class="not-asrs"><label for="rowCount">Jumlah baris rak</label><input type="number" id="rowCount" value="4" min="1" step="1"></div>
+    <div class="asrs-only"><label for="asrsAisleW">Lebar aisle crane AS/RS (m)</label><input type="number" id="asrsAisleW" value="1.8" step="0.1" min="1.2"></div>
+    <div class="asrs-only"><label for="asrsAisleCount">Jumlah aisle crane AS/RS</label><input type="number" id="asrsAisleCount" value="2" min="1" step="1"></div>
+    <div><label for="stageDepth">Staging depan & belakang (m, opsional)</label><input type="number" id="stageDepth" step="0.1" placeholder="mis. 2"></div>
+  </div>
+  <div class="card small" id="systemNote"></div>
+
+  <!-- Ringkasan -->
+  <div class="card">
+    <h2>Ringkasan Rencana Saat Ini – Metode: <span id="kMethodName">Selective Rack</span></h2>
+    <div class="grid g-3">
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Lantai bersih</div><div id="kNetFloor" style="font-weight:800">0</div></div>
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Aisle/servis (lantai)</div><div id="kAisleFloor" style="font-weight:800">0</div></div>
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Gross metode lantai</div><div id="kGrossFloor" style="font-weight:800">0</div></div>
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Lokasi pallet (rak)</div><div id="kRackLoc" style="font-weight:800">0</div></div>
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Area rak gross</div><div id="kRackArea" style="font-weight:800">0</div></div>
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Total volume</div><div id="kVol" style="font-weight:800">0</div></div>
+    </div>
+    <div style="height:8px"></div>
+    <div class="grid g-2">
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Total kebutuhan area</div><div id="kTotal" style="font-weight:800">0</div></div>
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Okupansi vs luas tersedia</div><div id="kOcc" style="font-weight:800">-</div></div>
+    </div>
+    <div style="height:8px"></div>
+    <div class="grid g-2">
+      <div class="card" style="margin:0;padding:10px"><div class="small muted">Estimasi total pallet (dari SKU)</div><div id="kPalEst" style="font-weight:800">0</div></div>
+    </div>
+    <div id="occupancyNote" class="muted small" style="margin-top:8px"></div>
+  </div>
+
+  <!-- Estimasi Kebutuhan Pallet per SKU -->
+  <div class="card">
+    <h2>Estimasi Kebutuhan Pallet per SKU</h2>
+    <div class="muted small">Estimasi ini menghitung pallet dari data SKU menggunakan ukuran pallet global, rotasi, dan batas tinggi. Tidak tergantung pilihan “Metode” pada tabel SKU.</div>
+    <table id="palEstTable">
+      <colgroup>
+        <col style="width:22%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:12%"><col style="width:18%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>SKU</th>
+          <th class="num">Fit/lapis (unit)</th>
+          <th class="num">Lapis/pallet</th>
+          <th class="num">Unit/pallet</th>
+          <th class="num">Qty unit</th>
+          <th class="num">Estimasi pallet</th>
+          <th>Keterangan</th>
+        </tr>
+      </thead>
+      <tbody id="palEstBody"></tbody>
+      <tfoot>
+        <tr>
+          <th>Total</th>
+          <th class="num" id="palEstFitSum">-</th>
+          <th class="num" id="palEstLayerAvg">-</th>
+          <th class="num" id="palEstUnitPerPalAvg">-</th>
+          <th class="num" id="palEstQtySum">-</th>
+          <th class="num" id="palEstTotal">0</th>
+          <th></th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <!-- Perbandingan metode -->
+  <div class="card">
+    <h2>Perbandingan Metode Penyimpanan</h2>
+    <table id="recoTable">
+      <colgroup>
+        <col style="width:28%"><col style="width:16%"><col style="width:12%"><col style="width:16%"><col style="width:16%"><col style="width:12%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>Metode</th><th class="num">Total area (m²)</th><th class="num">Lokasi pallet</th>
+          <th class="num">Aisle x lebar (m)</th><th class="num">Baris x bay/baris</th><th>Keterangan</th>
+        </tr>
+      </thead>
+      <tbody id="recoBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Simulasi layout -->
+  <div class="card">
+    <h2 class="simTitle">Simulasi Layout Modular <small>· Metode dipilih: <b id="simMethodName">Selective Rack</b></small></h2>
+    <div class="legend"><span><i class="chip" style="background:var(--cRack)"></i> Rak</span><span><i class="chip" style="background:var(--cAisle)"></i> Aisle</span><span><i class="chip" style="background:var(--cStage)"></i> Staging</span></div>
+    <div class="layout-controls">
+      <label>Palet warna:
+        <select id="paletteMode"><option value="contrast" selected>Kontras</option><option value="bay">Strip per bay</option><option value="mono">Monokrom</option></select>
+      </label>
+      <label><input type="checkbox" id="showGrid" checked> Grid bay</label>
+      <label>Zoom: <input type="range" id="zoom" min="220" max="520" value="300"></label>
+    </div>
+    <div class="svgbox"><svg id="layoutSVG" width="100%" height="300" viewBox="0 0 1000 400" role="img" aria-label="Simulasi layout"></svg></div>
+    <div class="small muted" id="layoutMeta" style="margin-top:8px"></div>
+  </div>
+
+  <!-- Glosarium -->
+  <button class="fab" id="glossaryBtn" title="Buka glosarium">📖 Glosarium</button>
+  <div class="modal" id="glossaryModal" role="dialog" aria-modal="true" aria-labelledby="gTitle">
+    <div class="overlay" id="gClose"></div>
+    <div class="dialog">
+      <header>
+        <strong id="gTitle">Glosarium Lengkap</strong>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="gSearch" placeholder="Cari istilah atau definisi..."/>
+          <button class="btn ghost" id="gCloseBtn">Tutup</button>
+        </div>
+      </header>
+      <div class="body">
+        <table id="gTable">
+          <thead><tr><th>Istilah</th><th>Definisi</th></tr></thead>
+          <tbody id="gBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="inner">
+      <span>Marketing Department PT Utama Globalindo Cargo</span>
+      <span>© 2025</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>isFinite(n)?Number(n).toLocaleString('id-ID',{maximumFractionDigits:2}):'0';
+const clamp=(v,min,max)=>Math.min(Math.max(+v||0,min),max);
+const uid=()=> (crypto.randomUUID?crypto.randomUUID():'id-'+Date.now().toString(36)+Math.random().toString(36).slice(2,8));
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+/* ===== State & enums ===== */
+const LSKEY='wh-ultra-v5';
+const METHODS={FLOOR_UNIT:'floor_unit',FLOOR_PALLET:'floor_pallet',RACK_PALLET:'rack_pallet'};
+const TYPES={SELECTIVE:'selective',DOUBLEDEEP:'doubledeep',VNA:'vna',DRIVEIN:'drivein',DRIVETHRU:'drivethru',PUSHBACK:'pushback',PFLOW:'pflow',ASRS:'asrs'};
+const PALETTES={contrast:{rack:'#3b82f6',rackAlt:'#1d4ed8',aisle:'#22c55e',staging:'#f59e0b',grid:'#0f172a'},
+  bay:{rack:'#64748b',rackAlt:'#94a3b8',aisle:'#22c55e',staging:'#f59e0b',grid:'#0f172a'},
+  mono:{rack:'#475569',rackAlt:'#6b7280',aisle:'#cbd5e1',staging:'#f8fafc',grid:'#0f172a'}};
+const METHOD_LABEL=t=>({selective:'Selective Rack',doubledeep:'Double-Deep Rack',vna:'VNA Rack',drivein:'Drive-In (LIFO)',drivethru:'Drive-Thru (FIFO)',pushback:'Push-Back Rack (LIFO)',pflow:'Pallet Flow (FIFO)',asrs:'AS/RS (estimate)'}[t]||t);
+
+const state={rows:[],palletRows:[],globals:{
+  clearHeight:null,availArea:null,bufferRatio:10,floorAisleRatio:35,
+  palL:120,palW:100,maxPalH:140,allowRot:1,palStack:1,
+  storagePreset:TYPES.SELECTIVE,forkliftProfile:'counterbalance',
+  rackEffDepth:1,rackPPL:2,rackLVL:4,lvlClear:10,topClear:20,gap:10,
+  aisleW:3.5,vnaAisleW:1.8,rowCount:4,stageDepth:null,asrsAisleW:1.8,asrsAisleCount:2
+},ui:{palette:'contrast',grid:true,zoom:300}};
+
+/* ===== Storage ===== */
+function save(){try{localStorage.setItem(LSKEY,JSON.stringify(state));}catch(e){}}
+function load(){try{const raw=localStorage.getItem(LSKEY);if(raw){const o=JSON.parse(raw);Object.assign(state.globals,o.globals||{});Object.assign(state.ui,o.ui||{});state.rows=(o.rows||[]).map(newRow);state.palletRows=(o.palletRows||[]).map(newPalRow);}}catch(e){}}
+
+/* ===== Rows render ===== */
+function newRow(d={}){return{id:uid(),name:d.name||'',method:d.method||METHODS.FLOOR_UNIT,L:+d.L||0,W:+d.W||0,H:+d.H||0,qty:+d.qty||0,maxStack:Math.max(1,+d.maxStack||1),unitPerPos:0,posNeeded:0,footprintPosM2:0,floorAreaM2:0,volumeM3:0};}
+function renderRows(){
+  const tb=$('skuBody'); tb.innerHTML=''; if(state.rows.length===0) state.rows.push(newRow({}));
+  state.rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><input type="text" data-type="sku" data-k="name" data-id="${r.id}" value="${esc(r.name)}" title="Nama SKU"></td>
+      <td><select data-type="sku" data-k="method" data-id="${r.id}" title="Metode untuk SKU ini">
+        <option value="${METHODS.FLOOR_UNIT}" ${r.method===METHODS.FLOOR_UNIT?'selected':''}>Lantai (unit)</option>
+        <option value="${METHODS.FLOOR_PALLET}" ${r.method===METHODS.FLOOR_PALLET?'selected':''}>Lantai Palet</option>
+        <option value="${METHODS.RACK_PALLET}" ${r.method===METHODS.RACK_PALLET?'selected':''}>Rak Palet</option>
+      </select></td>
+      <td><input type="number" step="0.01" min="0" data-type="sku" data-k="L" data-id="${r.id}" value="${r.L}" title="Panjang unit (cm)"></td>
+      <td><input type="number" step="0.01" min="0" data-type="sku" data-k="W" data-id="${r.id}" value="${r.W}" title="Lebar unit (cm)"></td>
+      <td><input type="number" step="0.01" min="0" data-type="sku" data-k="H" data-id="${r.id}" value="${r.H}" title="Tinggi unit (cm)"></td>
+      <td><input type="number" step="1" min="0" data-type="sku" data-k="qty" data-id="${r.id}" value="${r.qty}" title="Jumlah unit"></td>
+      <td><input type="number" step="1" min="1" data-type="sku" data-k="maxStack" data-id="${r.id}" value="${r.maxStack}" title="Tumpuk maks/lapis"></td>
+      <td class="num" id="u_${r.id}">${fmt(r.unitPerPos)}</td>
+      <td class="num" id="s_${r.id}">${fmt(r.posNeeded)}</td>
+      <td class="num" id="f_${r.id}">${fmt(r.footprintPosM2)}</td>
+      <td class="num" id="a_${r.id}">${fmt(r.floorAreaM2)}</td>
+      <td class="num" id="v_${r.id}">${fmt(r.volumeM3)}</td>
+      <td class="num"><button class="btn ghost" data-del-sku="${r.id}" title="Hapus baris">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('input,select').forEach(el=>{
+    el.addEventListener('input',onEditQuick);
+    el.addEventListener('change',onEditQuick);
+  });
+  tb.querySelectorAll('[data-del-sku]').forEach(b=>b.addEventListener('click',e=>{
+    const id=e.currentTarget.getAttribute('data-del-sku');
+    state.rows=state.rows.filter(x=>x.id!==id);
+    save(); recalcAll(true);
+  }));
+}
+
+/* ===== Pallet Rows ===== */
+function newPalRow(d={}){return{id:uid(),name:d.name||'',method:d.method||METHODS.FLOOR_PALLET,L:+d.L||120,W:+d.W||100,H:+d.H||140,qty:+d.qty||0,maxStack:Math.max(1,+d.maxStack||1)};}
+function renderPalRows(){
+  const tb=$('palBody'); tb.innerHTML='';
+  state.palletRows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><input type="text" data-type="pal" data-k="name" data-id="${r.id}" value="${esc(r.name)}" title="Nama pallet"></td>
+      <td><select data-type="pal" data-k="method" data-id="${r.id}">
+        <option value="${METHODS.FLOOR_PALLET}" ${r.method===METHODS.FLOOR_PALLET?'selected':''}>Lantai Palet</option>
+        <option value="${METHODS.RACK_PALLET}" ${r.method===METHODS.RACK_PALLET?'selected':''}>Rak Palet</option>
+      </select></td>
+      <td><input type="number" step="0.01" min="1" data-type="pal" data-k="L" data-id="${r.id}" value="${r.L}"></td>
+      <td><input type="number" step="0.01" min="1" data-type="pal" data-k="W" data-id="${r.id}" value="${r.W}"></td>
+      <td><input type="number" step="0.01" min="1" data-type="pal" data-k="H" data-id="${r.id}" value="${r.H}"></td>
+      <td><input type="number" step="1" min="0" data-type="pal" data-k="qty" data-id="${r.id}" value="${r.qty}"></td>
+      <td><input type="number" step="1" min="1" data-type="pal" data-k="maxStack" data-id="${r.id}" value="${r.maxStack}"></td>
+      <td class="num"><button class="btn ghost" data-del-pal="${r.id}">✕</button></td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll('input,select').forEach(el=>{
+    el.addEventListener('input',onEditQuick);
+    el.addEventListener('change',onEditQuick);
+  });
+  tb.querySelectorAll('[data-del-pal]').forEach(b=>b.addEventListener('click',e=>{
+    const id=e.currentTarget.getAttribute('data-del-pal');
+    state.palletRows=state.palletRows.filter(x=>x.id!==id);
+    save(); recalcAll(true);
+  }));
+}
+
+/* ===== Edit quick (no rerender table) ===== */
+function onEditQuick(e){
+  const id=e.target.getAttribute('data-id');
+  const k=e.target.getAttribute('data-k');
+  const kind=e.target.getAttribute('data-type');
+  if(kind==='sku'){
+    const r=state.rows.find(x=>x.id===id); if(!r) return;
+    if(k==='name'||k==='method'){r[k]=e.target.value;} else {const v=+e.target.value||0; if(['L','W','H'].includes(k)) r[k]=Math.max(0,v); if(k==='qty') r[k]=Math.max(0,Math.floor(v)); if(k==='maxStack') r[k]=Math.max(1,Math.floor(v));}
+  }else if(kind==='pal'){
+    const r=state.palletRows.find(x=>x.id===id); if(!r) return;
+    if(k==='name'||k==='method'){r[k]=e.target.value;} else {const v=+e.target.value||0; if(['L','W','H'].includes(k)) r[k]=Math.max(1,v); if(k==='qty') r[k]=Math.max(0,Math.floor(v)); if(k==='maxStack') r[k]=Math.max(1,Math.floor(v));}
+  }
+  save();
+  recalcAll(false);
+}
+
+/* ===== Globals ===== */
+function setSticky(){const h=$('mast').getBoundingClientRect().height||84; document.documentElement.style.setProperty('--stick',h+'px');}
+function readGlobals(){
+  const g=state.globals;
+  g.clearHeight=isFinite(+$('clearHeight').value)?+$('clearHeight').value:null;
+  g.availArea=isFinite(+$('availArea').value)?+$('availArea').value:null;
+  g.bufferRatio=clamp($('bufferRatio').value,0,50);
+  g.floorAisleRatio=clamp($('floorAisleRatio').value,0,90);
+  g.palL=Math.max(1,+$('palL').value||120); g.palW=Math.max(1,+$('palW').value||100);
+  g.maxPalH=Math.max(1,+$('maxPalH').value||140); g.allowRot=+$('allowRot').value; g.palStack=Math.max(1,Math.floor(+$('palStack').value||1));
+  g.storagePreset=$('storagePreset').value; g.forkliftProfile=$('forkliftProfile').value;
+  g.rackEffDepth=Math.max(1,Math.floor(+$('rackEffDepth').value||1));
+  g.rackPPL=Math.max(1,Math.floor(+$('rackPPL').value||2)); g.rackLVL=Math.max(1,Math.floor(+$('rackLVL').value||4));
+  g.lvlClear=Math.max(0,+$('lvlClear').value||10); g.topClear=Math.max(0,+$('topClear').value||20); g.gap=Math.max(0,+$('gap').value||10);
+  g.aisleW=Math.max(1.5,+$('aisleW').value||3.5); g.vnaAisleW=Math.max(1.5,+$('vnaAisleW').value||1.8);
+  g.rowCount=Math.max(1,Math.floor(+$('rowCount').value||4));
+  g.stageDepth=isFinite(+$('stageDepth').value)?+$('stageDepth').value:null;
+  g.asrsAisleW=Math.max(1.2,+$('asrsAisleW').value||1.8); g.asrsAisleCount=Math.max(1,Math.floor(+$('asrsAisleCount').value||2));
+  state.ui.palette=$('paletteMode').value; state.ui.grid=$('showGrid').checked; state.ui.zoom=+$('zoom').value||300;
+}
+function applyForkliftPreset(applyNow=false){
+  const g=state.globals; let w=g.aisleW;
+  if(g.forkliftProfile==='counterbalance') w=3.5;
+  if(g.forkliftProfile==='reach') w=3.0;
+  if(g.forkliftProfile==='vna') w=g.vnaAisleW;
+  if(applyNow){g.aisleW=w; $('aisleW').value=w;}
+}
+function validateLevels(){
+  const g=state.globals; if(!isFinite(g.clearHeight)) return;
+  const usable=g.clearHeight*100 - g.topClear; const per=g.maxPalH + g.lvlClear;
+  const allowed=Math.max(1,Math.floor(usable/per));
+  if(g.rackLVL>allowed){g.rackLVL=allowed; $('rackLVL').value=allowed;}
+}
+
+/* ===== Core formulas ===== */
+function packOnPallet(L,W,allowRot,pL,pW){
+  const A=(L>0&&W>0)?Math.floor(pL/L)*Math.floor(pW/W):0;
+  const B=(L>0&&W>0)?Math.floor(pL/W)*Math.floor(pW/L):0;
+  return Math.max(1,allowRot?Math.max(A,B):A);
+}
+function packOnPalletZeroOK(L,W,allowRot,pL,pW){
+  if(L<=0||W<=0) return 0;
+  const A=Math.floor(pL/L)*Math.floor(pW/W);
+  const B=Math.floor(pL/W)*Math.floor(pW/L);
+  return allowRot?Math.max(A,B):A;
+}
+function layersByHeight(H,maxPalH,clearH,maxStack){
+  let limit=maxPalH; if(isFinite(clearH)) limit=Math.min(maxPalH,Math.floor(clearH*100));
+  const byH=(H>0)?Math.max(1,Math.floor(limit/H)):1;
+  return Math.max(1,Math.min(maxStack,byH));
+}
+function layersZeroOK(H,maxPalH,clearH,maxStack){
+  if(H<=0) return 0;
+  let limit=maxPalH; if(isFinite(clearH)) limit=Math.min(maxPalH,Math.floor(clearH*100));
+  const byH=Math.max(1,Math.floor(limit/H));
+  return Math.max(1,Math.min(maxStack,byH));
+}
+function allowedStackLevels(pH,clearH,maxStack){
+  let n=maxStack;
+  if(isFinite(clearH)&&pH>0){n=Math.min(maxStack,Math.max(1,Math.floor((clearH*100)/pH))); }
+  return Math.max(1,n);
+}
+
+/* ===== Recalc ===== */
+function recalcRows(){
+  const g=state.globals; let netFloor=0,rackPallets=0,totalVol=0;
+
+  state.rows.forEach(r=>{
+    r.volumeM3=(r.L>0&&r.W>0&&r.H>0)?(r.L*r.W*r.H*r.qty)/1_000_000:0; totalVol+=r.volumeM3;
+    const unitFoot=(r.L*r.W)/10000; const palFoot=(g.palL*g.palW)/10000;
+    if(r.method===METHODS.FLOOR_UNIT){
+      let byH=Infinity; if(isFinite(g.clearHeight)&&r.H>0) byH=Math.max(1,Math.floor((g.clearHeight*100)/r.H));
+      const ups=Math.max(1,Math.min(r.maxStack,isFinite(byH)?byH:r.maxStack));
+      r.unitPerPos=ups; r.posNeeded=Math.ceil((r.qty||0)/ups); r.footprintPosM2=unitFoot||0; r.floorAreaM2=r.posNeeded*r.footprintPosM2; netFloor+=r.floorAreaM2;
+    }else{
+      const per=packOnPallet(r.L,r.W,g.allowRot,g.palL,g.palW); const lay=layersByHeight(r.H,g.maxPalH,g.clearHeight,r.maxStack);
+      r.unitPerPos=per*lay; const pallets=Math.ceil((r.qty||0)/Math.max(1,r.unitPerPos));
+      if(r.method===METHODS.FLOOR_PALLET){
+        let stack=g.palStack; if(stack>1 && isFinite(g.clearHeight) && g.maxPalH*stack>g.clearHeight*100) stack=1;
+        const floorPos=Math.ceil(pallets/Math.max(1,stack)); r.posNeeded=floorPos; r.footprintPosM2=palFoot; r.floorAreaM2=floorPos*palFoot; netFloor+=r.floorAreaM2;
+      }else{ r.posNeeded=pallets; r.footprintPosM2=palFoot; r.floorAreaM2=0; rackPallets+=pallets; }
+    }
+    const u=$('u_'+r.id), s=$('s_'+r.id), f=$('f_'+r.id), a=$('a_'+r.id), v=$('v_'+r.id);
+    if(u)u.textContent=fmt(r.unitPerPos); if(s)s.textContent=fmt(r.posNeeded); if(f)f.textContent=fmt(r.footprintPosM2); if(a)a.textContent=fmt(r.floorAreaM2); if(v)v.textContent=fmt(r.volumeM3);
+  });
+
+  state.palletRows.forEach(p=>{
+    const foot=(p.L*p.W)/10000;
+    if(p.method===METHODS.FLOOR_PALLET){
+      const stack=allowedStackLevels(p.H,state.globals.clearHeight,p.maxStack);
+      const floorPos=Math.ceil((p.qty||0)/Math.max(1,stack));
+      netFloor+=floorPos*foot;
+    }else if(p.method===METHODS.RACK_PALLET){
+      rackPallets+=(p.qty||0);
+    }
+  });
+
+  return {netFloor,rackPallets,totalVol};
+}
+
+/* ===== Pallet estimation from SKU ===== */
+function estimatePalletsFromSKUs(){
+  const g=state.globals;
+  const rows=[];
+  let totalPal=0,totalQty=0,totalFit=0,totalUnitPerPal=0;
+  state.rows.forEach(r=>{
+    const fit=packOnPalletZeroOK(r.L,r.W,g.allowRot,g.palL,g.palW); // 0 jika dimensi kosong
+    const layer=layersZeroOK(r.H,g.maxPalH,g.clearHeight,r.maxStack); // 0 jika tinggi kosong
+    const unitPerPal=(fit>0 && layer>0)?fit*layer:0;
+    const qty=r.qty||0;
+    const pal=(unitPerPal>0)?Math.ceil(qty/unitPerPal):0;
+    rows.push({name:r.name||'-',fit,layer,unitPerPal,qty,estPal:pal,notes:(fit===0||layer===0)?'Lengkapi dimensi untuk estimasi':'-'});
+    totalPal+=pal; totalQty+=qty; totalFit+=fit; totalUnitPerPal+=unitPerPal;
+  });
+  const avgLayer=rows.length? (rows.reduce((a,b)=>a+b.layer,0)/rows.length):0;
+  return {rows,totalPal,totalQty,avgFit:rows.length?totalFit/rows.length:0,avgUnitPerPal:rows.length?totalUnitPerPal/rows.length:0,avgLayer};
+}
+
+/* ===== Rack layout & scenarios ===== */
+function computeRackLayout(totalPallets,preset){
+  const g=state.globals, pL=g.palL, pW=g.palW, gap=g.gap;
+  let type=preset, access='LIFO', aisle=g.aisleW, eff=g.rackEffDepth;
+  if(type===TYPES.SELECTIVE){access='FIFO'; eff=Math.max(1,eff);}
+  if(type===TYPES.DOUBLEDEEP){access='FIFO'; eff=Math.max(2,eff);}
+  if(type===TYPES.VNA){access='FIFO'; aisle=g.vnaAisleW;}
+  if(type===TYPES.DRIVETHRU||type===TYPES.PFLOW){access='FIFO';}
+  const bayW=((g.rackPPL*pW)+gap*(g.rackPPL+1))/100;
+  const rowD=((eff*pL)+gap*(eff+1))/100;
+  const locPerBay=g.rackPPL*g.rackLVL*eff;
+  const baysNeeded=Math.ceil(totalPallets/Math.max(1,locPerBay));
+  let rows=Math.max(1,g.rowCount); let aisles;
+  if(type===TYPES.ASRS){ aisle=g.asrsAisleW; aisles=g.asrsAisleCount; }
+  else{
+    const base=rows+1;
+    const pairable=(access==='LIFO'&&(type===TYPES.DRIVEIN||type===TYPES.PUSHBACK));
+    const pairs=pairable?Math.floor(rows/2):0;
+    aisles=base-pairs;
+  }
+  const baysPerRow=Math.ceil(baysNeeded/rows);
+  const rowLenM=baysPerRow*bayW, stage=isFinite(g.stageDepth)?g.stageDepth:0;
+  const totalWidthM=rows*rowD + aisles*aisle + stage*2;
+  const totalLenM=rowLenM;
+  const areaCore=totalWidthM*totalLenM;
+  const areaGross=areaCore*(1+g.bufferRatio/100);
+  return {type,access,eff,locPerBay,baysNeeded,rows,baysPerRow,bayWidthM:bayW,rowDepthM:rowD,aisleWUsed:aisle,aislesCount:aisles,totalWidthM,totalLenM,areaCore,areaGross,stage};
+}
+function palletsNeededAll(){
+  const g=state.globals; let p=0;
+  state.rows.forEach(r=>{
+    const per=packOnPallet(r.L,r.W,g.allowRot,g.palL,g.palW);
+    const lay=layersByHeight(r.H,g.maxPalH,g.clearHeight,r.maxStack);
+    p+=Math.ceil((r.qty||0)/Math.max(1,per*lay));
+  });
+  state.palletRows.forEach(x=>{p+=(x.qty||0);});
+  return p;
+}
+function scenarioBlockStack(){
+  const g=state.globals;
+  let floorPos=0, net=0;
+  const palFootGlobal=(g.palL*g.palW)/10000;
+  state.rows.forEach(r=>{
+    const per=packOnPallet(r.L,r.W,g.allowRot,g.palL,g.palW);
+    const lay=layersByHeight(r.H,g.maxPalH,g.clearHeight,r.maxStack);
+    const pallets=Math.ceil((r.qty||0)/Math.max(1,per*lay));
+    floorPos+=Math.ceil(pallets/Math.max(1,g.palStack));
+  });
+  state.palletRows.forEach(pal=>{
+    const foot=(pal.L*pal.W)/10000;
+    const stack=allowedStackLevels(pal.H,g.clearHeight,pal.maxStack);
+    const pos=Math.ceil((pal.qty||0)/Math.max(1,stack));
+    net+=pos*foot;
+  });
+  net += floorPos*palFootGlobal;
+  const gross=(net+net*(g.floorAisleRatio/100))*(1+g.bufferRatio/100);
+  return {name:'Block Stacking (variable)',key:'block_stack',totalArea:gross};
+}
+function scenarioRack(preset,label){
+  const p=palletsNeededAll();
+  if(p<=0) return {name:label,key:preset,totalArea:0,layout:null,rackLoc:0};
+  const layout=computeRackLayout(p,preset);
+  return {name:label,key:preset,totalArea:layout.areaGross,layout,rackLoc:p};
+}
+
+/* ===== SVG ===== */
+function pal(){return PALETTES[state.ui.palette]||PALETTES.contrast;}
+function drawRow(svg,x,y,w,h,bpr){ if(state.ui.palette==='bay'){const bw=w/bpr; for(let i=0;i<bpr;i++){ rect(svg,x+i*bw,y,bw,h,(i%2===0)?pal().rack:pal().rackAlt,'#0f1b2a'); }} else { rect(svg,x,y,w,h,pal().rack,'#0f1b2a'); } }
+function rect(svg,x,y,w,h,fill,stroke){const r=document.createElementNS('http://www.w3.org/2000/svg','rect'); r.setAttribute('x',x); r.setAttribute('y',y); r.setAttribute('width',w); r.setAttribute('height',h); r.setAttribute('fill',fill); if(stroke) r.setAttribute('stroke',stroke); svg.appendChild(r);}
+function line(svg,x1,y1,x2,y2,stroke,sw){const l=document.createElementNS('http://www.w3.org/2000/svg','line'); l.setAttribute('x1',x1); l.setAttribute('y1',y1); l.setAttribute('x2',x2); l.setAttribute('y2',y2); l.setAttribute('stroke',stroke); l.setAttribute('stroke-width',sw); svg.appendChild(l);}
+function drawLayout(info){
+  const svg=$('layoutSVG'), meta=$('layoutMeta'); svg.setAttribute('height',state.ui.zoom); while(svg.firstChild) svg.removeChild(svg.firstChild);
+  if(!info){ meta.textContent='Tidak ada area rak pada rencana saat ini.'; return; }
+  const vbW=1000,vbH=400,pad=10;
+  const s=Math.min((vbW-2*pad)/Math.max(1,info.totalLenM),(vbH-2*pad)/Math.max(1,info.totalWidthM));
+  const ox=(vbW-info.totalLenM*s)/2, oy=(vbH-info.totalWidthM*s)/2;
+  rect(svg,0,0,vbW,vbH,'#0b1220');
+  let y=oy, stage=state.globals.stageDepth||0;
+  if(stage>0){ rect(svg,ox,y,info.totalLenM*s,stage*s,pal().staging,'#1f2937'); y+=stage*s; }
+  const drawAisle=h=>rect(svg,ox,y,info.totalLenM*s,h,pal().aisle,'#0b2937');
+  if(info.type==='asrs'){
+    const top=Math.min(1,info.aislesCount), bottom=Math.max(0,info.aislesCount-top-Math.max(0,info.rows-1));
+    for(let a=0;a<top;a++){ drawAisle(info.aisleWUsed*s); y+=info.aisleWUsed*s; }
+    for(let r=0;r<info.rows;r++){ drawRow(svg,ox,y,info.totalLenM*s,info.rowDepthM*s,info.baysPerRow); y+=info.rowDepthM*s; if(r<info.rows-1){ drawAisle(info.aisleWUsed*s); y+=info.aisleWUsed*s; } }
+    for(let a=0;a<bottom;a++){ drawAisle(info.aisleWUsed*s); y+=info.aisleWUsed*s; }
+  }else{
+    drawAisle(info.aisleWUsed*s); y+=info.aisleWUsed*s;
+    for(let r=0;r<info.rows;r++){ drawRow(svg,ox,y,info.totalLenM*s,info.rowDepthM*s,info.baysPerRow); y+=info.rowDepthM*s; if(r<info.rows-1){ drawAisle(info.aisleWUsed*s); y+=info.aisleWUsed*s; } }
+    drawAisle(info.aisleWUsed*s);
+  }
+  if(stage>0){ rect(svg,ox,y,info.totalLenM*s,stage*s,pal().staging,'#1f2937'); }
+  if(state.ui.grid){ const bayW=(info.totalLenM/info.baysPerRow)*s; const y0=oy+(stage*s); const h=(info.totalWidthM-stage*2)*s; for(let i=1;i<info.baysPerRow;i++) line(svg,ox+i*bayW,y0,ox+i*bayW,y0+h,PALETTES[state.ui.palette].grid,1); }
+  meta.innerHTML=`Metode: <b>${METHOD_LABEL(info.type)}</b> · Baris: <b>${fmt(info.rows)}</b> · Bay/baris: <b>${fmt(info.baysPerRow)}</b> · Aisle: <b>${fmt(info.aisleWUsed)} m</b> · Area inti: <b>${fmt(info.areaCore)} m²</b>`;
+}
+
+/* ===== Master recalc ===== */
+function recalcAll(needRender){
+  readGlobals(); applyForkliftPreset(false); validateLevels();
+  if(needRender){ renderRows(); renderPalRows(); }
+
+  $('kMethodName').textContent=METHOD_LABEL(state.globals.storagePreset);
+  $('simMethodName').textContent=METHOD_LABEL(state.globals.storagePreset);
+
+  const {netFloor,rackPallets,totalVol}=recalcRows();
+  const g=state.globals;
+  const aisleFloor=netFloor*(g.floorAisleRatio/100);
+  const grossFloor=(netFloor+aisleFloor)*(1+g.bufferRatio/100);
+  let rackAreaGross=0, layout=null;
+  if(rackPallets>0){ layout=computeRackLayout(rackPallets,g.storagePreset); rackAreaGross=layout.areaGross; }
+
+  const total=grossFloor+rackAreaGross;
+
+  $('kNetFloor').textContent=fmt(netFloor)+' m²';
+  $('kAisleFloor').textContent=fmt(aisleFloor)+' m²';
+  $('kGrossFloor').textContent=fmt(grossFloor)+' m²';
+  $('kRackLoc').textContent=fmt(rackPallets)+' lokasi';
+  $('kRackArea').textContent=fmt(rackAreaGross)+' m²';
+  $('kVol').textContent=fmt(totalVol)+' m³';
+  $('kTotal').textContent=fmt(total)+' m²';
+  if(isFinite(g.availArea??NaN)&&g.availArea>0){const occ=(total/g.availArea)*100, sisa=g.availArea-total; $('kOcc').textContent=fmt(occ)+'%'; $('occupancyNote').innerHTML=`Okupansi <b>${fmt(occ)}%</b> dari ${fmt(g.availArea)} m². Sisa <b>${fmt(sisa)}</b> m².`;} else {$('kOcc').textContent='-'; $('occupancyNote').textContent='';}
+
+  $('systemNote').textContent={
+    selective:'Selective - akses langsung, kedalaman 1.',
+    doubledeep:'Double-Deep - kedalaman 2.',
+    vna:'VNA - aisle sempit, turret/VNA.',
+    drivein:'Drive-In - LIFO; padat; back-to-back mengurangi aisle.',
+    drivethru:'Drive-Thru - FIFO; akses dua sisi.',
+    pushback:'Push-Back - LIFO; 2–5 deep.',
+    pflow:'Pallet Flow - FIFO; 2–6 deep.',
+    asrs:'AS/RS - estimasi dengan aisle crane.'
+  }[g.storagePreset]||'';
+
+  // Pallet estimation table
+  const est=estimatePalletsFromSKUs();
+  $('kPalEst').textContent=fmt(est.totalPal)+' pallet';
+  const tb=$('palEstBody'); tb.innerHTML='';
+  est.rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${esc(r.name)}</td>
+      <td class="num">${fmt(r.fit)}</td>
+      <td class="num">${fmt(r.layer)}</td>
+      <td class="num">${fmt(r.unitPerPal)}</td>
+      <td class="num">${fmt(r.qty)}</td>
+      <td class="num">${fmt(r.estPal)}</td>
+      <td>${r.notes||'-'}</td>`;
+    tb.appendChild(tr);
+  });
+  $('palEstFitSum').textContent=est.rows.length?fmt(est.avgFit):'-';
+  $('palEstLayerAvg').textContent=est.rows.length?fmt(est.avgLayer):'-';
+  $('palEstUnitPerPalAvg').textContent=est.rows.length?fmt(est.avgUnitPerPal):'-';
+  $('palEstQtySum').textContent=fmt(est.totalQty);
+  $('palEstTotal').textContent=fmt(est.totalPal);
+
+  drawLayout(layout);
+  buildComparison();
+  save();
+}
+
+/* ===== Comparison ===== */
+function buildComparison(){
+  const rows=[];
+  rows.push(scenarioBlockStack());
+  rows.push(scenarioRack(TYPES.SELECTIVE,'Selective Rack'));
+  rows.push(scenarioRack(TYPES.DOUBLEDEEP,'Double-Deep Rack'));
+  rows.push(scenarioRack(TYPES.VNA,'VNA Rack'));
+  rows.push(scenarioRack(TYPES.DRIVEIN,'Drive-In (LIFO)'));
+  rows.push(scenarioRack(TYPES.DRIVETHRU,'Drive-Thru (FIFO)'));
+  rows.push(scenarioRack(TYPES.PUSHBACK,'Push-Back Rack (LIFO)'));
+  rows.push(scenarioRack(TYPES.PFLOW,'Pallet Flow (FIFO)'));
+  rows.push(scenarioRack(TYPES.ASRS,'AS/RS (estimate)'));
+
+  const tb=$('recoBody'); tb.innerHTML='';
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    const aisle=r.layout?`${fmt(r.layout.aislesCount)} x ${fmt(r.layout.aisleWUsed)}`:'-';
+    const rowtxt=r.layout?`${fmt(r.layout.rows)} x ${fmt(r.layout.baysPerRow)}`:'-';
+    const info=r.layout?`Loc/bay: ${fmt(r.layout.locPerBay)}, Bay: ${fmt(r.layout.baysNeeded)}`:'-';
+    tr.innerHTML=`<td>${r.name}</td><td class="num">${fmt(r.totalArea)} m²</td><td class="num">${fmt(r.rackLoc||0)}</td><td class="num">${aisle}</td><td class="num">${rowtxt}</td><td>${info}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+/* ===== CSV I/O (SKU) ===== */
+function exportCSV(){const header='name,method,L,W,H,qty,maxStack\n'; const lines=state.rows.map(r=>[csv(r.name),r.method,r.L,r.W,r.H,r.qty,r.maxStack].join(',')); const blob=new Blob([header+lines.join('\n')],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='warehouse_sku.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);}
+function csv(v){const s=String(v??''); return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function importCSVFile(file){const r=new FileReader(); r.onload=e=>parseCsvText(e.target.result||''); r.readAsText(file);}
+function parseCsvText(txt){const lines=txt.trim().split(/\r?\n/); if(!/^name\s*,\s*method\s*,\s*L\s*,\s*W\s*,\s*H\s*,\s*qty\s*,\s*maxStack/i.test(lines[0])){alert('Header CSV wajib: name,method,L,W,H,qty,maxStack'); return;} const arr=[]; lines.slice(1).forEach(ln=>{if(!ln.trim())return; const c=parseCsvLine(ln); if(c.length<7)return; let m=c[1]; if(!Object.values(METHODS).includes(m)) m=METHODS.FLOOR_UNIT; arr.push({name:c[0],method:m,L:+c[2]||0,W:+c[3]||0,H:+c[4]||0,qty:+c[5]||0,maxStack:+c[6]||1});}); state.rows=arr.map(newRow); save(); recalcAll(true);}
+function parseCsvLine(line){const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const ch=line[i]; if(q){if(ch==='"'&&line[i+1]==='"'){cur+='"';i++;} else if(ch==='"'){q=false;} else cur+=ch;} else {if(ch===','){out.push(cur.trim());cur='';} else if(ch==='"'){q=true;} else cur+=ch;}} out.push(cur.trim()); return out;}
+
+/* ===== Glossary ===== */
+const GLOSS=[
+['SKU','Kode unik item yang disimpan.'],
+['Metode Lantai (unit)','Barang langsung di lantai; diatur batas tumpuk & tinggi gudang.'],
+['Metode Lantai Palet','Unit dipaletisasi lalu diletakkan di lantai; dapat ditumpuk pallet.'],
+['Metode Rak Palet','Unit dipaletisasi kemudian ke rak.'],
+['L/W/H (cm)','Dimensi unit.'],
+['Qty','Jumlah unit disimpan.'],
+['Max tumpukan/lapis','Batas aman untuk stack lantai atau lapisan pallet.'],
+['Fit per lapis','Jumlah unit muat per permukaan pallet dengan/ tanpa rotasi.'],
+['Lapisan per pallet','Ditentukan tinggi unit vs tinggi maksimum pallet serta clear height.'],
+['PPL','Pallet per level sepanjang balok.'],
+['LVL','Jumlah tingkat rak.'],
+['Kedalaman efektif','Jumlah pallet berurutan dalam satu lane.'],
+['Aisle','Lorong operasional; lebarnya mengikuti profil forklift atau crane.'],
+['FIFO/LIFO','Arah aliran. FIFO = first-in-first-out, LIFO = last-in-first-out.'],
+['Loc/bay','Lokasi pallet per bay = PPL × LVL × kedalaman.'],
+['Bay/baris','Jumlah modul bay per baris.'],
+['Area inti','Lebar × panjang layout sebelum buffer.'],
+['Buffer (%)','Cadangan area untuk deviasi & operasional.'],
+['Estimasi Pallet (SKU)','Perhitungan jumlah pallet dari data SKU menggunakan ukuran pallet global, rotasi, dan batas tinggi. Tidak tergantung setelan “Metode”.']
+];
+function loadGlossary(){const tb=$('gBody'); tb.innerHTML=''; GLOSS.forEach(([t,d])=>{const tr=document.createElement('tr'); tr.innerHTML=`<td style="font-weight:700;padding:8px 10px">${t}</td><td style="padding:8px 10px">${d}</td>`; tb.appendChild(tr);});}
+function filterGlossary(){const q=$('gSearch').value.toLowerCase(); $('gBody').querySelectorAll('tr').forEach(tr=>{tr.style.display=tr.textContent.toLowerCase().includes(q)?'':'none';});}
+
+/* ===== Init ===== */
+(function init(){
+  setSticky(); load(); renderRows(); renderPalRows(); syncUI(); recalcAll(true); loadGlossary();
+  $('addRowBtn').addEventListener('click',()=>{state.rows.push(newRow({})); save(); recalcAll(true);});
+  $('addPalBtn').addEventListener('click',()=>{state.palletRows.push(newPalRow({})); save(); recalcAll(true);});
+  $('exampleBtn').addEventListener('click',()=>{
+    state.rows=[
+      newRow({name:'Kartoni 40×30×25',method:'floor_unit',L:40,W:30,H:25,qty:800,maxStack:4}),
+      newRow({name:'Dus 50×40×35',method:'floor_pallet',L:50,W:40,H:35,qty:500,maxStack:3}),
+      newRow({name:'Bin 60×40×22',method:'rack_pallet',L:60,W:40,H:22,qty:1200,maxStack:5})
+    ];
+    state.palletRows=[ newPalRow({name:'Pallet kayu 120×100',method:'floor_pallet',L:120,W:100,H:140,qty:150,maxStack:2}) ];
+    save(); recalcAll(true);
+  });
+  $('exportBtn').addEventListener('click',exportCSV);
+  $('importBtn').addEventListener('click',()=>{const useFile=confirm('Import dari file CSV? OK untuk file, Cancel untuk paste teks'); if(useFile){$('fileInput').click();} else {const tpl=`Tempel CSV (header wajib):\nname,method,L,W,H,qty,maxStack\nContoh:\nBarang A,floor_unit,40,30,25,800,4`; const txt=prompt(tpl); if(txt) parseCsvText(txt);}});
+  $('fileInput').addEventListener('change',e=>{const f=e.target.files[0]; if(f) importCSVFile(f); e.target.value='';});
+  $('resetBtn').addEventListener('click',()=>{if(confirm('Hapus semua data & parameter?')){localStorage.removeItem(LSKEY); state.rows=[newRow({})]; state.palletRows=[]; save(); location.reload();}});
+  window.addEventListener('resize',setSticky,{passive:true});
+  ['clearHeight','availArea','bufferRatio','floorAisleRatio','palL','palW','maxPalH','allowRot','palStack','storagePreset','forkliftProfile','rackEffDepth','rackPPL','rackLVL','lvlClear','topClear','gap','aisleW','vnaAisleW','rowCount','stageDepth','asrsAisleW','asrsAisleCount','paletteMode','showGrid','zoom'].forEach(id=>{
+    $(id)?.addEventListener('input',()=>{if(id==='forkliftProfile'||id==='vnaAisleW'){readGlobals();applyForkliftPreset(true);} recalcAll(false);});
+  });
+  $('glossaryBtn').addEventListener('click',()=>{$('glossaryModal').classList.add('on');$('gSearch').focus();});
+  $('gClose').addEventListener('click',()=>$('glossaryModal').classList.remove('on'));
+  $('gCloseBtn').addEventListener('click',()=>$('glossaryModal').classList.remove('on'));
+  $('gSearch').addEventListener('input',filterGlossary);
+})();
+function syncUI(){
+  const g=state.globals;
+  ['clearHeight','availArea','bufferRatio','floorAisleRatio','palL','palW','maxPalH','allowRot','palStack','storagePreset','forkliftProfile','rackEffDepth','rackPPL','rackLVL','lvlClear','topClear','gap','aisleW','vnaAisleW','rowCount','stageDepth','asrsAisleW','asrsAisleCount'].forEach(id=>{$(id).value=g[id]??'';});
+  $('paletteMode').value=state.ui.palette; $('showGrid').checked=!!state.ui.grid; $('zoom').value=state.ui.zoom;
+  const pal=PALETTES[state.ui.palette]; document.documentElement.style.setProperty('--cRack',pal.rack); document.documentElement.style.setProperty('--cRackAlt',pal.rackAlt); document.documentElement.style.setProperty('--cAisle',pal.aisle); document.documentElement.style.setProperty('--cStage',pal.staging); document.documentElement.style.setProperty('--cGrid',pal.grid);
+}
+</script>
+</body>
+</html>

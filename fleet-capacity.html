@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UGC Logistics • Fleet Simulator (Integrated All Methods)</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#111830; --muted:#1a2340; --accent:#ff4600;
+    --text:#e5e7eb; --dim:#a3acc2; --good:#10b981; --warn:#f59e0b; --bad:#ef4444; --blue:#3b82f6; --green:#22c55e;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(180deg,#0a0f1d 0%,#0d1428 100%);color:var(--text);font:14px/1.5 system-ui,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial}
+  a{color:var(--accent)}
+  header{position:sticky;top:0;z-index:60;background:rgba(9,14,28,.92);backdrop-filter:blur(10px);border-bottom:1px solid #152043}
+  .head-inner{display:flex;align-items:center;gap:12px;padding:10px 16px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo img{height:28px;width:auto;border-radius:4px}
+  .title{font-weight:700}
+  .toolbar{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .btn{background:#172248;border:1px solid #243056;color:#e5e7eb;padding:8px 10px;border-radius:10px;cursor:pointer;transition:transform .08s ease, background .2s ease, border .2s;display:inline-flex;align-items:center;gap:8px}
+  .btn:hover{transform:translateY(-1px);border-color:#335;box-shadow:0 0 0 2px rgba(255,70,0,.08) inset}
+  .btn:active{transform:translateY(0)}
+  .btn.primary{background:linear-gradient(180deg,#ff5a1a,#ff3d00);border-color:#ff3d00;color:white}
+  .btn.blue{background:#183057;border-color:#244a8a}
+  .wrap{max-width:1200px;margin:0 auto;padding:16px 16px 120px}
+  .section{margin-top:16px}
+  .card{background:linear-gradient(180deg,#131b36,#10172c);border:1px solid #1d274a;border-radius:16px;padding:14px}
+  h2{margin:0 0 8px;font-size:16px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .field{display:flex;flex-direction:column;gap:6px;min-width:120px}
+  .field label{font-size:12px;color:#a3acc2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .field small{color:#92a0c5;font-size:11px}
+  input[type=text],input[type=number],select{background:#0e1530;border:1px solid #25315a;color:#e5e7eb;border-radius:10px;padding:8px 10px;min-height:36px;outline:none}
+  input:focus,select:focus{border-color:#3960ff;box-shadow:0 0 0 2px rgba(57,96,255,.15)}
+  table{width:100%;border-collapse:separate;border-spacing:0}
+  th,td{padding:8px 10px;border-bottom:1px dashed #22304c;vertical-align:top}
+  th{position:sticky;top:0;background:#0f1732;z-index:2;font-weight:600;font-size:12px;color:#aab2cc;border-bottom:1px solid #253057;white-space:nowrap}
+  tbody tr:hover{background:#0f1a3a40}
+  .reco{outline:2px solid var(--blue);background:#0c1e4a55}
+  .selected{outline:2px solid var(--green);background:#0e2a2255}
+  .pill{padding:4px 8px;border-radius:999px;background:#1b294f;border:1px solid #2a3c77;font-weight:700}
+  .pill.ok{background:#0b3530;border-color:#145b50;color:#aef7df}
+  .pill.bad{background:#421717;border-color:#7d2323;color:#ffb3b3}
+  .kpi{display:flex;gap:8px;flex-wrap:wrap}
+  .kpi .box{background:#0e1734;border:1px solid #23305c;border-radius:12px;padding:8px 10px}
+  /* Tabs (hasil) */
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .tab{padding:6px 10px;border-radius:10px;border:1px solid #2a3969;background:#0e1734;cursor:pointer}
+  .tab.active{outline:2px solid #3b82f6;background:#0e213f}
+  .panel{display:none}
+  .panel.active{display:block}
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:1000}
+  .modal.show{display:flex}
+  /* --- PATCH: isi modal selalu tampil walau .panel default display:none --- */
+  .modal .panel{
+    display:block !important;
+    width:min(1100px,92vw);max-height:86vh;overflow:auto;background:#111832;border:1px solid #1f2b57;border-radius:16px;padding:14px
+  }
+  .modal .modal-header{position:sticky;top:0;background:#101633;border-bottom:1px solid #263468;border-radius:14px 14px 0 0;margin:-14px -14px 12px -14px;padding:10px 14px}
+  .note{color:#9fb0d6}
+  /* Accordion (panduan) */
+  .acc{border:1px solid #263468;border-radius:12px;overflow:hidden}
+  .acc + .acc{margin-top:10px}
+  .acc-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:#0d1635;cursor:pointer}
+  .acc-hd b{font-size:14px}
+  .acc-hd .chev{transition:transform .2s ease}
+  .acc.open .chev{transform:rotate(90deg)}
+  .acc-bd{display:none;background:#0f1b3f;padding:12px}
+  .acc.open .acc-bd{display:block}
+  /* FAB */
+  .fab{position:fixed;right:16px;bottom:54px;z-index:120}
+  .fab .btn{box-shadow:0 12px 30px rgba(0,0,0,.35)}
+  /* Footer */
+  footer{position:fixed;left:0;right:0;bottom:0;background:rgba(12,18,36,.9);backdrop-filter:blur(10px);border-top:1px solid #1d274a;z-index:40}
+  footer .inner{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:10px;color:#98a6ce;font-size:12px}
+  .sep{opacity:.35;margin:0 8px}
+
+  /* ====== COMPACT SKU TABLE (no horizontal scroll) ====== */
+  .sku-wrap{
+    overflow-x:hidden;          /* hilangkan scroll horizontal */
+    overflow-y:auto;            /* scroll vertikal jika tinggi penuh */
+    max-height:46vh;
+    border-radius:10px;
+    border:1px solid #20305b;
+  }
+  table.sku{table-layout:fixed;width:100%}
+  table.sku th, table.sku td{
+    padding:6px 6px;
+    font-size:12px;
+    line-height:1.25;
+    vertical-align:top;
+  }
+  table.sku th{
+    white-space:normal;         /* judul kolom bisa wrap */
+    word-break:break-word;
+    background:#0f1732;
+  }
+  table.sku input, table.sku select{
+    width:100%;
+    font-size:12px;
+    padding:6px 8px;
+    min-width:0;
+  }
+  @media (max-width:1366px){
+    table.sku th, table.sku td{padding:5px 5px;font-size:11px}
+    table.sku input, table.sku select{font-size:11px;padding:5px 6px}
+  }
+  @media (max-width:1200px){
+    table.sku th, table.sku td{padding:4px 4px;font-size:10.5px}
+    table.sku input, table.sku select{font-size:10.5px;padding:5px 6px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-inner">
+    <div class="logo">
+      <img alt="UGC" src="https://raw.githubusercontent.com/UGCLogistics/ugc-outreach-script-generator/80688309da6d0aae20b73cf070dce9755d7f4f4a/logo.png">
+      <div class="title">UGC Logistics Fleet Simulator</div>
+    </div>
+    <div class="toolbar">
+      <button class="btn" id="btnAddSku" title="Tambah baris SKU">Tambah SKU</button>
+      <button class="btn blue" id="btnSample" title="Muat contoh SKU">Contoh</button>
+      <button class="btn" id="btnImport" title="Impor CSV SKU">Impor CSV</button>
+      <button class="btn" id="btnExport" title="Ekspor CSV SKU">Ekspor CSV</button>
+      <button class="btn" id="btnReset" title="Reset">Reset</button>
+      <button class="btn primary" id="btnCalc" title="Hitung sesuai metode terpilih">Hitung</button>
+      <button class="btn" id="btnCalcAll" title="Hitung semua metode">Compute All</button>
+      <button class="btn" id="btnWhen" title="Panduan memilih metode">Panduan Metode</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1) DATA SKU PALING ATAS (compact, no horizontal scroll) -->
+  <div class="section card">
+    <h2>Data SKU</h2>
+    <div class="row" style="margin-bottom:8px">
+      <span class="btn" style="pointer-events:none">Dimensi cm</span>
+      <span class="btn" style="pointer-events:none">Berat kg</span>
+      <span class="btn" style="pointer-events:none">Stack = tumpukan unit sejenis</span>
+    </div>
+
+    <div class="sku-wrap">
+      <table class="sku">
+        <colgroup>
+          <!-- total 100% -->
+          <col style="width:18%">  <!-- SKU -->
+          <col style="width:9%">   <!-- Panjang -->
+          <col style="width:9%">   <!-- Lebar -->
+          <col style="width:9%">   <!-- Tinggi -->
+          <col style="width:9%">   <!-- Berat -->
+          <col style="width:7%">   <!-- Qty -->
+          <col style="width:9%">   <!-- Stack? -->
+          <col style="width:9%">   <!-- Max/Stack -->
+          <col style="width:16%">  <!-- Keterangan -->
+          <col style="width:5%">   <!-- Aksi -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Panjang<br>(cm)</th>
+            <th>Lebar<br>(cm)</th>
+            <th>Tinggi<br>(cm)</th>
+            <th>Berat<br>(kg)</th>
+            <th>Qty</th>
+            <th>Stack?</th>
+            <th>Max/Stack</th>
+            <th>Keterangan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="skuBody"></tbody>
+      </table>
+    </div>
+
+    <small class="note">Isi semua kolom numerik tanpa simbol. Max Stack adalah jumlah unit per kolom tumpukan.</small>
+  </div>
+
+  <!-- 2) PENGATURAN & FILTER ARMADA -->
+  <div class="section card">
+    <h2>Pengaturan & Filter Armada</h2>
+    <div class="row" style="gap:16px">
+      <div class="field" style="min-width:260px">
+        <label>Metode utama (tombol Hitung)</label>
+        <select id="primaryMethod">
+          <option value="lowerbound" selected>Lower-Bound</option>
+          <option value="greedy">Greedy Trip Builder</option>
+          <option value="floor2d">2D Floor-Packing</option>
+          <option value="heur3d">3D Heuristic Layering</option>
+        </select>
+        <small>“Hitung” menjalankan metode ini. “Compute All” menjalankan semua metode.</small>
+      </div>
+      <div class="field" style="min-width:220px">
+        <label>Rotasi SKU 90° di lantai</label>
+        <select id="rotOK"><option value="1" selected>Diizinkan</option><option value="0">Tidak</option></select>
+        <small>Menukar L dan W untuk pemadatan lantai.</small>
+      </div>
+      <div class="field" style="min-width:220px">
+        <label>Batas tinggi untuk bodi terbuka (cm)</label>
+        <input type="number" id="openHeight" value="200" min="50" step="5" />
+        <small>Dipakai untuk bak, flatbed, lowbed.</small>
+      </div>
+      <div class="field" style="min-width:220px">
+        <label>Filter bodi</label>
+        <select id="fltBody"><option value="">Semua</option><option>box</option><option>bak</option><option>wingbox</option><option>flatbed</option><option>lowbed</option><option>container</option></select>
+        <small>Fokus pada tipe tertentu.</small>
+      </div>
+      <div class="field" style="min-width:220px">
+        <label>Filter kelas tol</label>
+        <select id="fltTol"><option value="">Semua</option><option>I</option><option>II</option><option>III</option><option>IV</option><option>V</option></select>
+        <small>Indikasi golongan jalan tol.</small>
+      </div>
+      <div class="field" style="min-width:240px;flex:1">
+        <label>Cari armada</label>
+        <input type="text" id="fltText" placeholder="mis. tronton, 40HC, cdd box..." />
+        <small>Ketik kata kunci nama armada.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3) HASIL — TABS PER METODE -->
+  <div class="section card">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h2>Hasil Perbandingan per Metode</h2>
+      <div class="kpi">
+        <div class="box">Rekomendasi = <span class="pill" style="background:#0e213f;border-color:#234aa2;color:#cfe1ff">Biru</span></div>
+        <div class="box">Dipilih = <span class="pill ok">Hijau</span></div>
+      </div>
+    </div>
+
+    <div class="tabs" id="methodTabs">
+      <div class="tab active" data-panel="p-lb">Lower-Bound</div>
+      <div class="tab" data-panel="p-greedy">Greedy Trip</div>
+      <div class="tab" data-panel="p-2d">2D Floor-Packing</div>
+      <div class="tab" data-panel="p-3d">3D Heuristic</div>
+      <div class="tab" data-panel="p-milp">MILP Export</div>
+    </div>
+
+    <div id="p-lb" class="panel active">
+      <div style="overflow:auto; max-height:50vh;border-radius:10px;border:1px solid #23305a">
+        <table><thead>
+          <tr>
+            <th>Armada</th><th>Bodi</th><th>Tol</th><th>ASDP</th><th>Dimensi dalam (m)</th><th>Payload (t)</th>
+            <th>Trips Vol</th><th>Trips Wt</th><th>Trips Area</th><th>Trips</th><th>Occ Vol</th><th>Occ Wt</th><th>Feasibility</th>
+          </tr>
+        </thead><tbody id="lbBody"></tbody></table>
+      </div>
+    </div>
+
+    <div id="p-greedy" class="panel">
+      <div style="overflow:auto; max-height:50vh;border-radius:10px;border:1px solid #23305a">
+        <table><thead>
+          <tr><th>Armada</th><th>Bodi</th><th>Tol</th><th>ASDP</th><th>Trips</th><th>Occ Vol</th><th>Occ Wt</th><th>Feasibility</th><th>Catatan</th></tr>
+        </thead><tbody id="grBody"></tbody></table>
+      </div>
+    </div>
+
+    <div id="p-2d" class="panel">
+      <div style="overflow:auto; max-height:50vh;border-radius:10px;border:1px solid #23305a">
+        <table><thead>
+          <tr><th>Armada</th><th>Bodi</th><th>Tol</th><th>ASDP</th><th>Unit/layer</th><th>Layer/trip</th><th>Total unit/trip</th><th>Trips</th><th>Feasibility</th><th>Catatan</th></tr>
+        </thead><tbody id="fdBody"></tbody></table>
+      </div>
+      <small class="note">2D memakai MaxRects sederhana. Mixing multi-SKU per layer diaproksimasi urutan prioritas ukuran.</small>
+    </div>
+
+    <div id="p-3d" class="panel">
+      <div style="overflow:auto; max-height:50vh;border-radius:10px;border:1px solid #23305a">
+        <table><thead>
+          <tr><th>Armada</th><th>Bodi</th><th>Tol</th><th>ASDP</th><th>Layer tinggi (m)</th><th>Layer/trip</th><th>Unit/trip estimasi</th><th>Trips</th><th>Feasibility</th><th>Catatan</th></tr>
+        </thead><tbody id="thBody"></tbody></table>
+      </div>
+      <small class="note">3D heuristic: layering bertahap (heavy-bottom, no-overhang) dan cek tinggi kabin.</small>
+    </div>
+
+    <div id="p-milp" class="panel">
+      <div class="row" style="margin-bottom:8px">
+        <div class="field" style="min-width:260px;flex:1">
+          <label>Biaya per trip default (opsional, Rp)</label>
+          <input type="number" id="costDefault" placeholder="mis. 1.500.000" />
+          <small>Jika kosong, biaya tidak diekspor.</small>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn" id="btnExportMILP">Ekspor CSV untuk MILP</button>
+        <small class="note">Gunakan OR-Tools/CP-SAT atau Gurobi. Variabel x[fleet,trip] meminimasi biaya dengan pembatas volume/berat/area dan no-split unit.</small>
+      </div>
+      <div id="milpHint" style="margin-top:8px;color:#9fb0d6"></div>
+    </div>
+  </div>
+
+  <!-- 4) RINGKASAN -->
+  <div class="section" style="display:grid;gap:16px;grid-template-columns:1fr 1fr">
+    <div class="card"><h2>Ringkasan Rencana Saat Ini</h2><div id="summary"></div></div>
+    <div class="card"><h2>Catatan Validasi</h2><div id="notes"></div></div>
+  </div>
+</div>
+
+<!-- MODAL: PANDUAN METODE (materi lengkap + tol/ASDP) -->
+<div class="modal" id="whenModal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="panel" role="document">
+    <header class="modal-header" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <div style="font-weight:700">Panduan Memilih Metode Perhitungan</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn" id="btnCloseWhen" aria-label="Tutup panduan">Tutup</button>
+        <button class="btn" id="btnCloseWhenX" aria-label="Tutup panduan">✕</button>
+      </div>
+    </header>
+
+    <div class="note" style="margin-bottom:10px">
+      Setiap metode di bawah ini mematuhi <strong>single-piece feasibility</strong> dan batas <strong>payload</strong>/<strong>tinggi efektif</strong>.
+      Kolom <strong>Tol</strong> dan <strong>ASDP</strong> muncul di hasil semua metode untuk membantu estimasi biaya rute darat + penyeberangan.
+    </div>
+
+    <!-- Ringkasan mapping Tol & ASDP dari database armada -->
+    <div style="margin-bottom:12px;border:1px solid #263468;border-radius:12px;overflow:hidden">
+      <div style="padding:8px 12px;background:#0d1635;font-weight:600">Kelas Tol & Golongan ASDP pada Database Armada</div>
+      <div style="max-height:220px;overflow:auto">
+        <table style="width:100%">
+          <thead>
+            <tr><th>Armada</th><th>Bodi</th><th>Tol</th><th>ASDP</th><th>Dimensi dalam (m)</th><th>Payload (t)</th></tr>
+          </thead>
+          <tbody id="tolAsdpBody"></tbody>
+        </table>
+      </div>
+      <div class="note" style="padding:8px 12px">
+        Tol = Golongan kendaraan jalan tol. ASDP = golongan penyeberangan ferry (contoh: IVB, VB, VIB, VII, VIII, IX). Verifikasi tarif rute spesifik sebelum costing.
+      </div>
+    </div>
+
+    <!-- Accordion per metode -->
+    <div class="acc open" id="acc-lb">
+      <div class="acc-hd"><b>1) Lower-Bound</b><span class="chev">▶</span></div>
+      <div class="acc-bd">
+        <ul>
+          <li><b>Pakai saat</b>: quoting cepat, data SKU belum lengkap, variasi ukuran tidak ekstrem.</li>
+          <li><b>Rumus inti</b>: Trips = max( ⌈Total Volume ÷ Kapasitas Volume⌉, ⌈Total Berat ÷ Payload⌉, ⌈Kebutuhan Area Lantai ÷ Area Lantai⌉ ).</li>
+          <li><b>Kebutuhan Area Lantai</b>: ∑(Qty × L×W / layers), di mana <i>layers</i> dipengaruhi stackable dan tinggi efektif.</li>
+          <li><b>Tol & ASDP</b>: ditampilkan per armada di tabel hasil; gunakan untuk prarencana biaya (tol kelas I–V, ferry golongan IVB–IX).</li>
+          <li><b>Kelebihan</b>: sangat cepat, konservatif, stabil untuk baseline.</li>
+          <li><b>Batasan</b>: tidak memodelkan layout lantai/tinggi secara rinci; validasi dengan 2D/3D/Greedy saat padat.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc" id="acc-gr">
+      <div class="acc-hd"><b>2) Greedy Trip Builder</b><span class="chev">▶</span></div>
+      <div class="acc-bd">
+        <ul>
+          <li><b>Pakai saat</b>: rencana operasional harian; butuh hasil realistis cepat untuk mix SKU.</li>
+          <li><b>Algoritma</b>: sort unit (berat → luas → sisi terpanjang), isi trip berurutan sambil menghormati: no-split per unit, payload, area lantai, rotasi L/W, dan stack.</li>
+          <li><b>Output</b>: jumlah trip, occupancy volume/berat per armada, serta <b>Tol</b> & <b>ASDP</b> untuk estimasi biaya rute.</li>
+          <li><b>Kelebihan</b>: hasil praktis dan cepat, cocok untuk dispatching.</li>
+          <li><b>Batasan</b>: bukan optimum global, sensitif urutan; validasi dengan 2D/3D bila kepadatan tinggi.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc" id="acc-2d">
+      <div class="acc-hd"><b>3) 2D Floor-Packing (MaxRects)</b><span class="chev">▶</span></div>
+      <div class="acc-bd">
+        <ul>
+          <li><b>Pakai saat</b>: kendala utama di lantai (L×W); karton/pallet relatif seragam; perlu validasi orientasi 90°.</li>
+          <li><b>Langkah</b>: letakkan persegi panjang (L×W) ke lantai armada menggunakan MaxRects; hitung unit/layer → layer/trip (dibatasi tinggi efektif & stack) → total unit/trip.</li>
+          <li><b>Output</b>: unit/layer, layer/trip, total unit/trip, trips, serta <b>Tol</b> & <b>ASDP</b> tiap armada.</li>
+          <li><b>Kelebihan</b>: memperhitungkan orientasi & kepadatan lantai, lebih presisi dari agregasi area.</li>
+          <li><b>Batasan</b>: heuristik; vertikal konservatif; cross-SKU di layer diaproksimasi urutan ukuran.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc" id="acc-3d">
+      <div class="acc-hd"><b>4) 3D Heuristic Layering</b><span class="chev">▶</span></div>
+      <div class="acc-bd">
+        <ul>
+          <li><b>Pakai saat</b>: variasi tinggi dominan; perlu layering bertingkat (heavy-bottom) dengan batas tinggi kabin.</li>
+          <li><b>Langkah</b>: bentuk layer lantai via MaxRects, tentukan tinggi layer dari SKU tertebal di layer, tumpuk hingga tinggi efektif.</li>
+          <li><b>Output</b>: daftar tinggi layer, jumlah layer, estimasi unit/trip, trips, dan <b>Tol</b> & <b>ASDP</b> tiap armada.</li>
+          <li><b>Kelebihan</b>: mempertimbangkan L×W×H bertahap, aman untuk stabilitas.</li>
+          <li><b>Batasan</b>: konservatif; bukan optimum matematis; cocok untuk validasi lapangan.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="acc" id="acc-milp">
+      <div class="acc-hd"><b>5) MILP Cost-Based (Ekspor CSV)</b><span class="chev">▶</span></div>
+      <div class="acc-bd">
+        <ul>
+          <li><b>Pakai saat</b>: tender/optimasi biaya lintas armada dengan struktur biaya berbeda (tarif dasar, km, tol kelas I–V, ASDP rute tertentu).</li>
+          <li><b>Model</b>: minimasi ∑ biaya_fleet × trips_fleet, s.t. kapasitas volume/berat/area terpenuhi dan no-split unit; tambahkan penalti/biaya tetap per armada jika perlu.</li>
+          <li><b>Data</b>: gunakan ekspor CSV dari tab MILP (sudah memuat <i>tol</i> & <i>ASDP</i> dari database armada), lengkapi biaya pada solver.</li>
+          <li><b>Solver</b>: OR-Tools/CP-SAT, Gurobi, CPLEX, dsb.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: GLOSARIUM -->
+<div class="modal" id="glossaryModal" aria-hidden="true">
+  <div class="panel">
+    <header class="modal-header" style="display:flex;align-items:center;gap:10px;justify-content:space-between">
+      <div style="font-weight:700">Glosarium • Istilah di Simulator</div>
+      <button class="btn" id="btnCloseGloss">Tutup</button>
+    </header>
+    <div class="field" style="margin-bottom:8px">
+      <label>Cari istilah</label>
+      <input type="text" id="gSearch" placeholder="ketik untuk memfilter..." />
+    </div>
+    <div style="overflow:auto;max-height:65vh;border:1px solid #24325f;border-radius:10px">
+      <table id="gTable">
+        <thead>
+          <tr><th style="min-width:160px;position:sticky;top:0;background:#101633">Istilah</th><th style="position:sticky;top:0;background:#101633">Penjelasan</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <small class="note">Header tabel glosarium terkunci saat scroll.</small>
+  </div>
+</div>
+
+<!-- FAB Glossary -->
+<div class="fab"><button class="btn" id="btnGlossary" title="Glosarium">Glosarium</button></div>
+
+<footer>
+  <div class="inner">
+    <span>Marketing Department PT Utama Globalindo Cargo</span>
+    <span class="sep">•</span><span>© 2025</span>
+    <span class="sep">•</span><span>Built for planning use. Validasi vendor dan regulasi jalan/ASDP sebelum eksekusi.</span>
+  </div>
+</footer>
+
+<script>
+/* ====================== DATA ARMADA ====================== */
+const fleets = [
+  {id:'blindvan', name:'Blind Van', body:'box', tol:'I', asdp:'IVB', L:2.20, W:1.35, H:1.30, payload_ton:0.73},
+  {id:'pickup_box', name:'Pickup Box', body:'box', tol:'I', asdp:'IVB', L:2.30, W:1.40, H:1.24, payload_ton:1.00},
+  {id:'pickup_bak', name:'Pickup Bak', body:'bak', tol:'I', asdp:'IVB', L:2.30, W:1.40, H:0.30, payload_ton:1.00},
+  {id:'cde_box', name:'CDE Box (4x2)', body:'box', tol:'II', asdp:'VB', L:3.10, W:1.70, H:1.70, payload_ton:2.00},
+  {id:'cde_bak', name:'CDE Bak (4x2)', body:'bak', tol:'II', asdp:'VB', L:3.00, W:1.60, H:0.80, payload_ton:2.50},
+  {id:'cdd_box', name:'CDD Box (6 ban)', body:'box', tol:'II', asdp:'VB', L:4.50, W:2.00, H:2.00, payload_ton:5.00},
+  {id:'cdd_bak', name:'CDD Bak (6 ban)', body:'bak', tol:'II', asdp:'VB', L:4.50, W:2.00, H:2.00, payload_ton:5.00},
+  {id:'fuso_box', name:'Fuso Box', body:'box', tol:'II', asdp:'VIB', L:7.00, W:2.50, H:2.60, payload_ton:10.00},
+  {id:'fuso_bak', name:'Fuso Bak', body:'bak', tol:'II', asdp:'VIB', L:5.50, W:2.20, H:2.20, payload_ton:8.00},
+  {id:'tronton_box', name:'Tronton Box', body:'box', tol:'III', asdp:'VII', L:9.50, W:2.40, H:2.40, payload_ton:18.00},
+  {id:'tronton_wing', name:'Tronton Wingbox', body:'wingbox', tol:'III', asdp:'VII', L:9.50, W:2.45, H:2.50, payload_ton:18.00},
+  {id:'trl_flat40', name:'Trailer Flatbed 12 m', body:'flatbed', tol:'V', asdp:'VIII', L:12.00, W:2.45, H:1.50, payload_ton:25.00},
+  {id:'trl_lowbed', name:'Trailer Lowbed', body:'lowbed', tol:'V', asdp:'VIII/IX', L:12.00, W:2.60, H:1.00, payload_ton:40.00},
+  {id:'cnt_20gp', name:'Trailer + Container 20’ GP', body:'container', tol:'IV', asdp:'VII/VIII', L:5.90, W:2.35, H:2.39, payload_ton:28.10},
+  {id:'cnt_40std', name:'Trailer + Container 40’ STD', body:'container', tol:'V', asdp:'VIII/IX', L:12.03, W:2.35, H:2.39, payload_ton:28.75},
+  {id:'cnt_40hc', name:'Trailer + Container 40’ HC', body:'container', tol:'V', asdp:'VIII/IX', L:12.03, W:2.35, H:2.70, payload_ton:28.60}
+];
+
+/* ====================== UTIL & GLOSARIUM ====================== */
+const el = s => document.querySelector(s);
+const ce = (t,c) => {const e=document.createElement(t); if(c) e.className=c; return e;}
+function area(L,W){return L*W} // m²
+function vol(L,W,H){return L*W*H} // m³
+function heightCap(truck, openHcm){
+  return (['box','wingbox','container'].includes(truck.body)) ? truck.H : (openHcm/100);
+}
+function canPlaceLW(l,w,truck,rotOK){
+  return (l<=truck.L && w<=truck.W) || (rotOK && w<=truck.L && l<=truck.W);
+}
+function singlePieceFeasible(sku, truck, rotOK, openHcm){
+  const l=sku.L/100, w=sku.W/100, h=sku.H/100, wt=sku.weight/1000;
+  const hcap = heightCap(truck, openHcm);
+  const dimOK = canPlaceLW(l,w,truck,rotOK) && (h<=hcap);
+  const wtOK  = wt <= truck.payload_ton;
+  const reasons=[];
+  if(!canPlaceLW(l,w,truck,rotOK)) reasons.push('L/W unit > lantai');
+  if(h>hcap) reasons.push('tinggi unit > batas kabin');
+  if(!wtOK) reasons.push('berat unit > payload');
+  return {ok:(dimOK && wtOK), reasons};
+}
+const glossary = [
+  ['Single-piece feasibility','Satu unit SKU harus muat ke armada: cek L/W/H vs ruang muat dan berat per unit vs payload. Jika gagal, armada tidak direkomendasikan.'],
+  ['Lower-Bound','Trip total = max(Trips by Volume, Trips by Berat, Trips by Area). Cepat & aman sebagai estimasi awal.'],
+  ['Greedy Trip Builder','Membangun trip satu per satu, hormati no-split unit, stacking, berat, dan lantai. Realistis & cepat.'],
+  ['2D Floor-Packing','Packing lantai (L×W) dengan MaxRects sederhana untuk estimasi unit/layer dan layer/trip.'],
+  ['3D Heuristic Layering','Layering vertikal (L×W×H) heavy-bottom, konservatif demi stabilitas.'],
+  ['Open Height','Batas tinggi praktis untuk bodi terbuka (bak/flatbed/lowbed).'],
+  ['Rotasi 90°','Menukar panjang vs lebar saat cek muat lantai.'],
+  ['Occupancy','Tingkat terpakai vs kapasitas volume/berat total per trip.']
+];
+
+/* ====================== SKU TABLE ====================== */
+const skuBody = el('#skuBody');
+function addSkuRow(data={}){
+  const tr = ce('tr');
+  tr.innerHTML = `
+    <td><input type="text" placeholder="SKU name" value="${data.name||''}"></td>
+    <td><input type="number" min="0.1" step="0.1" value="${data.L??''}" title="Panjang (cm)"></td>
+    <td><input type="number" min="0.1" step="0.1" value="${data.W??''}" title="Lebar (cm)"></td>
+    <td><input type="number" min="0.1" step="0.1" value="${data.H??''}" title="Tinggi (cm)"></td>
+    <td><input type="number" min="0.01" step="0.01" value="${data.weight??''}" title="Berat (kg)"></td>
+    <td><input type="number" min="1" step="1" value="${data.qty??1}" title="Kuantitas"></td>
+    <td><select><option value="1" ${(data.stackable??1)?'selected':''}>Ya</option><option value="0" ${data.stackable===0?'selected':''}>Tidak</option></select></td>
+    <td><input type="number" min="1" step="1" value="${data.maxStack??1}" title="Max unit per kolom"></td>
+    <td><input type="text" placeholder="Catatan" value="${data.note||''}"></td>
+    <td><button class="btn btn-del">Hapus</button></td>`;
+  tr.querySelector('.btn-del').onclick = ()=> tr.remove();
+  skuBody.appendChild(tr);
+}
+function readSkus(){
+  const rows=[...skuBody.querySelectorAll('tr')];
+  return rows.map(r=>{
+    const t = [...r.querySelectorAll('input,select')];
+    return {
+      name:t[0].value.trim()||'(SKU)',
+      L:parseFloat(t[1].value), W:parseFloat(t[2].value), H:parseFloat(t[3].value),
+      weight:parseFloat(t[4].value), qty:parseInt(t[5].value||'0',10),
+      stackable:parseInt(t[6].value||'0',10),
+      maxStack:parseInt(t[7].value||'1',10),
+      note:t[8].value.trim()
+    };
+  }).filter(v=>!Number.isNaN(v.L) && !Number.isNaN(v.W) && !Number.isNaN(v.H) && !Number.isNaN(v.weight) && v.qty>0);
+}
+
+/* ====================== FILTER ARMADA ====================== */
+function filterFleets(){
+  const bodyFilter = el('#fltBody').value.trim().toLowerCase();
+  const tolFilter  = el('#fltTol').value.trim().toUpperCase();
+  const textFilter = el('#fltText').value.trim().toLowerCase();
+  return fleets.filter(f=>{
+    if(bodyFilter && f.body!==bodyFilter) return false;
+    if(tolFilter && f.tol!==tolFilter) return false;
+    if(textFilter && !(`${f.name} ${f.body}`.toLowerCase().includes(textFilter))) return false;
+    return true;
+  });
+}
+
+/* ====================== COMMON TOTALS ====================== */
+function totalsFromSkus(skus){
+  let V=0, Wt=0;
+  skus.forEach(s=>{ V += (s.L/100)*(s.W/100)*(s.H/100)*s.qty; Wt += (s.weight*s.qty)/1000; });
+  return {V,Wt};
+}
+
+/* ====================== METHOD: LOWER-BOUND ====================== */
+function runLowerBound(skus, openH, rotOK){
+  const {V,Wt} = totalsFromSkus(skus);
+  const rows=[]; let best=Infinity, bestIdx=-1;
+  filterFleets().forEach((truck)=>{
+    const hcap = heightCap(truck, openH);
+    const volCap = vol(truck.L, truck.W, hcap);
+    const floorA = area(truck.L, truck.W);
+    let areaNeed=0, fatal=false, fatalReasons=[];
+    skus.forEach(s=>{
+      const chk = singlePieceFeasible(s,truck,rotOK,openH);
+      if(!chk.ok){ fatal=true; fatalReasons.push(`${s.name}: ${chk.reasons.join(', ')}`); }
+      const layers = s.stackable ? Math.min(s.maxStack, Math.max(1, Math.floor((hcap*100)/s.H))) : 1;
+      areaNeed += (s.qty * (s.L/100)*(s.W/100)) / (layers||1);
+    });
+    if(fatal){
+      rows.push({truck,tV:'N/A',tW:'N/A',tA:'N/A',trips:'N/A',occV:'-',occW:'-',note:'❌ '+fatalReasons.join(' | ')});
+      return;
+    }
+    const tV = Math.ceil(V/Math.max(1e-9, volCap));
+    const tW = Math.ceil(Wt/Math.max(1e-9, truck.payload_ton));
+    const tA = Math.ceil(areaNeed/Math.max(1e-9, floorA));
+    const trips = Math.max(tV,tW,tA);
+    const occV = Math.min(100, (V/(volCap*trips))*100);
+    const occW = Math.min(100, (Wt/(truck.payload_ton*trips))*100);
+    if(trips<best){ best=trips; bestIdx=rows.length; }
+    rows.push({truck,tV,tW,tA,trips,occV,occW,note:'OK'});
+  });
+  return {rows,bestIdx};
+}
+
+/* ====================== METHOD: GREEDY TRIP BUILDER ====================== */
+function runGreedy(skus, openH, rotOK){
+  const rows=[]; let best=Infinity, bestIdx=-1;
+  const units = skus.flatMap(s=>Array.from({length:s.qty}, ()=>({
+    name:s.name, l:s.L/100, w:s.W/100, h:s.H/100, wt:s.weight/1000,
+    stack:s.stackable, maxStack:s.maxStack
+  })));
+  units.sort((a,b)=> b.wt - a.wt || (b.l*b.w)-(a.l*a.w) || Math.max(b.l,b.w)-Math.max(a.l,a.w));
+
+  filterFleets().forEach((truck)=>{
+    const hcap=heightCap(truck,openH), floorA=area(truck.L,truck.W), volCap=vol(truck.L,truck.W,hcap);
+    // single-piece feasibility
+    for(const s of skus){ const chk=singlePieceFeasible(s,truck,rotOK,openH); if(!chk.ok){
+      rows.push({truck,trips:'N/A',occV:'-',occW:'-',note:'❌ '+`${s.name}: ${chk.reasons.join(', ')}`}); return;
+    }}
+    let remaining = units.map(u=>({...u}));
+    let trips=0, usedVol=0, usedWt=0;
+    while(remaining.length){
+      trips++;
+      let capVol=volCap, capWt=truck.payload_ton, capArea=floorA;
+      const placedIdx=[];
+      for(let i=0;i<remaining.length;i++){
+        const u=remaining[i];
+        if(u.wt>capWt) continue;
+        if(!canPlaceLW(u.l,u.w,truck,rotOK)) continue;
+        const layers = u.stack? Math.max(1, Math.floor((hcap*100)/(u.h*100))) : 1;
+        const areaCost = (u.l*u.w)/Math.max(1,layers);
+        const volCost = u.l*u.w*Math.min(u.h,hcap);
+        if(areaCost>capArea || volCost>capVol) continue;
+        capWt -= u.wt; capArea -= areaCost; capVol -= volCost;
+        usedWt += u.wt; usedVol += volCost;
+        placedIdx.push(i);
+      }
+      for(let j=placedIdx.length-1;j>=0;j--) remaining.splice(placedIdx[j],1);
+      if(placedIdx.length===0){
+        const u = remaining.shift(); // force 1 unit
+        if(u){ usedWt += u.wt; usedVol += u.l*u.w*Math.min(u.h,hcap); }
+      }
+    }
+    const occV = Math.min(100, (usedVol/(volCap*trips))*100);
+    const occW = Math.min(100, (usedWt/(truck.payload_ton*trips))*100);
+    if(trips<best){ best=trips; bestIdx=rows.length; }
+    rows.push({truck,trips,occV,occW,note:'OK'});
+  });
+  return {rows,bestIdx};
+}
+
+/* ====================== METHOD: 2D FLOOR-PACKING (MaxRects) ====================== */
+function placeRectangles_MaxRects(floorL,floorW,rects,rotOK){
+  let free=[{x:0,y:0,w:floorL,h:floorW}], placed=0;
+  function prune(){
+    for(let i=0;i<free.length;i++){
+      for(let j=i+1;j<free.length;j++){
+        const a=free[i], b=free[j];
+        if(a && b){
+          if(a.x>=b.x && a.y>=b.y && a.x+a.w<=b.x+b.w && a.y+a.h<=b.y+b.h){ free.splice(i,1); i--; break; }
+          if(b.x>=a.x && b.y>=a.y && b.x+b.w<=a.x+a.w && b.y+b.h<=a.y+a.h){ free.splice(j,1); j--; }
+        }
+      }
+    }
+  }
+  function tryPlace(rw,rl){
+    let bestIdx=-1, bestScore=Infinity;
+    for(let i=0;i<free.length;i++){
+      const f=free[i];
+      if(rw<=f.w && rl<=f.h){
+        const score = Math.min(f.w-rw, f.h-rl);
+        if(score<bestScore){ bestScore=score; bestIdx=i; }
+      }
+    }
+    if(bestIdx<0) return false;
+    const f=free.splice(bestIdx,1)[0];
+    if(f.w - rw > 1e-6) free.push({x:f.x+rw, y:f.y, w:f.w-rw, h:rl});
+    if(f.h - rl > 1e-6) free.push({x:f.x, y:f.y+rl, w:f.w, h:f.h-rl});
+    prune(); return true;
+  }
+  const items=[]; rects.forEach(r=>{ for(let i=0;i<r.count;i++) items.push({w:r.w, l:r.l}); });
+  items.sort((a,b)=> Math.max(b.w,b.l)-Math.max(a.w,a.l) || (b.w*b.l)-(a.w*a.l));
+  for(const it of items){
+    let ok = tryPlace(it.w,it.l);
+    if(!ok && rotOK) ok = tryPlace(it.l,it.w);
+    if(ok) placed++; else break;
+  }
+  return placed;
+}
+function run2DFloor(skus,openH,rotOK){
+  const rows=[]; let best=Infinity, bestIdx=-1;
+  filterFleets().forEach((truck)=>{
+    const hcap=heightCap(truck,openH);
+    for(const s of skus){ const chk=singlePieceFeasible(s,truck,rotOK,openH); if(!chk.ok){
+      rows.push({truck,unitPerLayer:0,layers:0,totalPerTrip:0,trips:'N/A',note:'❌ '+`${s.name}: ${chk.reasons.join(', ')}`}); return;
+    }}
+    const rects = skus.map(s=>({w:s.L/100, l:s.W/100, count:s.qty}));
+    const unitPerLayer = placeRectangles_MaxRects(truck.L, truck.W, rects, rotOK);
+    const maxH = Math.max(...skus.map(s=>s.H/100));
+    const layersByHeight = Math.max(1, Math.floor(hcap / maxH));
+    const layersBySku = Math.min(...skus.map(s=> s.stackable ? Math.min(s.maxStack, Math.max(1, Math.floor((hcap*100)/s.H))) : 1 ));
+    const layers = Math.max(1, Math.min(layersByHeight, layersBySku));
+    const totalUnitsTrip = unitPerLayer * layers;
+    const totalQty = skus.reduce((a,s)=>a+s.qty,0);
+    const trips = totalUnitsTrip>0 ? Math.ceil(totalQty/totalUnitsTrip) : 'N/A';
+    if(typeof trips==='number' && trips<best){ best=trips; bestIdx=rows.length; }
+    rows.push({truck,unitPerLayer,layers,totalPerTrip:totalUnitsTrip,trips,note:'OK'});
+  });
+  return {rows,bestIdx};
+}
+
+/* ====================== METHOD: 3D HEURISTIC LAYERING ====================== */
+function run3DHeuristic(skus,openH,rotOK){
+  const rows=[]; let best=Infinity, bestIdx=-1;
+  const skuOrder=[...skus].sort((a,b)=> (b.weight - a.weight) || (b.H - a.H));
+  filterFleets().forEach((truck)=>{
+    const hcap=heightCap(truck,openH);
+    for(const s of skus){ const chk=singlePieceFeasible(s,truck,rotOK,openH); if(!chk.ok){
+      rows.push({truck,layerH:'-',layers:0,unitsTrip:0,trips:'N/A',note:'❌ '+`${s.name}: ${chk.reasons.join(', ')}`}); return;
+    }}
+    let qtyLeft = Object.fromEntries(skuOrder.map(s=>[s.name,s.qty]));
+    const layerHList=[]; let totalH=0, unitsTrip=0;
+    while(true){
+      const rects=[]; skuOrder.forEach(s=>{ const c=qtyLeft[s.name]||0; if(c>0) rects.push({w:s.L/100,l:s.W/100,count:c}); });
+      if(!rects.length) break;
+      const placed = placeRectangles_MaxRects(truck.L,truck.W,rects,rotOK);
+      if(placed===0) break;
+      let layerH=0, left=placed;
+      for(const s of skuOrder){
+        const canTake = Math.min(qtyLeft[s.name]||0, left);
+        if(canTake>0){ layerH = Math.max(layerH, s.H/100); left -= canTake; }
+        if(left<=0) break;
+      }
+      if(totalH + layerH > hcap + 1e-9) break;
+      layerHList.push(layerH); totalH += layerH; unitsTrip += placed;
+      let reduce=placed;
+      for(const s of skuOrder){
+        const use = Math.min(qtyLeft[s.name]||0, reduce);
+        qtyLeft[s.name] = (qtyLeft[s.name]||0) - use;
+        reduce -= use; if(reduce<=0) break;
+      }
+      const remainingHs = skuOrder.filter(s=>(qtyLeft[s.name]||0)>0).map(s=>s.H/100);
+      const minNextH = remainingHs.length? Math.min(...remainingHs) : Infinity;
+      if(hcap-totalH<minNextH) break;
+    }
+    const totalQty = skus.reduce((a,s)=>a+s.qty,0);
+    const trips = unitsTrip>0 ? Math.ceil(totalQty/unitsTrip) : 'N/A';
+    if(typeof trips==='number' && trips<best){ best=trips; bestIdx=rows.length; }
+    rows.push({truck,layerH:layerHList.map(v=>v.toFixed(2)).join('+')||'-',layers:layerHList.length,unitsTrip,trips,note:'OK'});
+  });
+  return {rows,bestIdx};
+}
+
+/* ====================== MILP EXPORT ====================== */
+function exportMILPCSV(skus, openH, rotOK){
+  const lines=[];
+  lines.push('type,id,name,body,tol,asdp,L_m,W_m,H_m,height_cap_m,payload_t,rotOK,openH_cm');
+  filterFleets().forEach(t=>{
+    lines.push(['fleet',t.id,t.name,t.body,t.tol,t.asdp,t.L,t.W,t.H,heightCap(t,openH),t.payload_ton,rotOK?1:0,openH].join(','));
+  });
+  lines.push('type,sku,name,L_cm,W_cm,H_cm,weight_kg,qty,stackable,maxStack');
+  skus.forEach((s,i)=>{
+    lines.push(['sku',i+1,s.name,s.L,s.W,s.H,s.weight,s.qty,s.stackable,s.maxStack].join(','));
+  });
+  const blob = new Blob([lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = ce('a'); a.href=url; a.download='ugc_fleet_milp_export.csv'; a.click(); URL.revokeObjectURL(url);
+  el('#milpHint').textContent = 'CSV diekspor. Lengkapi komponen biaya (tarif, tol kelas, ASDP) di solver untuk optimasi biaya.';
+}
+
+/* ====================== RENDERERS ====================== */
+let selectedLB=-1, selectedGR=-1, selectedFD=-1, selectedTH=-1;
+function renderLB(res){
+  const tb=el('#lbBody'); tb.innerHTML='';
+  res.rows.forEach((r,i)=>{
+    const tr=ce('tr'); if(i===res.bestIdx) tr.classList.add('reco'); if(i===selectedLB) tr.classList.add('selected');
+    const pillClass = String(r.note).startsWith('❌')?'bad':'ok';
+    tr.innerHTML=`
+      <td><strong>${r.truck.name}</strong></td><td>${r.truck.body}</td><td>${r.truck.tol}</td><td>${r.truck.asdp}</td>
+      <td>${r.truck.L.toFixed(2)} × ${r.truck.W.toFixed(2)} × ${r.truck.H.toFixed(2)}</td>
+      <td>${r.truck.payload_ton.toFixed(2)}</td>
+      <td>${r.tV}</td><td>${r.tW}</td><td>${r.tA}</td>
+      <td><span class="pill ${pillClass}">${r.trips}</span></td>
+      <td>${typeof r.occV==='number'? r.occV.toFixed(0)+'%':'-'}</td>
+      <td>${typeof r.occW==='number'? r.occW.toFixed(0)+'%':'-'}</td>
+      <td>${r.note}</td>`;
+    tr.onclick=()=>{ selectedLB=(selectedLB===i?-1:i); renderLB(res); };
+    tb.appendChild(tr);
+  });
+}
+function renderGR(res){
+  const tb=el('#grBody'); tb.innerHTML='';
+  res.rows.forEach((r,i)=>{
+    const tr=ce('tr'); if(i===res.bestIdx) tr.classList.add('reco'); if(i===selectedGR) tr.classList.add('selected');
+    const pillClass = String(r.note).startsWith('❌')?'bad':'ok';
+    tr.innerHTML=`
+      <td><strong>${r.truck.name}</strong></td><td>${r.truck.body}</td><td>${r.truck.tol}</td><td>${r.truck.asdp}</td>
+      <td><span class="pill ${pillClass}">${r.trips}</span></td>
+      <td>${typeof r.occV==='number'? r.occV.toFixed(0)+'%':'-'}</td>
+      <td>${typeof r.occW==='number'? r.occW.toFixed(0)+'%':'-'}</td>
+      <td>${String(r.note).startsWith('❌')?'Tidak feasible':'Feasible'}</td>
+      <td>${r.note}</td>`;
+    tr.onclick=()=>{ selectedGR=(selectedGR===i?-1:i); renderGR(res); };
+    tb.appendChild(tr);
+  });
+}
+function renderFD(res){
+  const tb=el('#fdBody'); tb.innerHTML='';
+  res.rows.forEach((r,i)=>{
+    const tr=ce('tr'); if(i===res.bestIdx) tr.classList.add('reco'); if(i===selectedFD) tr.classList.add('selected');
+    const pillClass = String(r.note).startsWith('❌')?'bad':'ok';
+    tr.innerHTML=`
+      <td><strong>${r.truck.name}</strong></td><td>${r.truck.body}</td><td>${r.truck.tol}</td><td>${r.truck.asdp}</td>
+      <td>${r.unitPerLayer}</td><td>${r.layers}</td><td>${r.totalPerTrip}</td>
+      <td><span class="pill ${pillClass}">${r.trips}</span></td>
+      <td>${String(r.note).startsWith('❌')?'Tidak feasible':'Feasible'}</td>
+      <td>${r.note}</td>`;
+    tr.onclick=()=>{ selectedFD=(selectedFD===i?-1:i); renderFD(res); };
+    tb.appendChild(tr);
+  });
+}
+function renderTH(res){
+  const tb=el('#thBody'); tb.innerHTML='';
+  res.rows.forEach((r,i)=>{
+    const tr=ce('tr'); if(i===res.bestIdx) tr.classList.add('reco'); if(i===selectedTH) tr.classList.add('selected');
+    const pillClass = String(r.note).startsWith('❌')?'bad':'ok';
+    tr.innerHTML=`
+      <td><strong>${r.truck.name}</strong></td><td>${r.truck.body}</td><td>${r.truck.tol}</td><td>${r.truck.asdp}</td>
+      <td>${r.layerH}</td><td>${r.layers}</td><td>${r.unitsTrip}</td>
+      <td><span class="pill ${pillClass}">${r.trips}</span></td>
+      <td>${String(r.note).startsWith('❌')?'Tidak feasible':'Feasible'}</td>
+      <td>${r.note}</td>`;
+    tr.onclick=()=>{ selectedTH=(selectedTH===i?-1:i); renderTH(res); };
+    tb.appendChild(tr);
+  });
+}
+
+/* ====================== SUMMARY ====================== */
+function updateSummary(all){
+  const s=el('#summary'), n=el('#notes');
+  const txt = (tag,res)=> res && typeof res.bestIdx==='number' && res.bestIdx>=0
+     ? `${tag}: ${res.rows[res.bestIdx].truck.name} • ${res.rows[res.bestIdx].trips} trip`
+     : `${tag}: -`;
+  s.innerHTML = `
+    <div class="kpi">
+      <div class="box">${txt('Lower-Bound',all.lb)}</div>
+      <div class="box">${txt('Greedy',all.gr)}</div>
+      <div class="box">${txt('2D',all.fd)}</div>
+      <div class="box">${txt('3D',all.th)}</div>
+    </div>
+  `;
+  n.innerHTML = `
+    <ul style="margin:6px 0 0 18px">
+      <li>Semua metode mematuhi <i>no-split</i> untuk satu unit SKU.</li>
+      <li>2D/3D konservatif untuk keselamatan & stabilitas.</li>
+      <li>Manfaatkan kolom Tol & ASDP untuk skenario biaya lintas rute darat-laut.</li>
+    </ul>
+  `;
+}
+
+/* ====================== ACTIONS ====================== */
+function computeAll(){
+  const skus=readSkus(); if(!skus.length){ alert('Tambahkan minimal 1 SKU.'); return; }
+  const rotOK = el('#rotOK').value==='1'; const openH = parseFloat(el('#openHeight').value||'200');
+  const lb = runLowerBound(skus,openH,rotOK); renderLB(lb);
+  const gr = runGreedy(skus,openH,rotOK); renderGR(gr);
+  const fd = run2DFloor(skus,openH,rotOK); renderFD(fd);
+  const th = run3DHeuristic(skus,openH,rotOK); renderTH(th);
+  updateSummary({lb,gr,fd,th});
+}
+function computePrimary(){
+  const method = el('#primaryMethod').value;
+  const skus=readSkus(); if(!skus.length){ alert('Tambahkan minimal 1 SKU.'); return; }
+  const rotOK = el('#rotOK').value==='1'; const openH = parseFloat(el('#openHeight').value||'200');
+  if(method==='lowerbound'){ const r=runLowerBound(skus,openH,rotOK); renderLB(r); el('[data-panel="p-lb"]').click(); updateSummary({lb:r}); }
+  if(method==='greedy'){ const r=runGreedy(skus,openH,rotOK); renderGR(r); el('[data-panel="p-greedy"]').click(); updateSummary({gr:r}); }
+  if(method==='floor2d'){ const r=run2DFloor(skus,openH,rotOK); renderFD(r); el('[data-panel="p-2d"]').click(); updateSummary({fd:r}); }
+  if(method==='heur3d'){ const r=run3DHeuristic(skus,openH,rotOK); renderTH(r); el('[data-panel="p-3d"]').click(); updateSummary({th:r}); }
+}
+
+/* ====================== TABS ====================== */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll('.tab').forEach(z=>z.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(z=>z.classList.remove('active'));
+    t.classList.add('active');
+    el('#'+t.dataset.panel).classList.add('active');
+  };
+});
+
+/* ====================== BUTTONS ====================== */
+el('#btnAddSku').onclick = ()=> addSkuRow();
+el('#btnSample').onclick = ()=>{
+  const sample=[
+    {name:'Karton 40×30×30',L:40,W:30,H:30,weight:8,qty:300,stackable:1,maxStack:4},
+    {name:'Mesin 60×40×45',L:60,W:40,H:45,weight:35,qty:40,stackable:0,maxStack:1},
+    {name:'Palletized 120×100×150',L:120,W:100,H:150,weight:350,qty:12,stackable:1,maxStack:2},
+  ];
+  skuBody.innerHTML=''; sample.forEach(addSkuRow);
+};
+el('#btnImport').onclick = ()=>{
+  const inp=ce('input'); inp.type='file'; inp.accept='.csv,text/csv';
+  inp.onchange=()=>{
+    const f=inp.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      const lines=rd.result.split(/\r?\n/).filter(Boolean);
+      const data=[]; for(let i=1;i<lines.length;i++){
+        const t=lines[i].split(',');
+        if(t.length<6) continue;
+        data.push({name:t[0],L:+t[1],W:+t[2],H:+t[3],weight:+t[4],qty:+t[5],stackable:+(t[6]||1),maxStack:+(t[7]||1),note:t[8]||''});
+      }
+      skuBody.innerHTML=''; data.forEach(addSkuRow);
+    }; rd.readAsText(f);
+  }; inp.click();
+};
+el('#btnExport').onclick = ()=>{
+  const skus = readSkus();
+  if(!skus.length){ alert('Tidak ada data SKU.'); return; }
+  const head=['name','L(cm)','W(cm)','H(cm)','weight(kg)','qty','stackable(0/1)','maxStack','note'];
+  const rows=skus.map(s=>[s.name,s.L,s.W,s.H,s.weight,s.qty,s.stackable,s.maxStack,s.note].join(','));
+  const csv=head.join(',')+'\n'+rows.join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob); const a=ce('a'); a.href=url; a.download='sku_fleet.csv'; a.click(); URL.revokeObjectURL(url);
+};
+el('#btnReset').onclick=()=>{
+  if(!confirm('Reset semua input?')) return;
+  skuBody.innerHTML=''; addSkuRow();
+  el('#rotOK').value='1'; el('#openHeight').value=200; el('#fltBody').value=''; el('#fltTol').value=''; el('#fltText').value='';
+  el('#lbBody').innerHTML=''; el('#grBody').innerHTML=''; el('#fdBody').innerHTML=''; el('#thBody').innerHTML='';
+  el('#summary').innerHTML=''; el('#notes').innerHTML='';
+};
+el('#btnCalc').onclick = computePrimary;
+el('#btnCalcAll').onclick = computeAll;
+
+/* PANDUAN METODE modal: open/close + backdrop + ESC + accordion */
+const whenModal = document.getElementById('whenModal');
+const btnWhen = document.getElementById('btnWhen');
+const btnCloseWhen = document.getElementById('btnCloseWhen');
+const btnCloseWhenX = document.getElementById('btnCloseWhenX');
+function openWhen(){ whenModal.classList.add('show'); whenModal.setAttribute('aria-hidden','false'); setTimeout(()=>btnCloseWhen?.focus(),0); }
+function closeWhen(){ whenModal.classList.remove('show'); whenModal.setAttribute('aria-hidden','true'); }
+btnWhen.onclick = openWhen; btnCloseWhen.onclick = closeWhen; btnCloseWhenX.onclick = closeWhen;
+whenModal.addEventListener('click', (e)=>{ if(e.target===whenModal) closeWhen(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && whenModal.classList.contains('show')) closeWhen(); });
+document.querySelectorAll('.acc .acc-hd').forEach(hd=>{
+  hd.addEventListener('click', ()=> hd.parentElement.classList.toggle('open'));
+});
+
+/* Render ringkasan Tol & ASDP di panduan (dynamic dari fleets) */
+(function renderTolAsdp(){
+  const tb = document.getElementById('tolAsdpBody'); tb.innerHTML='';
+  fleets.forEach(f=>{
+    const tr=ce('tr');
+    tr.innerHTML = `<td>${f.name}</td><td>${f.body}</td><td>${f.tol}</td><td>${f.asdp}</td>
+      <td>${f.L.toFixed(2)} × ${f.W.toFixed(2)} × ${f.H.toFixed(2)}</td><td>${f.payload_ton.toFixed(2)}</td>`;
+    tb.appendChild(tr);
+  });
+})();
+
+/* GLOSARIUM modal & FAB */
+const gModal = el('#glossaryModal');
+function openGloss(){ gModal.classList.add('show'); gModal.setAttribute('aria-hidden','false'); }
+function closeGloss(){ gModal.classList.remove('show'); gModal.setAttribute('aria-hidden','true'); }
+(function initGloss(){
+  const tb = gModal.querySelector('tbody'); tb.innerHTML='';
+  ([
+    ...glossary
+  ]).forEach(([k,v])=>{
+    const tr=ce('tr'); tr.innerHTML=`<td style="font-weight:600">${k}</td><td>${v}</td>`;
+    tb.appendChild(tr);
+  });
+  el('#gSearch').addEventListener('input', e=>{
+    const q = e.target.value.toLowerCase();
+    [...tb.querySelectorAll('tr')].forEach(tr=>{
+      tr.style.display = tr.innerText.toLowerCase().includes(q)? '' : 'none';
+    });
+  });
+})();
+el('#btnGlossary').onclick = openGloss;
+el('#btnCloseGloss').onclick = closeGloss;
+gModal.addEventListener('click', (e)=>{ if(e.target===gModal) closeGloss(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && gModal.classList.contains('show')) closeGloss(); });
+
+/* INIT */
+addSkuRow();
+</script>
+</body>
+</html>
